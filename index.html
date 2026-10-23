@@ -197,11 +197,12 @@ btnClear.addEventListener('click', () => {
   }
 });
 
-// Show map - opens Google Maps with all locations
+// Show map - opens Google Maps with all locations pinned on the map
 btnShowMap.addEventListener('click', () => {
   if (allLocations.length === 0) return;
-  const queries = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
-  const url = 'https://www.google.com/maps/dir/' + queries.join('/');
+  const first = encodeURIComponent(allLocations[0].address + ', ' + allLocations[0].city);
+  const waypoints = allLocations.slice(1).map(l => 'waypoint=' + encodeURIComponent(l.address + ', ' + l.city)).join('&');
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${first}&${waypoints}`;
   window.open(url, '_blank');
 });
 
