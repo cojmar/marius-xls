@@ -235,7 +235,7 @@ function render(locs) {
     <div class="card">
       <span class="company">${esc(l.company)}</span>
       <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
-      <a class="maps-link" href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
+      <a class="maps-link" href="#" data-address="${esc(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
       <button class="del-btn" data-idx="${i}">✕ Șterge</button>
     </div>
   `).join('');
@@ -265,6 +265,15 @@ searchBox.addEventListener('input', () => {
     l.city.toLowerCase().includes(q)
   );
   render(filtered);
+});
+
+// Maps link → route from current location to this single destination
+results.addEventListener('click', e => {
+  const link = e.target.closest('.maps-link');
+  if (!link) return;
+  e.preventDefault();
+  const dest = link.dataset.address;
+  window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
 });
 
 // Init
