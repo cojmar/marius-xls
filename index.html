@@ -145,6 +145,8 @@ const btnClear = document.getElementById('btnClear');
 let allLocations = [];
 let userLocation = null; // {lat, lng} — în memorie, se re-cere la fiecare click MAP
 
+const STORAGE_KEY = 'marius-xls-locations';
+
 // Load from localStorage on startup
 function loadFromStorage() {
   try {
