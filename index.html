@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Locații din Excel</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,64 +13,125 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   background: #f8f9fa;
   color: #1a1a2e;
-  padding: 24px;
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
 }
-h1 { font-size: 1.5rem; margin-bottom: 16px; }
+h1 { font-size: 1.3rem; margin-bottom: 12px; }
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: #6366f1;
+  color: #fff;
+  transition: background 0.2s;
+}
+.btn:hover { background: #4f46e5; }
+.btn.danger { background: #ef4444; }
+.btn.danger:hover { background: #dc2626; }
+.btn.secondary { background: #e5e7eb; color: #374151; }
+.btn.secondary:hover { background: #d1d5db; }
 .drop-zone {
   border: 2px dashed #6366f1;
   border-radius: 12px;
-  padding: 48px 24px;
+  padding: 32px 16px;
   text-align: center;
   cursor: pointer;
   transition: background 0.2s;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .drop-zone:hover, .drop-zone.dragover { background: #eef2ff; }
 .drop-zone input { display: none; }
-.drop-zone p { color: #6366f1; font-size: 1.1rem; }
-.drop-zone .hint { color: #888; font-size: 0.85rem; margin-top: 8px; }
+.drop-zone p { color: #6366f1; font-size: 1rem; }
+.drop-zone .hint { color: #888; font-size: 0.8rem; margin-top: 6px; }
+#map { height: 300px; border-radius: 12px; margin: 16px 0; display: none; }
 #results { display: none; }
-#results h2 { font-size: 1.1rem; margin: 24px 0 12px; }
+#results h2 { font-size: 1rem; margin: 16px 0 8px; }
 .card {
   background: #fff;
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 8px;
+  padding: 12px;
+  margin-bottom: 6px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-.card .company { font-weight: 600; flex: 1; }
-.card .address { color: #555; flex: 2; }
-.card a {
+.card .company { font-weight: 600; flex: 1 1 200px; }
+.card .address { color: #555; flex: 2 1 200px; font-size: 0.85rem; }
+.card a.maps-link {
   color: #6366f1;
   text-decoration: none;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   white-space: nowrap;
 }
-.card a:hover { background: #eef2ff; }
+.card a.maps-link:hover { background: #eef2ff; }
+.card .del-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.card .del-btn:hover { background: #fecaca; }
 .search-box {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .search-box:focus { outline: none; border-color: #6366f1; }
+#mapContainer { display: none; margin: 16px 0; }
+.count-badge {
+  background: #6366f1;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+@media (max-width: 600px) {
+  body { padding: 10px; }
+  .card .company, .card .address { flex: 1 1 100%; }
+  .toolbar { gap: 6px; }
+  .btn { padding: 6px 12px; font-size: 0.8rem; }
+}
 </style>
 </head>
 <body>
 
 <h1>📍 Locații din Excel</h1>
 
+<div class="toolbar">
+  <button class="btn" id="btnLoad">📁 Încarcă fișier</button>
+  <button class="btn secondary" id="btnShowMap">🗺️ Arată pe hartă</button>
+  <button class="btn danger" id="btnClear">🗑️ Șterge tot</button>
+</div>
+
 <div class="drop-zone" id="dropZone">
   <p>Deschide un fișier .xlsx sau .xls</p>
   <p class="hint">trage fișierul aici sau dă click</p>
   <input type="file" id="fileInput" accept=".xlsx,.xls">
+</div>
+
+<div id="mapContainer">
+  <div id="map"></div>
 </div>
 
 <input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa..." style="display:none;">
@@ -80,9 +143,41 @@ const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const searchBox = document.getElementById('searchBox');
 const results = document.getElementById('results');
+const mapContainer = document.getElementById('mapContainer');
+const btnLoad = document.getElementById('btnLoad');
+const btnShowMap = document.getElementById('btnShowMap');
+const btnClear = document.getElementById('btnClear');
 
 let allLocations = [];
+let map = null;
+let markers = [];
 
+const STORAGE_KEY = 'marius-xls-locations';
+
+// Load from localStorage on startup
+function loadFromStorage() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      allLocations = JSON.parse(data);
+      render(allLocations);
+      searchBox.style.display = 'block';
+      dropZone.style.display = 'none';
+    }
+  } catch(e) {
+    console.error('Failed to load from storage:', e);
+  }
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
+  } catch(e) {
+    console.error('Failed to save to storage:', e);
+  }
+}
+
+// Drop zone events
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -93,6 +188,53 @@ dropZone.addEventListener('drop', e => {
   if (files.length) readFile(files[0]);
 });
 fileInput.addEventListener('change', e => { if (e.target.files.length) readFile(e.target.files[0]); });
+
+// Load new file
+btnLoad.addEventListener('click', () => fileInput.click());
+
+// Delete all
+btnClear.addEventListener('click', () => {
+  if (confirm('Sigur vrei să ștergi toate locațiile?')) {
+    allLocations = [];
+    localStorage.removeItem(STORAGE_KEY);
+    dropZone.style.display = 'block';
+    results.style.display = 'none';
+    searchBox.style.display = 'none';
+    mapContainer.style.display = 'none';
+    if (map) { map.remove(); map = null; markers = []; }
+  }
+});
+
+// Show map
+btnShowMap.addEventListener('click', () => {
+  if (allLocations.length === 0) return;
+  mapContainer.style.display = 'block';
+  dropZone.style.display = 'none';
+  if (!map) {
+    map = L.map('map').setView([44.4268, 26.1025], 11); // Bucharest
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+  }
+  // Clear old markers
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  // Add markers
+  allLocations.forEach((l, i) => {
+    const query = encodeURIComponent(l.address + ', ' + l.city);
+    const link = `https://www.google.com/maps/search/${query}`;
+    const marker = L.marker([44.4268, 26.1025]).bindPopup(
+      `<b>${esc(l.company)}</b><br>${esc(l.address)}, ${esc(l.city)}<br><a href="${link}" target="_blank">📍 Google Maps</a>`
+    );
+    marker.on('click', () => {
+      render(allLocations);
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    });
+    marker.addTo(map);
+    markers.push(marker);
+  });
+  map.invalidateSize();
+});
 
 function readFile(file) {
   const reader = new FileReader();
@@ -108,6 +250,7 @@ function readFile(file) {
       city: r['Adresa     1: Orașul'] || ''
     })).filter(l => l.company || l.address);
 
+    saveToStorage();
     render(allLocations);
   };
   reader.readAsArrayBuffer(file);
@@ -117,13 +260,37 @@ function render(locs) {
   results.style.display = 'block';
   searchBox.style.display = 'block';
   dropZone.style.display = 'none';
-  results.innerHTML = `<h2>${locs.length} locații găsite</h2>` + locs.map(l => `
+  btnShowMap.style.display = 'inline-block';
+
+  results.innerHTML = `<h2>${locs.length} <span class="count-badge">locații</span></h2>` + locs.map((l, i) => `
     <div class="card">
       <span class="company">${esc(l.company)}</span>
       <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
-      <a href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Google Maps</a>
+      <a class="maps-link" href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
+      <button class="del-btn" data-idx="${i}">✕ Șterge</button>
     </div>
   `).join('');
+
+  // Attach delete handlers
+  results.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      allLocations.splice(idx, 1);
+      saveToStorage();
+      render(allLocations);
+      if (map) {
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        allLocations.forEach(l => {
+          const marker = L.marker([44.4268, 26.1025]).bindPopup(
+            `<b>${esc(l.company)}</b><br>${esc(l.address)}, ${esc(l.city)}<br><a href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank">📍 Google Maps</a>`
+          );
+          marker.addTo(map);
+          markers.push(marker);
+        });
+      }
+    });
+  });
 }
 
 function esc(s) {
@@ -141,6 +308,9 @@ searchBox.addEventListener('input', () => {
   );
   render(filtered);
 });
+
+// Init
+loadFromStorage();
 </script>
 
 </body>
