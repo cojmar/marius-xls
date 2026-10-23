@@ -143,8 +143,7 @@ const btnShowMap = document.getElementById('btnShowMap');
 const btnClear = document.getElementById('btnClear');
 
 let allLocations = [];
-
-const STORAGE_KEY = 'marius-xls-locations';
+let userLocation = null; // {lat, lng} — în memorie, se re-cere la fiecare click MAP
 
 // Load from localStorage on startup
 function loadFromStorage() {
@@ -197,12 +196,23 @@ btnClear.addEventListener('click', () => {
   }
 });
 
-// Show map - opens Google Maps with all locations
+// Show map - fetches fresh GPS each time (user may have moved)
 btnShowMap.addEventListener('click', () => {
   if (allLocations.length === 0) return;
-  const queries = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
-  const url = 'https://www.google.com/maps/dir/' + queries.join('/');
-  window.open(url, '_blank');
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      userLocation = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) };
+      const queries = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
+      const url = 'https://www.google.com/maps/dir/' + userLocation.lat + ',' + userLocation.lng + '/' + queries.join('/');
+      window.open(url, '_blank');
+    },
+    () => {
+      // Fallback: use 'current' (Google Maps geolocation)
+      const queries = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
+      const url = 'https://www.google.com/maps/dir/' + queries.join('/');
+      window.open(url, '_blank');
+    }
+  );
 });
 
 function readFile(file) {
@@ -267,17 +277,27 @@ searchBox.addEventListener('input', () => {
   render(filtered);
 });
 
-// Maps link → route from current location to this single destination
+// Maps link → route from current GPS location to this single destination
 results.addEventListener('click', e => {
   const link = e.target.closest('.maps-link');
   if (!link) return;
   e.preventDefault();
   const dest = link.dataset.address;
-  window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
+  if (userLocation) {
+    window.open('https://www.google.com/maps/dir/?api=1&origin=' + userLocation.lat + ',' + userLocation.lng + '&destination=' + encodeURIComponent(dest), '_blank');
+  } else {
+    window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
+  }
 });
 
 // Init
 loadFromStorage();
+navigator.geolocation.getCurrentPosition(
+  (pos) => {
+    userLocation = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) };
+  },
+  () => { userLocation = null; }
+);
 </script>
 <script src="xlsx.full.min.js"></script>
 
