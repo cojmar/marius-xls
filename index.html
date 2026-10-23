@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Locații din Excel</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -120,7 +118,7 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
 
 <div class="toolbar">
   <button class="btn" id="btnLoad">📁 Încarcă fișier</button>
-  <button class="btn secondary" id="btnShowMap">🗺️ Arată pe hartă</button>
+  <button class="btn secondary" id="btnShowMap">MAP</button>
   <button class="btn danger" id="btnClear">🗑️ Șterge tot</button>
 </div>
 
@@ -130,13 +128,9 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   <input type="file" id="fileInput" accept=".xlsx,.xls">
 </div>
 
-<div id="mapContainer">
-  <div id="map"></div>
-</div>
+<div id="results"></div>
 
 <input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa..." style="display:none;">
-
-<div id="results"></div>
 
 <script>
 const dropZone = document.getElementById('dropZone');
@@ -149,8 +143,6 @@ const btnShowMap = document.getElementById('btnShowMap');
 const btnClear = document.getElementById('btnClear');
 
 let allLocations = [];
-let map = null;
-let markers = [];
 
 const STORAGE_KEY = 'marius-xls-locations';
 
@@ -205,35 +197,12 @@ btnClear.addEventListener('click', () => {
   }
 });
 
-// Show map
+// Show map - opens Google Maps with all locations
 btnShowMap.addEventListener('click', () => {
   if (allLocations.length === 0) return;
-  mapContainer.style.display = 'block';
-  dropZone.style.display = 'none';
-  if (!map) {
-    map = L.map('map').setView([44.4268, 26.1025], 11); // Bucharest
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-  }
-  // Clear old markers
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-  // Add markers
-  allLocations.forEach((l, i) => {
-    const query = encodeURIComponent(l.address + ', ' + l.city);
-    const link = `https://www.google.com/maps/search/${query}`;
-    const marker = L.marker([44.4268, 26.1025]).bindPopup(
-      `<b>${esc(l.company)}</b><br>${esc(l.address)}, ${esc(l.city)}<br><a href="${link}" target="_blank">📍 Google Maps</a>`
-    );
-    marker.on('click', () => {
-      render(allLocations);
-      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-    });
-    marker.addTo(map);
-    markers.push(marker);
-  });
-  map.invalidateSize();
+  const queries = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
+  const url = 'https://www.google.com/maps/dir/' + queries.join('/');
+  window.open(url, '_blank');
 });
 
 function readFile(file) {
@@ -278,17 +247,6 @@ function render(locs) {
       allLocations.splice(idx, 1);
       saveToStorage();
       render(allLocations);
-      if (map) {
-        markers.forEach(m => map.removeLayer(m));
-        markers = [];
-        allLocations.forEach(l => {
-          const marker = L.marker([44.4268, 26.1025]).bindPopup(
-            `<b>${esc(l.company)}</b><br>${esc(l.address)}, ${esc(l.city)}<br><a href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank">📍 Google Maps</a>`
-          );
-          marker.addTo(map);
-          markers.push(marker);
-        });
-      }
     });
   });
 }
