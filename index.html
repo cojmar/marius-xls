@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locații din Excel</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f8f9fa;
+  color: #1a1a2e;
+  padding: 24px;
+}
+h1 { font-size: 1.5rem; margin-bottom: 16px; }
+.drop-zone {
+  border: 2px dashed #6366f1;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 24px;
+}
+.drop-zone:hover, .drop-zone.dragover { background: #eef2ff; }
+.drop-zone input { display: none; }
+.drop-zone p { color: #6366f1; font-size: 1.1rem; }
+.drop-zone .hint { color: #888; font-size: 0.85rem; margin-top: 8px; }
+#results { display: none; }
+#results h2 { font-size: 1.1rem; margin: 24px 0 12px; }
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.card .company { font-weight: 600; flex: 1; }
+.card .address { color: #555; flex: 2; }
+.card a {
+  color: #6366f1;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.card a:hover { background: #eef2ff; }
+.search-box {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+.search-box:focus { outline: none; border-color: #6366f1; }
+</style>
+</head>
+<body>
+
+<h1>📍 Locații din Excel</h1>
+
+<div class="drop-zone" id="dropZone">
+  <p>Deschide un fișier .xlsx sau .xls</p>
+  <p class="hint">trage fișierul aici sau dă click</p>
+  <input type="file" id="fileInput" accept=".xlsx,.xls">
+</div>
+
+<input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa..." style="display:none;">
+
+<div id="results"></div>
+
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const searchBox = document.getElementById('searchBox');
+const results = document.getElementById('results');
+
+let allLocations = [];
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length) readFile(files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) readFile(e.target.files[0]); });
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+    allLocations = rows.map(r => ({
+      company: r['Companie: Nume complet'] || '',
+      address: r['Adresa     1: Adresa'] || '',
+      city: r['Adresa     1: Orașul'] || ''
+    })).filter(l => l.company || l.address);
+
+    render(allLocations);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function render(locs) {
+  results.style.display = 'block';
+  searchBox.style.display = 'block';
+  dropZone.style.display = 'none';
+  results.innerHTML = `<h2>${locs.length} locații găsite</h2>` + locs.map(l => `
+    <div class="card">
+      <span class="company">${esc(l.company)}</span>
+      <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
+      <a href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Google Maps</a>
+    </div>
+  `).join('');
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+searchBox.addEventListener('input', () => {
+  const q = searchBox.value.toLowerCase().trim();
+  const filtered = allLocations.filter(l =>
+    l.company.toLowerCase().includes(q) ||
+    l.address.toLowerCase().includes(q) ||
+    l.city.toLowerCase().includes(q)
+  );
+  render(filtered);
+});
+</script>
+
+</body>
+</html>
