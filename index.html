@@ -50,6 +50,7 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
 .drop-zone input { display: none; }
 .drop-zone p { color: #6366f1; font-size: 1rem; }
 .drop-zone .hint { color: #888; font-size: 0.8rem; margin-top: 6px; }
+#map { height: 300px; border-radius: 12px; margin: 16px 0; display: none; }
 #results { display: none; }
 #results h2 { font-size: 1rem; margin: 16px 0 8px; }
 .card {
@@ -63,8 +64,6 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   gap: 8px;
   flex-wrap: wrap;
 }
-.card .check-col { flex: 0 0 auto; }
-.card .check-col input { width: 18px; height: 18px; cursor: pointer; }
 .card .company { font-weight: 600; flex: 1 1 200px; }
 .card .address { color: #555; flex: 2 1 200px; font-size: 0.85rem; }
 .card a.maps-link {
@@ -96,16 +95,9 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   margin-bottom: 12px;
 }
 .search-box:focus { outline: none; border-color: #6366f1; }
+#mapContainer { display: none; margin: 16px 0; }
 .count-badge {
   background: #6366f1;
-  color: #fff;
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  margin-left: 4px;
-}
-.selected-badge {
-  background: #22c55e;
   color: #fff;
   border-radius: 12px;
   padding: 2px 8px;
@@ -145,11 +137,13 @@ const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const searchBox = document.getElementById('searchBox');
 const results = document.getElementById('results');
+const mapContainer = document.getElementById('mapContainer');
 const btnLoad = document.getElementById('btnLoad');
 const btnShowMap = document.getElementById('btnShowMap');
 const btnClear = document.getElementById('btnClear');
 
 let allLocations = [];
+
 const STORAGE_KEY = 'marius-xls-locations';
 
 // Load from localStorage on startup
@@ -198,28 +192,17 @@ btnClear.addEventListener('click', () => {
     dropZone.style.display = 'block';
     results.style.display = 'none';
     searchBox.style.display = 'none';
+    mapContainer.style.display = 'none';
+    if (map) { map.remove(); map = null; markers = []; }
   }
 });
 
-// MAP button logic
+// Show map - opens Google Maps with all locations
 btnShowMap.addEventListener('click', () => {
-  const checked = results.querySelectorAll('.card input[type=checkbox]:checked');
-  if (checked.length === 0) {
-    // No selection: show ALL locations on map (pins)
-    const all = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
-    const url = 'https://www.google.com/maps/dir/?api=1&destination=' + all[0] + '&' + all.slice(1).map(w => 'waypoint=' + w).join('&');
-    window.open(url, '_blank');
-  } else {
-    // Some selected: route from current location to selected
-    const selected = [];
-    checked.forEach(cb => {
-      const idx = parseInt(cb.dataset.idx);
-      selected.push(allLocations[idx]);
-    });
-    const waypoints = selected.map(l => 'waypoint=' + encodeURIComponent(l.address + ', ' + l.city)).join('&');
-    const url = `https://www.google.com/maps/dir/?api=1&origin=current+location&${waypoints}`;
-    window.open(url, '_blank');
-  }
+  if (allLocations.length === 0) return;
+  const queries = allLocations.map(l => encodeURIComponent(l.address + ', ' + l.city));
+  const url = 'https://www.google.com/maps/dir/' + queries.join('/');
+  window.open(url, '_blank');
 });
 
 function readFile(file) {
@@ -250,10 +233,9 @@ function render(locs) {
 
   results.innerHTML = `<h2>${locs.length} <span class="count-badge">locații</span></h2>` + locs.map((l, i) => `
     <div class="card">
-      <span class="check-col"><input type="checkbox" data-idx="${i}"></span>
       <span class="company">${esc(l.company)}</span>
       <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
-      <a class="maps-link" href="https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
+      <a class="maps-link" href="https://www.google.com/maps/search/${encodeURIComponent(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
       <button class="del-btn" data-idx="${i}">✕ Șterge</button>
     </div>
   `).join('');
@@ -267,22 +249,6 @@ function render(locs) {
       render(allLocations);
     });
   });
-
-  // Update selected count badge
-  updateSelectedBadge();
-}
-
-function updateSelectedBadge() {
-  const checked = results.querySelectorAll('.card input[type=checkbox]:checked');
-  const badge = results.querySelector('.selected-badge');
-  if (badge) badge.remove();
-  if (checked.length > 0) {
-    const h2 = results.querySelector('h2');
-    const badgeEl = document.createElement('span');
-    badgeEl.className = 'selected-badge';
-    badgeEl.textContent = checked.length + ' selectate';
-    h2.appendChild(badgeEl);
-  }
 }
 
 function esc(s) {
