@@ -96,16 +96,11 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
 }
 .search-box:focus { outline: none; border-color: #6366f1; }
 #mapContainer { margin: 16px 0; }
-#mapContainer.fullscreen {
+#mapContainer:fullscreen {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   z-index: 9999; margin: 0; border-radius: 0;
 }
-#mapContainer.fullscreen #map { height: 100vh; }
-body.fullscreen .toolbar,
-body.fullscreen .drop-zone,
-body.fullscreen #searchBox,
-body.fullscreen #results,
-body.fullscreen h1 { display: none !important; }
+#mapContainer:fullscreen #map { height: 100vh; }
 .count-badge {
   background: #6366f1;
   color: #fff;
@@ -215,9 +210,13 @@ btnClear.addEventListener('click', () => {
   }
 });
 
-// MAP button → toggle fullscreen map
+// MAP button → fullscreen map (browser native API)
 btnShowMap.addEventListener('click', () => {
-  document.body.classList.toggle('fullscreen');
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    mapContainer.requestFullscreen().catch(() => {});
+  }
   if (map) map.invalidateSize();
 });
 
