@@ -270,14 +270,11 @@ async function geocodeAll(locations) {
     const address = encodeURIComponent(locations[i].address + ', ' + locations[i].city + ', Romania');
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
 
-    let success = false;
     let attempts = 0;
+    const maxAttempts = 10; // generous retry budget for consistency
 
-    // For the first record, make 2 requests in a row (as if 2 locations)
-    // so a 429 on the first is absorbed by the second — solid fallback.
-    const firstAttempt = i === 0;
-
-    while (!success && attempts < 5) {
+    // Helper: try one fetch and validate lat/lng
+    async function tryOne() {
       try {
         const resp = await fetch(url, {
           headers: {
@@ -289,34 +286,54 @@ async function geocodeAll(locations) {
           const retryAfter = Math.min(30000 * (attempts + 1), 120000);
           console.warn(`429 Too Many Requests — retrying in ${retryAfter / 1000}s`);
           await new Promise(r => setTimeout(r, retryAfter));
-          attempts++;
-          continue;
+          return false;
         }
         if (!resp.ok) {
           console.warn(`Geocode failed (${resp.status})`);
-          break;
+          return false;
         }
         const data = await resp.json();
         if (data.length > 0) {
-          locations[i].lat = parseFloat(data[0].lat);
-          locations[i].lng = parseFloat(data[0].lon);
-          // Save to storage + update map + render list
-          saveToStorage();
-          updateMap();
-          render(allLocations);
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+            locations[i].lat = lat;
+            locations[i].lng = lng;
+            saveToStorage();
+            updateMap();
+            render(allLocations);
+            return true;
+          }
         }
-        success = true;
+        return false;
       } catch (e) {
         console.warn('Geocode failed:', e);
-        attempts++;
-        await new Promise(r => setTimeout(r, 5000));
+        return false;
       }
+    }
 
-      // If this was the first attempt and we failed, retry immediately (no extra delay)
-      if (firstAttempt && !success && attempts < 5) {
-        console.log('First record failed, retrying immediately as fallback');
+    // Main retry loop — keep trying until we have valid coords or hit max
+    while (attempts < maxAttempts) {
+      const got = await tryOne();
+      if (got) break;
+
+      attempts++;
+
+      // If this was the first attempt, retry immediately (absorb 429)
+      if (attempts === 1) {
+        console.log('First attempt failed, retrying immediately as fallback');
         continue;
       }
+
+      // Exponential backoff for subsequent failures
+      const delay = Math.min(2000 * Math.pow(2, attempts - 1), 30000);
+      console.log(`Retry ${attempts}/${maxAttempts} — waiting ${delay / 1000}s`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+
+    // Post-loop consistency check: if coords are still missing, log a warning
+    if (!locations[i].lat || !locations[i].lng) {
+      console.warn(`⚠️ Coords not resolved for "${locations[i].company}" after ${maxAttempts} attempts`);
     }
 
     // Update progress
