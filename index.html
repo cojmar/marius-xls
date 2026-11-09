@@ -377,6 +377,7 @@ searchBox.addEventListener('input', () => {
     l.city.toLowerCase().includes(q)
   );
   render(filtered);
+  updateMap(filtered);
 });
 
 // ─── Map ───────────────────────────────────────────────────────────────
@@ -386,12 +387,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-function updateMap() {
+function updateMap(locs) {
   if (!map) return;
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  allLocations.forEach(l => {
+  (locs || allLocations).forEach(l => {
     if (!l.lat || !l.lng) return;
     const address = l.address + ', ' + l.city;
     const m = L.marker([l.lat, l.lng]).addTo(map);
