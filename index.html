@@ -334,7 +334,7 @@ function render(locs) {
     <div class="card">
       <span class="company">${esc(l.company)}</span>
       <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
-      ${!l.lat || !l.lng ? '<span style="color:#f59e0b;font-size:0.75rem;margin-left:4px;">⏳ coords</span>' : ''}
+      ${!l.lat || !l.lng ? '<span style="color:#dc2626;font-size:1.1rem;margin-left:4px;font-weight:bold;" title="Fără GPS — nu apare pe hartă">❗</span>' : ''}
       <a class="maps-link" href="#" data-address="${esc(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
       <button class="del-btn" data-idx="${i}">✕ Șterge</button>
     </div>
