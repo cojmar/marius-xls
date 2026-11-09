@@ -243,39 +243,38 @@ function readFile(file) {
       const loader = document.createElement('div');
       loader.className = 'drop-zone';
       loader.style.marginBottom = '12px';
-      loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${toGeocode.length} locații de geocodat</p>`;
-      document.getElementById('mapContainer').insertBefore(loader, document.getElementById('map'));
+      const total = toGeocode.length;
+      loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${total} locații de geocodat — te rog așteaptă</p>`;
+      const mapContainer = document.getElementById('mapContainer');
+      mapContainer.insertBefore(loader, document.getElementById('map'));
 
-      const apiKeys = ''; // Nominatim is free, no API key needed
-      const geocodePromises = toGeocode.map(async (l) => {
-        try {
-          // Rate limit: 2s delay + User-Agent to avoid being banned by Nominatim
-          await new Promise(r => setTimeout(r, 2000));
-          const address = encodeURIComponent(l.address + ', ' + l.city + ', Romania');
-          const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
-          const resp = await fetch(url, {
-            headers: {
-              'Accept-Language': 'ro',
-              'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
-            }
-          });
-          const data = await resp.json();
-          if (data.length > 0) {
-            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-          }
-        } catch(e) { console.warn('Geocode failed:', e); }
-        return null;
-      });
-
-      const results = await Promise.all(geocodePromises);
+      // Sequential geocoding with 10s delay between requests (safe for Nominatim)
       let geoIdx = 0;
       for (let i = 0; i < newLocations.length; i++) {
         if (!newLocations[i].lat || !newLocations[i].lng) {
-          if (results[geoIdx]) {
-            newLocations[i].lat = results[geoIdx].lat;
-            newLocations[i].lng = results[geoIdx].lng;
+          try {
+            const address = encodeURIComponent(newLocations[i].address + ', ' + newLocations[i].city + ', Romania');
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
+            const resp = await fetch(url, {
+              headers: {
+                'Accept-Language': 'ro',
+                'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
+              }
+            });
+            const data = await resp.json();
+            if (data.length > 0) {
+              newLocations[i].lat = parseFloat(data[0].lat);
+              newLocations[i].lng = parseFloat(data[0].lon);
+            }
+          } catch(e) {
+            console.warn('Geocode failed:', e);
           }
           geoIdx++;
+          // Update progress
+          const pct = Math.round((geoIdx / total) * 100);
+          loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${geoIdx} / ${total} (${pct}%) — te rog așteaptă</p>`;
+          // 10s delay between requests (safe for Nominatim)
+          await new Promise(r => setTimeout(r, 10000));
         }
       }
 
