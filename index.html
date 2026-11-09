@@ -153,13 +153,13 @@ const btnShowMap = document.getElementById('btnShowMap');
 const btnClear = document.getElementById('btnClear');
 
 let allLocations = [];
-let userLocation = null; // {lat, lng} — în memorie, se re-cere la fiecare click MAP
 let map = null;
 let markers = [];
 
 const STORAGE_KEY = 'marius-xls-locations';
 
-// Load from localStorage on startup
+// ─── Storage ───────────────────────────────────────────────────────────
+
 function loadFromStorage() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
@@ -169,7 +169,7 @@ function loadFromStorage() {
       searchBox.style.display = 'block';
       dropZone.style.display = 'none';
     }
-  } catch(e) {
+  } catch (e) {
     console.error('Failed to load from storage:', e);
   }
 }
@@ -177,27 +177,26 @@ function loadFromStorage() {
 function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
-  } catch(e) {
+  } catch (e) {
     console.error('Failed to save to storage:', e);
   }
 }
 
-// Drop zone events
+// ─── File upload ───────────────────────────────────────────────────────
+
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
   dropZone.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length) readFile(files[0]);
+  if (e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
 });
 fileInput.addEventListener('change', e => { if (e.target.files.length) readFile(e.target.files[0]); });
-
-// Load new file
 btnLoad.addEventListener('click', () => fileInput.click());
 
-// Delete all
+// ─── Clear all ─────────────────────────────────────────────────────────
+
 btnClear.addEventListener('click', () => {
   if (confirm('Sigur vrei să ștergi toate locațiile?')) {
     allLocations = [];
@@ -210,7 +209,8 @@ btnClear.addEventListener('click', () => {
   }
 });
 
-// MAP button → fullscreen map (browser native API)
+// ─── MAP fullscreen ────────────────────────────────────────────────────
+
 btnShowMap.addEventListener('click', () => {
   if (document.fullscreenElement) {
     document.exitFullscreen();
@@ -220,15 +220,18 @@ btnShowMap.addEventListener('click', () => {
   if (map) map.invalidateSize();
 });
 
+// ─── Parse XLS → clear old data → save → render → start geocoding ──────
+
 function readFile(file) {
   const reader = new FileReader();
-  reader.onload = async function(e) {
+  reader.onload = async function (e) {
     const data = new Uint8Array(e.target.result);
     const wb = XLSX.read(data, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
-    let newLocations = rows.map(r => ({
+    // Parse new locations
+    const newLocations = rows.map(r => ({
       company: r['Companie: Nume complet'] || '',
       address: r['Adresa     1: Adresa'] || '',
       city: r['Adresa     1: Orașul'] || '',
@@ -236,81 +239,89 @@ function readFile(file) {
       lng: parseFloat(r['Lng'] || '')
     })).filter(l => l.company || l.address);
 
-    // Store immediately and render the list (with whatever coords we have)
+    // Clear old data, save new, render list
     allLocations = newLocations;
     saveToStorage();
     render(allLocations);
 
-    // Now geocode locations without lat/lng using Nominatim (free, no API key)
+    // Start geocoding chain for locations without coords
     const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
     if (toGeocode.length > 0) {
-      // Show loading indicator
-      const loader = document.createElement('div');
-      loader.className = 'drop-zone';
-      loader.style.marginBottom = '12px';
-      const total = toGeocode.length;
-      loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${total} locații de geocodat — te rog așteaptă</p>`;
-      const mapContainer = document.getElementById('mapContainer');
-      mapContainer.insertBefore(loader, document.getElementById('map'));
-
-      // Sequential geocoding with Nominatim (free, no API key, supports CORS)
-      let geoIdx = 0;
-      for (let i = 0; i < newLocations.length; i++) {
-        if (!newLocations[i].lat || !newLocations[i].lng) {
-          let success = false;
-          let attempts = 0;
-          while (!success && attempts < 5) {
-            try {
-              const address = encodeURIComponent(newLocations[i].address + ', ' + newLocations[i].city + ', Romania');
-              const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
-              const resp = await fetch(url, {
-                headers: {
-                  'Accept-Language': 'ro',
-                  'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
-                }
-              });
-              if (resp.status === 429) {
-                // Rate limited — wait longer and retry
-                const retryAfter = Math.min(30000 * (attempts + 1), 120000);
-                console.warn(`429 Too Many Requests — retrying in ${retryAfter/1000}s (attempt ${attempts+1})`);
-                await new Promise(r => setTimeout(r, retryAfter));
-                attempts++;
-                continue;
-              }
-              if (!resp.ok) {
-                console.warn(`Geocode failed (${resp.status})`);
-                break;
-              }
-              const data = await resp.json();
-              if (data.length > 0) {
-                newLocations[i].lat = parseFloat(data[0].lat);
-                newLocations[i].lng = parseFloat(data[0].lon);
-                // Update map and list live
-                updateMap();
-                render(allLocations);
-              }
-              success = true;
-            } catch(e) {
-              console.warn('Geocode failed:', e);
-              attempts++;
-              await new Promise(r => setTimeout(r, 5000));
-            }
-          }
-          geoIdx++;
-          // Update progress
-          const pct = Math.round((geoIdx / total) * 100);
-          loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${geoIdx} / ${total} (${pct}%) — te rog așteaptă</p>`;
-          // 2s delay between requests (Nominatim: 1 req/sec + burst of 3)
-          await new Promise(r => setTimeout(r, 2000));
-        }
-      }
-
-      // Remove loading indicator
-      if (loader.parentNode) loader.parentNode.removeChild(loader);
+      await geocodeAll(toGeocode);
     }
   };
   reader.readAsArrayBuffer(file);
 }
+
+// ─── GPS Geocoding (chained, 2s between queries) ──────────────────────
+
+async function geocodeAll(locations) {
+  const total = locations.length;
+  const loader = document.createElement('div');
+  loader.className = 'drop-zone';
+  loader.style.marginBottom = '12px';
+  loader.innerHTML = `<p>🔄 Se caută coordonatele GPS...</p><p class="hint">${total} locații de geocodat — te rog așteaptă</p>`;
+  mapContainer.insertBefore(loader, document.getElementById('map'));
+
+  for (let i = 0; i < locations.length; i++) {
+    // Only geocode if still missing coords (may have been resolved)
+    if (locations[i].lat && locations[i].lng) continue;
+
+    const address = encodeURIComponent(locations[i].address + ', ' + locations[i].city + ', Romania');
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
+
+    let success = false;
+    let attempts = 0;
+    while (!success && attempts < 5) {
+      try {
+        const resp = await fetch(url, {
+          headers: {
+            'Accept-Language': 'ro',
+            'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
+          }
+        });
+        if (resp.status === 429) {
+          const retryAfter = Math.min(30000 * (attempts + 1), 120000);
+          console.warn(`429 Too Many Requests — retrying in ${retryAfter / 1000}s`);
+          await new Promise(r => setTimeout(r, retryAfter));
+          attempts++;
+          continue;
+        }
+        if (!resp.ok) {
+          console.warn(`Geocode failed (${resp.status})`);
+          break;
+        }
+        const data = await resp.json();
+        if (data.length > 0) {
+          locations[i].lat = parseFloat(data[0].lat);
+          locations[i].lng = parseFloat(data[0].lon);
+          // Save to storage + update map + render list
+          saveToStorage();
+          updateMap();
+          render(allLocations);
+        }
+        success = true;
+      } catch (e) {
+        console.warn('Geocode failed:', e);
+        attempts++;
+        await new Promise(r => setTimeout(r, 5000));
+      }
+    }
+
+    // Update progress
+    const geoIdx = i + 1;
+    const pct = Math.round((geoIdx / total) * 100);
+    loader.innerHTML = `<p>🔄 Se caută coordonatele GPS...</p><p class="hint">${geoIdx} / ${total} (${pct}%) — te rog așteaptă</p>`;
+
+    // 2s delay between requests (Nominatim: 1 req/sec + burst of 3)
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  // Remove loading indicator
+  if (loader.parentNode) loader.parentNode.removeChild(loader);
+}
+
+// ─── Render list ───────────────────────────────────────────────────────
 
 function render(locs) {
   results.style.display = 'block';
@@ -340,8 +351,14 @@ function render(locs) {
     });
   });
 
-  // Update map markers
-  updateMap();
+  // Attach maps-link handlers
+  results.querySelectorAll('.maps-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const dest = link.dataset.address;
+      window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
+    });
+  });
 }
 
 function esc(s) {
@@ -349,6 +366,8 @@ function esc(s) {
   d.textContent = s;
   return d.innerHTML;
 }
+
+// ─── Search ────────────────────────────────────────────────────────────
 
 searchBox.addEventListener('input', () => {
   const q = searchBox.value.toLowerCase().trim();
@@ -360,41 +379,20 @@ searchBox.addEventListener('input', () => {
   render(filtered);
 });
 
-// Maps link → route from current GPS location to this single destination
-results.addEventListener('click', e => {
-  const link = e.target.closest('.maps-link');
-  if (!link) return;
-  e.preventDefault();
-  const dest = link.dataset.address;
-  if (userLocation) {
-    window.open('https://www.google.com/maps/dir/?api=1&origin=' + userLocation.lat + ',' + userLocation.lng + '&destination=' + encodeURIComponent(dest), '_blank');
-  } else {
-    window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
-  }
-});
-
-// Init - initialize Leaflet map on page load
-loadFromStorage();
-navigator.geolocation.getCurrentPosition(
-  (pos) => {
-    userLocation = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) };
-  },
-  () => { userLocation = null; }
-);
+// ─── Map ───────────────────────────────────────────────────────────────
 
 map = L.map('map').setView([44.4268, 26.1025], 12); // Bucharest default
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-// Update map markers (called on load, search, reload, delete)
 function updateMap() {
   if (!map) return;
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  allLocations.forEach((l, i) => {
-    if (!l.lat || !l.lng) return; // only locations with coords
+  allLocations.forEach(l => {
+    if (!l.lat || !l.lng) return;
     const address = l.address + ', ' + l.city;
     const m = L.marker([l.lat, l.lng]).addTo(map);
     const popupContent = `<strong>${esc(l.company)}</strong><br>${esc(address)}<br><a class="maps-link" href="#" data-address="${esc(address)}" target="_blank" rel="noopener">🗺️ Deschide în Google Maps</a>`;
@@ -402,30 +400,19 @@ function updateMap() {
     markers.push(m);
   });
 
-  // Fit bounds to all markers
   if (markers.length > 0) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.1));
   }
 }
 
-// Update map if we have data
+// ─── Init ──────────────────────────────────────────────────────────────
+
+loadFromStorage();
 if (allLocations.length > 0) {
   updateMap();
 }
 
-// Click on map link → open Google Maps in new tab
-mapContainer.addEventListener('click', e => {
-  const link = e.target.closest('.maps-link');
-  if (!link) return;
-  e.preventDefault();
-  const dest = link.dataset.address;
-  if (userLocation) {
-    window.open('https://www.google.com/maps/dir/?api=1&origin=' + userLocation.lat + ',' + userLocation.lng + '&destination=' + encodeURIComponent(dest), '_blank');
-  } else {
-    window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
-  }
-});
 </script>
 <script src="xlsx.full.min.js"></script>
 
