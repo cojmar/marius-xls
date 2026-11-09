@@ -253,9 +253,7 @@ function readFile(file) {
       const mapContainer = document.getElementById('mapContainer');
       mapContainer.insertBefore(loader, document.getElementById('map'));
 
-      // Sequential geocoding with 10s delay between requests (safe for Nominatim)
-      // Uses a CORS proxy to bypass browser CORS restrictions
-      const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+      // Sequential geocoding with Nominatim (free, no API key, supports CORS)
       let geoIdx = 0;
       for (let i = 0; i < newLocations.length; i++) {
         if (!newLocations[i].lat || !newLocations[i].lng) {
@@ -264,7 +262,7 @@ function readFile(file) {
           while (!success && attempts < 5) {
             try {
               const address = encodeURIComponent(newLocations[i].address + ', ' + newLocations[i].city + ', Romania');
-              const url = `${CORS_PROXY}https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
+              const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
               const resp = await fetch(url, {
                 headers: {
                   'Accept-Language': 'ro',
@@ -280,7 +278,7 @@ function readFile(file) {
                 continue;
               }
               if (!resp.ok) {
-                console.warn(`Geocode failed (${resp.status}):`, await resp.text());
+                console.warn(`Geocode failed (${resp.status})`);
                 break;
               }
               const data = await resp.json();
@@ -302,8 +300,8 @@ function readFile(file) {
           // Update progress
           const pct = Math.round((geoIdx / total) * 100);
           loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${geoIdx} / ${total} (${pct}%) — te rog așteaptă</p>`;
-          // 10s delay between requests (safe for Nominatim)
-          await new Promise(r => setTimeout(r, 10000));
+          // 2s delay between requests (Nominatim: 1 req/sec + burst of 3)
+          await new Promise(r => setTimeout(r, 2000));
         }
       }
 
