@@ -130,6 +130,7 @@
 /* control positioning */
 
 .leaflet-control {
+	display: none;
 	position: relative;
 	z-index: 800;
 	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
