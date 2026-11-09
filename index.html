@@ -404,6 +404,9 @@ function updateMap() {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.1));
   }
+
+  // Force map to re-render after adding/removing layers
+  map.invalidateSize();
 }
 
 // ─── Init ──────────────────────────────────────────────────────────────
