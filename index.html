@@ -311,6 +311,8 @@ async function geocodeAll(locations) {
           saveToStorage();
           updateMap();
           render(allLocations);
+          // Yield to browser to force repaint between iterations
+          await Promise.resolve();
         }
         success = true;
       } catch (e) {
@@ -406,11 +408,18 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 function updateMap(locs) {
   if (!map) return;
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+  const visible = locs || allLocations;
 
-  (locs || allLocations).forEach(l => {
+  // Add new markers (those not yet on the map)
+  visible.forEach(l => {
     if (!l.lat || !l.lng) return;
+    // Check if marker already exists for this location
+    const existing = markers.find(m => {
+      const pos = m.getLatLng();
+      return pos.lat === l.lat && pos.lng === l.lng;
+    });
+    if (existing) return; // already on map
+
     const address = l.address + ', ' + l.city;
     const m = L.marker([l.lat, l.lng]).addTo(map);
     const popupContent = `<strong>${esc(l.company)}</strong><br>${esc(address)}<br><a class="maps-link" href="#" data-address="${esc(address)}" target="_blank" rel="noopener">🗺️ Deschide în Google Maps</a>`;
@@ -418,13 +427,14 @@ function updateMap(locs) {
     markers.push(m);
   });
 
+  // Fit bounds to all visible markers
   if (markers.length > 0) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.1));
   }
 
-  // Force map to re-render after adding/removing layers
-  map.invalidateSize();
+  // Force map repaint (async to let DOM settle first)
+  requestAnimationFrame(() => map.invalidateSize());
 }
 
 // ─── Init ──────────────────────────────────────────────────────────────
