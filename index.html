@@ -121,9 +121,9 @@ body.fullscreen h1 { display: none !important; }
   .btn { padding: 6px 12px; font-size: 0.8rem; }
 }
 </style>
-<link rel="stylesheet" href="leaflet.css" />
 </head>
 <body>
+<link rel="stylesheet" href="leaflet.css" />
 <script src="leaflet.js"></script>
 
 <h1>📍 Locații din Excel</h1>
@@ -211,7 +211,7 @@ btnClear.addEventListener('click', () => {
     results.style.display = 'none';
     searchBox.style.display = 'none';
     mapContainer.style.display = 'none';
-    if (map) { map.remove(); map = null; markers = []; }
+    if (map) { markers.forEach(m => map.removeLayer(m)); map = null; markers = []; }
   }
 });
 
@@ -220,28 +220,6 @@ btnShowMap.addEventListener('click', () => {
   document.body.classList.toggle('fullscreen');
   if (map) map.invalidateSize();
 });
-
-// Update map markers (called on load, search, reload, delete)
-function updateMap() {
-  if (!map) return;
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-
-  allLocations.forEach((l, i) => {
-    if (!l.lat || !l.lng) return; // only locations with coords
-    const address = l.address + ', ' + l.city;
-    const m = L.marker([l.lat, l.lng]).addTo(map);
-    const popupContent = `<strong>${esc(l.company)}</strong><br>${esc(address)}<br><a class="maps-link" href="#" data-address="${esc(address)}" target="_blank" rel="noopener">🗺️ Deschide în Google Maps</a>`;
-    m.bindPopup(popupContent);
-    markers.push(m);
-  });
-
-  // Fit bounds to all markers
-  if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.1));
-  }
-}
 
 function readFile(file) {
   const reader = new FileReader();
@@ -259,31 +237,35 @@ function readFile(file) {
       lng: parseFloat(r['Lng'] || '')
     })).filter(l => l.company || l.address);
 
-    // Geocode locations without lat/lng (batch, no rate-limit issues)
+    // Geocode locations without lat/lng using Nominatim (free, no API key)
     const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
     if (toGeocode.length > 0) {
-      // Use Photon (komoot) - free, no API key, more reliable than Nominatim
+      // Show loading indicator
+      const loader = document.createElement('div');
+      loader.className = 'drop-zone';
+      loader.style.marginBottom = '12px';
+      loader.innerHTML = `<p>🔄 Se caută coordonatele...</p><p class="hint">${toGeocode.length} locații de geocodat</p>`;
+      document.getElementById('mapContainer').insertBefore(loader, document.getElementById('map'));
+
+      const apiKeys = ''; // Nominatim is free, no API key needed
       const geocodePromises = toGeocode.map(async (l) => {
         try {
-          const url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(l.address + ', ' + l.city);
-          let resp;
-          try {
-            resp = await fetch(url);
-          } catch {
-            // CORS blocked — retry via public proxy
-            resp = await fetch('https://corsproxy.org/?' + encodeURIComponent(url));
-          }
+          // Rate limit: 1 request per second to avoid being banned
+          await new Promise(r => setTimeout(r, 1000));
+          const address = encodeURIComponent(l.address + ', ' + l.city + ', Romania');
+          const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
+          const resp = await fetch(url, {
+            headers: { 'Accept-Language': 'ro' }
+          });
           const data = await resp.json();
-          if (data.features && data.features.length > 0) {
-            const coords = data.features[0].geometry.coordinates;
-            return { lat: coords[1], lng: coords[0] };
+          if (data.length > 0) {
+            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
           }
         } catch(e) { console.warn('Geocode failed:', e); }
         return null;
       });
 
       const results = await Promise.all(geocodePromises);
-      // Apply results to original array
       let geoIdx = 0;
       for (let i = 0; i < newLocations.length; i++) {
         if (!newLocations[i].lat || !newLocations[i].lng) {
@@ -294,6 +276,9 @@ function readFile(file) {
           geoIdx++;
         }
       }
+
+      // Remove loading indicator
+      if (loader.parentNode) loader.parentNode.removeChild(loader);
     }
 
     allLocations = newLocations;
@@ -371,11 +356,37 @@ navigator.geolocation.getCurrentPosition(
   () => { userLocation = null; }
 );
 
-// Initialize Leaflet map
 map = L.map('map').setView([44.4268, 26.1025], 12); // Bucharest default
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
+
+// Update map markers (called on load, search, reload, delete)
+function updateMap() {
+  if (!map) return;
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  allLocations.forEach((l, i) => {
+    if (!l.lat || !l.lng) return; // only locations with coords
+    const address = l.address + ', ' + l.city;
+    const m = L.marker([l.lat, l.lng]).addTo(map);
+    const popupContent = `<strong>${esc(l.company)}</strong><br>${esc(address)}<br><a class="maps-link" href="#" data-address="${esc(address)}" target="_blank" rel="noopener">🗺️ Deschide în Google Maps</a>`;
+    m.bindPopup(popupContent);
+    markers.push(m);
+  });
+
+  // Fit bounds to all markers
+  if (markers.length > 0) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+}
+
+// Update map if we have data
+if (allLocations.length > 0) {
+  updateMap();
+}
 
 // Click on map link → open Google Maps in new tab
 mapContainer.addEventListener('click', e => {
@@ -389,11 +400,6 @@ mapContainer.addEventListener('click', e => {
     window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
   }
 });
-
-// Update map if we have data
-if (allLocations.length > 0) {
-  updateMap();
-}
 </script>
 <script src="xlsx.full.min.js"></script>
 
