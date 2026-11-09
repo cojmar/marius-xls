@@ -236,7 +236,12 @@ function readFile(file) {
       lng: parseFloat(r['Lng'] || '')
     })).filter(l => l.company || l.address);
 
-    // Geocode locations without lat/lng using Nominatim (free, no API key)
+    // Store immediately and render the list (with whatever coords we have)
+    allLocations = newLocations;
+    saveToStorage();
+    render(allLocations);
+
+    // Now geocode locations without lat/lng using Nominatim (free, no API key)
     const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
     if (toGeocode.length > 0) {
       // Show loading indicator
@@ -250,7 +255,7 @@ function readFile(file) {
 
       // Sequential geocoding with 10s delay between requests (safe for Nominatim)
       // Uses a CORS proxy to bypass browser CORS restrictions
-      const CORS_PROXY = 'https://corsproxy.org/';
+      const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
       let geoIdx = 0;
       for (let i = 0; i < newLocations.length; i++) {
         if (!newLocations[i].lat || !newLocations[i].lng) {
@@ -282,6 +287,9 @@ function readFile(file) {
               if (data.length > 0) {
                 newLocations[i].lat = parseFloat(data[0].lat);
                 newLocations[i].lng = parseFloat(data[0].lon);
+                // Update map and list live
+                updateMap();
+                render(allLocations);
               }
               success = true;
             } catch(e) {
@@ -302,10 +310,6 @@ function readFile(file) {
       // Remove loading indicator
       if (loader.parentNode) loader.parentNode.removeChild(loader);
     }
-
-    allLocations = newLocations;
-    saveToStorage();
-    render(allLocations);
   };
   reader.readAsArrayBuffer(file);
 }
@@ -315,11 +319,13 @@ function render(locs) {
   searchBox.style.display = 'block';
   dropZone.style.display = 'none';
   btnShowMap.style.display = 'inline-block';
+  mapContainer.style.display = 'block';
 
   results.innerHTML = `<h2>${locs.length} <span class="count-badge">locații</span></h2>` + locs.map((l, i) => `
     <div class="card">
       <span class="company">${esc(l.company)}</span>
       <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
+      ${!l.lat || !l.lng ? '<span style="color:#f59e0b;font-size:0.75rem;margin-left:4px;">⏳ coords</span>' : ''}
       <a class="maps-link" href="#" data-address="${esc(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
       <button class="del-btn" data-idx="${i}">✕ Șterge</button>
     </div>
