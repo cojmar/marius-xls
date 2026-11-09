@@ -272,6 +272,11 @@ async function geocodeAll(locations) {
 
     let success = false;
     let attempts = 0;
+
+    // For the first record, make 2 requests in a row (as if 2 locations)
+    // so a 429 on the first is absorbed by the second — solid fallback.
+    const firstAttempt = i === 0;
+
     while (!success && attempts < 5) {
       try {
         const resp = await fetch(url, {
@@ -305,6 +310,12 @@ async function geocodeAll(locations) {
         console.warn('Geocode failed:', e);
         attempts++;
         await new Promise(r => setTimeout(r, 5000));
+      }
+
+      // If this was the first attempt and we failed, retry immediately (no extra delay)
+      if (firstAttempt && !success && attempts < 5) {
+        console.log('First record failed, retrying immediately as fallback');
+        continue;
       }
     }
 
