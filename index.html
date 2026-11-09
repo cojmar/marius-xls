@@ -250,12 +250,15 @@ function readFile(file) {
       const apiKeys = ''; // Nominatim is free, no API key needed
       const geocodePromises = toGeocode.map(async (l) => {
         try {
-          // Rate limit: 1 request per second to avoid being banned
-          await new Promise(r => setTimeout(r, 1000));
+          // Rate limit: 2s delay + User-Agent to avoid being banned by Nominatim
+          await new Promise(r => setTimeout(r, 2000));
           const address = encodeURIComponent(l.address + ', ' + l.city + ', Romania');
           const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
           const resp = await fetch(url, {
-            headers: { 'Accept-Language': 'ro' }
+            headers: {
+              'Accept-Language': 'ro',
+              'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
+            }
           });
           const data = await resp.json();
           if (data.length > 0) {
