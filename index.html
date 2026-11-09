@@ -249,25 +249,46 @@ function readFile(file) {
       mapContainer.insertBefore(loader, document.getElementById('map'));
 
       // Sequential geocoding with 10s delay between requests (safe for Nominatim)
+      // Uses a CORS proxy to bypass browser CORS restrictions
+      const CORS_PROXY = 'https://corsproxy.org/';
       let geoIdx = 0;
       for (let i = 0; i < newLocations.length; i++) {
         if (!newLocations[i].lat || !newLocations[i].lng) {
-          try {
-            const address = encodeURIComponent(newLocations[i].address + ', ' + newLocations[i].city + ', Romania');
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
-            const resp = await fetch(url, {
-              headers: {
-                'Accept-Language': 'ro',
-                'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
+          let success = false;
+          let attempts = 0;
+          while (!success && attempts < 5) {
+            try {
+              const address = encodeURIComponent(newLocations[i].address + ', ' + newLocations[i].city + ', Romania');
+              const url = `${CORS_PROXY}https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
+              const resp = await fetch(url, {
+                headers: {
+                  'Accept-Language': 'ro',
+                  'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
+                }
+              });
+              if (resp.status === 429) {
+                // Rate limited — wait longer and retry
+                const retryAfter = Math.min(30000 * (attempts + 1), 120000);
+                console.warn(`429 Too Many Requests — retrying in ${retryAfter/1000}s (attempt ${attempts+1})`);
+                await new Promise(r => setTimeout(r, retryAfter));
+                attempts++;
+                continue;
               }
-            });
-            const data = await resp.json();
-            if (data.length > 0) {
-              newLocations[i].lat = parseFloat(data[0].lat);
-              newLocations[i].lng = parseFloat(data[0].lon);
+              if (!resp.ok) {
+                console.warn(`Geocode failed (${resp.status}):`, await resp.text());
+                break;
+              }
+              const data = await resp.json();
+              if (data.length > 0) {
+                newLocations[i].lat = parseFloat(data[0].lat);
+                newLocations[i].lng = parseFloat(data[0].lon);
+              }
+              success = true;
+            } catch(e) {
+              console.warn('Geocode failed:', e);
+              attempts++;
+              await new Promise(r => setTimeout(r, 5000));
             }
-          } catch(e) {
-            console.warn('Geocode failed:', e);
           }
           geoIdx++;
           // Update progress
