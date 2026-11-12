@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,9 +136,9 @@ button:disabled {
 }
 .btn.danger:hover { background:#512d38; }
 .btn.small {
-  min-height:32px;
-  padding:0 9px;
-  font-size:12px;
+  min-height:29px;
+  padding:0 8px;
+  font-size:11px;
 }
 .settings {
   display:flex;
@@ -192,9 +191,7 @@ button:disabled {
 
 /* Hidden Google test tools */
 
-.reset-tools {
-  position:relative;
-}
+.reset-tools { position:relative; }
 .reset-tools summary {
   list-style:none;
   padding:7px 9px;
@@ -303,9 +300,7 @@ button:disabled {
   color:#e0e5f0;
 }
 @keyframes spin { to { transform:rotate(360deg); } }
-@keyframes statusPulse {
-  50% { opacity:.4; }
-}
+@keyframes statusPulse { 50% { opacity:.4; } }
 
 /* Main layout */
 
@@ -314,8 +309,9 @@ button:disabled {
   min-height:0;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:0;
   padding:8px 11px 10px;
+  overflow:hidden;
 }
 .map-panel,.sidebar {
   min-width:0;
@@ -327,8 +323,8 @@ button:disabled {
   background:var(--panel);
 }
 .map-panel {
-  flex:0 0 62%;
-  min-height:260px;
+  flex:0 0 var(--map-height, 62%);
+  min-height:220px;
 }
 .map-toolbar {
   min-height:46px;
@@ -361,7 +357,7 @@ button:disabled {
 #map {
   width:100%;
   height:100%;
-  min-height:180px;
+  min-height:120px;
   background:#202735;
 }
 .map-overlay {
@@ -388,13 +384,48 @@ button:disabled {
   background:var(--success);
 }
 
+/* Draggable map/list divider */
+
+.panel-resizer {
+  position:relative;
+  z-index:20;
+  flex:0 0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:row-resize;
+  touch-action:none;
+}
+.panel-resizer::before {
+  content:"";
+  width:58px;
+  height:4px;
+  border-radius:5px;
+  background:#59647b;
+  transition:background .15s,width .15s;
+}
+.panel-resizer:hover::before,
+.panel-resizer.dragging::before {
+  width:85px;
+  background:var(--accent);
+}
+body.resizing-panels {
+  cursor:row-resize!important;
+  user-select:none!important;
+}
+body.resizing-panels * {
+  cursor:row-resize!important;
+  user-select:none!important;
+}
+
 /* Location list */
 
 .sidebar {
-  flex:1;
-  min-height:140px;
+  flex:1 1 0;
+  min-height:120px;
 }
 .sidebar-header {
+  flex:0 0 auto;
   padding:8px 12px;
   border-bottom:1px solid var(--border);
 }
@@ -463,14 +494,18 @@ button:disabled {
 .search-box::placeholder { color:#929bad; }
 
 .location-list {
-  flex:1;
+  flex:1 1 0;
   min-height:0;
+  height:0;
   overflow-y:auto;
+  overflow-x:hidden;
   padding:7px;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(330px,1fr));
+  grid-auto-rows:max-content;
   align-content:start;
   gap:6px;
+  scrollbar-gutter:stable;
 }
 .location-card {
   min-width:0;
@@ -537,6 +572,7 @@ button:disabled {
   font-size:10px;
 }
 .sidebar-footer {
+  flex:0 0 auto;
   min-height:30px;
   display:flex;
   align-items:center;
@@ -584,6 +620,7 @@ button:disabled {
 /* Processing */
 
 .processing-banner {
+  flex:0 0 auto;
   display:none;
   align-items:center;
   gap:12px;
@@ -663,7 +700,6 @@ button:disabled {
   flex-wrap:wrap;
   gap:6px;
 }
-
 .leaflet-control-zoom a {
   background:#202532!important;
   color:white!important;
@@ -749,8 +785,9 @@ body:fullscreen { width:100%;height:100%; }
   .brand-name { font-size:16px; }
   .topbar-actions .btn { min-height:36px;font-size:11px;padding:0 7px; }
   .window-control { width:29px; }
-  .workspace { padding:6px;gap:6px; }
-  .map-panel { flex-basis:55%; }
+  .workspace { padding:6px; }
+  .map-panel { min-height:180px; }
+  .sidebar { min-height:110px; }
   .location-list { grid-template-columns:1fr; }
   .statusbar { padding:0 10px;font-size:13px; }
   .map-toolbar { padding:0 9px; }
@@ -808,8 +845,8 @@ body:fullscreen { width:100%;height:100%; }
   <span id="gpsStatus">0 GPS coordinates</span>
 </div>
 
-<main class="workspace">
-  <section class="map-panel">
+<main class="workspace" id="workspace">
+  <section class="map-panel" id="mapPanel">
     <div class="map-toolbar">
       <div>
         <div class="map-heading">Location map</div>
@@ -830,12 +867,14 @@ body:fullscreen { width:100%;height:100%; }
     </div>
   </section>
 
-  <aside class="sidebar">
+  <div class="panel-resizer" id="panelResizer" title="Drag to resize map and locations"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-title-row">
         <span class="sidebar-title">Imported locations</span>
         <div class="sidebar-header-actions">
-          <button class="filter-button" id="btnMissingFilter">⚠ GPS MISSING</button>
+          <button class="filter-button" id="btnMissingFilter">⚠ GPS MISSING (0)</button>
           <span class="count-badge" id="locationCount">0</span>
         </div>
       </div>
@@ -913,6 +952,7 @@ body:fullscreen { width:100%;height:100%; }
 <script>
 const STORAGE_KEY = 'marius-xls-locations';
 const VISIBILITY_KEY = 'marius-xls-google-window-visible';
+const MAP_HEIGHT_KEY = 'marius-xls-map-height';
 
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
@@ -926,6 +966,9 @@ const editForm = document.getElementById('editForm');
 const scanButton = document.getElementById('btnScan');
 const processingBanner = document.getElementById('processingBanner');
 const missingFilterButton = document.getElementById('btnMissingFilter');
+const workspace = document.getElementById('workspace');
+const mapPanel = document.getElementById('mapPanel');
+const panelResizer = document.getElementById('panelResizer');
 
 let allLocations = [];
 let markers = [];
@@ -1066,6 +1109,72 @@ function updateScanButton() {
   const shown = getVisibleLocations().length;
   document.getElementById('sidebarFooter').textContent =
     `${shown} shown · ${allLocations.length} total · ${missing} without GPS`;
+
+  updateFilterButton();
+}
+
+// Resizable map/list panels
+
+function setMapHeight(percent) {
+  const clamped = Math.max(25, Math.min(80, percent));
+  mapPanel.style.flexBasis = `${clamped}%`;
+  localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+
+  requestAnimationFrame(() => map.invalidateSize());
+}
+
+function initializePanelResizer() {
+  const savedHeight = Number(localStorage.getItem(MAP_HEIGHT_KEY));
+  setMapHeight(Number.isFinite(savedHeight) && savedHeight >= 25 && savedHeight <= 80
+    ? savedHeight
+    : 62);
+
+  let dragging = false;
+
+  panelResizer.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+
+    dragging = true;
+    panelResizer.classList.add('dragging');
+    document.body.classList.add('resizing-panels');
+    panelResizer.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  panelResizer.addEventListener('pointermove', event => {
+    if (!dragging) return;
+
+    const workspaceRect = workspace.getBoundingClientRect();
+    const usableHeight = workspaceRect.height - 20;
+    const relativeY = event.clientY - workspaceRect.top - 8;
+    const percent = (relativeY / usableHeight) * 100;
+
+    const mapMinimum = 220;
+    const listMinimum = 120;
+    const dividerHeight = panelResizer.offsetHeight;
+    const available = workspace.clientHeight - 20 - dividerHeight;
+
+    const minPercent = Math.max(25, (mapMinimum / available) * 100);
+    const maxPercent = Math.min(80, 100 - (listMinimum / available) * 100);
+    const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
+
+    mapPanel.style.flexBasis = `${clamped}%`;
+    localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+
+    requestAnimationFrame(() => map.invalidateSize());
+  });
+
+  const stopDragging = () => {
+    if (!dragging) return;
+    dragging = false;
+    panelResizer.classList.remove('dragging');
+    document.body.classList.remove('resizing-panels');
+    map.invalidateSize();
+  };
+
+  panelResizer.addEventListener('pointerup', stopDragging);
+  panelResizer.addEventListener('pointercancel', stopDragging);
+  panelResizer.addEventListener('lostpointercapture', stopDragging);
 }
 
 // Storage
@@ -1541,7 +1650,6 @@ editForm.addEventListener('submit', event => {
   location.address = newAddress;
   location.city = newCity;
 
-  // Old coordinates must not remain attached to a changed address.
   if (addressChanged && coordinatesUnchanged) {
     location.lat = null;
     location.lng = null;
@@ -1586,20 +1694,21 @@ function deleteLocation(index) {
   setStatus('Location deleted');
 }
 
-// Missing GPS filter
+// Missing GPS filter with live count
 
 function updateFilterButton() {
+  const missing = getMissingLocations().length;
+
   missingFilterButton.classList.toggle('active', showMissingOnly);
-  missingFilterButton.textContent = showMissingOnly
-    ? '✓ GPS MISSING'
-    : '⚠ GPS MISSING';
+  missingFilterButton.textContent =
+    `${showMissingOnly ? '✓' : '⚠'} GPS MISSING (${missing})`;
 }
 
 missingFilterButton.addEventListener('click', () => {
   showMissingOnly = !showMissingOnly;
   updateFilterButton();
   render();
-  updateMap();
+  // The missing-only filter affects the list, not the map.
 });
 
 // Render list
@@ -1619,6 +1728,8 @@ function render() {
 
   document.getElementById('mapOverlayText').textContent =
     `${gpsCount} locations on map`;
+
+  updateFilterButton();
 
   if (!allLocations.length) {
     results.innerHTML = `
@@ -1778,7 +1889,6 @@ function updateMap(fit = false) {
   markers.forEach(item => map.removeLayer(item.marker));
   markers = [];
 
-  // The missing-GPS filter only affects the list, not the map.
   getSearchLocations().forEach(location => {
     if (!hasCoordinates(location)) return;
 
@@ -1905,12 +2015,19 @@ document.getElementById('btnClose').addEventListener('click', () => {
 // Init
 
 async function init() {
+  initializePanelResizer();
+
   const visible = sessionStorage.getItem(VISIBILITY_KEY) === 'true';
   await applyVisibilitySetting(visible);
+
   loadFromStorage();
   updateFilterButton();
   updateScanButton();
   updateProcessingUI();
+
+  window.addEventListener('resize', () => {
+    map.invalidateSize();
+  });
 }
 
 init();
