@@ -1,470 +1,2106 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Locații din Excel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
+  <title>Locații din Excel</title>
+  <link rel="stylesheet" href="leaflet.css">
 
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f8f9fa;
-  color: #1a1a2e;
-  padding: 16px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-h1 { font-size: 1.3rem; margin-bottom: 12px; }
-.toolbar {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  background: #6366f1;
-  color: #fff;
-  transition: background 0.2s;
-}
-.btn:hover { background: #4f46e5; }
-.btn.danger { background: #ef4444; }
-.btn.danger:hover { background: #dc2626; }
-.btn.secondary { background: #e5e7eb; color: #374151; }
-.btn.secondary:hover { background: #d1d5db; }
-.drop-zone {
-  border: 2px dashed #6366f1;
-  border-radius: 12px;
-  padding: 32px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: background 0.2s;
-  margin-bottom: 16px;
-}
-.drop-zone:hover, .drop-zone.dragover { background: #eef2ff; }
-.drop-zone input { display: none; }
-.drop-zone p { color: #6366f1; font-size: 1rem; }
-.drop-zone .hint { color: #888; font-size: 0.8rem; margin-top: 6px; }
-#map { height: 300px; border-radius: 12px; margin: 16px 0; }
-#results { display: none; }
-#results h2 { font-size: 1rem; margin: 16px 0 8px; }
-.card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.card .company { font-weight: 600; flex: 1 1 200px; }
-.card .address { color: #555; flex: 2 1 200px; font-size: 0.85rem; }
-.card a.maps-link {
-  color: #6366f1;
-  text-decoration: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-.card a.maps-link:hover { background: #eef2ff; }
-.card .del-btn {
-  background: #fee2e2;
-  color: #dc2626;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-.card .del-btn:hover { background: #fecaca; }
-.no-gps {
-  cursor: help;
-  display: inline-flex;
-  align-items: center;
-  margin-left: 4px;
-}
-.no-gps:hover svg { transform: scale(1.25); }
-.no-gps svg {
-  transition: transform 0.2s;
-  display: inline-block;
-  margin-left: 4px;
-}
-.search-box {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-bottom: 12px;
-}
-.search-box:focus { outline: none; border-color: #6366f1; }
-#mapContainer { margin: 16px 0; }
-#mapContainer:fullscreen {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9999; margin: 0; border-radius: 0;
-}
-#mapContainer:fullscreen #map { height: 100vh; }
-.count-badge {
-  background: #6366f1;
-  color: #fff;
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  margin-left: 4px;
-}
-@media (max-width: 600px) {
-  body { padding: 10px; }
-  .card .company, .card .address { flex: 1 1 100%; }
-  .toolbar { gap: 6px; }
-  .btn { padding: 6px 12px; font-size: 0.8rem; }
-}
-</style>
-</head>
-<body>
-<link rel="stylesheet" href="leaflet.css" />
-<script src="leaflet.js"></script>
-
-<h1>📍 Locații din Excel</h1>
-
-<div class="toolbar">
-  <button class="btn" id="btnLoad">📁 Încarcă fișier</button>
-  <button class="btn secondary" id="btnShowMap">MAP</button>
-  <button class="btn danger" id="btnClear">🗑️ Șterge tot</button>
-</div>
-
-<div class="drop-zone" id="dropZone">
-  <p>Deschide un fișier .xlsx sau .xls</p>
-  <p class="hint">trage fișierul aici sau dă click</p>
-  <input type="file" id="fileInput" accept=".xlsx,.xls">
-</div>
-
-<input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa..." style="display:none;">
-
-<div id="mapContainer">
-  <div id="map"></div>
-</div>
-<div id="results"></div>
-
-<script>
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const searchBox = document.getElementById('searchBox');
-const results = document.getElementById('results');
-const mapContainer = document.getElementById('mapContainer');
-const btnLoad = document.getElementById('btnLoad');
-const btnShowMap = document.getElementById('btnShowMap');
-const btnClear = document.getElementById('btnClear');
-
-let allLocations = [];
-let map = null;
-let markers = [];
-
-const STORAGE_KEY = 'marius-xls-locations';
-
-// ─── Storage ───────────────────────────────────────────────────────────
-
-function loadFromStorage() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      allLocations = JSON.parse(data);
-      render(allLocations);
-      searchBox.style.display = 'block';
-      dropZone.style.display = 'none';
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101218;
+      --panel: #181c25;
+      --panel2: #252c3b;
+      --border: #343d50;
+      --text: #f4f6fc;
+      --muted: #b0b9ca;
+      --accent: #929cff;
+      --accent-hover: #aab1ff;
+      --danger: #ff7777;
+      --success: #42d6a0;
+      --warning: #ffd16a;
+      --radius: 10px;
     }
-  } catch (e) {
-    console.error('Failed to load from storage:', e);
-  }
-}
 
-function saveToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
-  } catch (e) {
-    console.error('Failed to save to storage:', e);
-  }
-}
-
-// ─── File upload ───────────────────────────────────────────────────────
-
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => { if (e.target.files.length) readFile(e.target.files[0]); });
-btnLoad.addEventListener('click', () => fileInput.click());
-
-// ─── Clear all ─────────────────────────────────────────────────────────
-
-btnClear.addEventListener('click', () => {
-  if (confirm('Sigur vrei să ștergi toate locațiile?')) {
-    allLocations = [];
-    localStorage.removeItem(STORAGE_KEY);
-    dropZone.style.display = 'block';
-    results.style.display = 'none';
-    searchBox.style.display = 'none';
-    mapContainer.style.display = 'none';
-    if (map) { markers.forEach(m => map.removeLayer(m)); map = null; markers = []; }
-  }
-});
-
-// ─── MAP fullscreen ────────────────────────────────────────────────────
-
-btnShowMap.addEventListener('click', () => {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    mapContainer.requestFullscreen().catch(() => {});
-  }
-  if (map) map.invalidateSize();
-});
-
-// ─── Parse XLS → clear old data → save → render → start geocoding ──────
-
-function readFile(file) {
-  const reader = new FileReader();
-  reader.onload = async function (e) {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data, { type: 'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-    // Parse new locations
-    const newLocations = rows.map(r => ({
-      company: r['Companie: Nume complet'] || '',
-      address: r['Adresa     1: Adresa'] || '',
-      city: r['Adresa     1: Orașul'] || '',
-      lat: parseFloat(r['Lat'] || ''),
-      lng: parseFloat(r['Lng'] || '')
-    })).filter(l => l.company || l.address);
-
-    // Clear old data, save new, render list
-    allLocations = newLocations;
-    saveToStorage();
-    render(allLocations);
-
-    // Start geocoding chain for locations without coords
-    const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
-    if (toGeocode.length > 0) {
-      await geocodeAll(toGeocode);
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
     }
-  };
-  reader.readAsArrayBuffer(file);
-}
 
-// ─── GPS Geocoding (chained, 2s between queries) ──────────────────────
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
 
-async function geocodeAll(locations) {
-  const total = locations.length;
-  const loader = document.createElement('div');
-  loader.className = 'drop-zone';
-  loader.style.marginBottom = '12px';
-  loader.innerHTML = `<p>🔄 Se caută coordonatele GPS...</p><p class="hint">${total} locații de geocodat — te rog așteaptă</p>`;
-  mapContainer.insertBefore(loader, document.getElementById('map'));
+    body {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 16px;
+    }
 
-  for (let i = 0; i < locations.length; i++) {
-    // Only geocode if still missing coords (may have been resolved)
-    if (locations[i].lat && locations[i].lng) continue;
+    input,
+    textarea {
+      user-select: text;
+      -webkit-user-select: text;
+      font: inherit;
+    }
 
-    const address = encodeURIComponent(locations[i].address + ', ' + locations[i].city + ', Romania');
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
 
-    let success = false;
-    let attempts = 0;
-    while (!success && attempts < 5) {
-      try {
-        const resp = await fetch(url, {
-          headers: {
-            'Accept-Language': 'ro',
-            'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
-          }
-        });
-        if (resp.status === 429) {
-          const retryAfter = Math.min(30000 * (attempts + 1), 120000);
-          console.warn(`429 Too Many Requests — retrying in ${retryAfter / 1000}s`);
-          await new Promise(r => setTimeout(r, retryAfter));
-          attempts++;
-          continue;
-        }
-        if (!resp.ok) {
-          console.warn(`Geocode failed (${resp.status})`);
-          break;
-        }
-        const data = await resp.json();
-        if (data.length > 0) {
-          locations[i].lat = parseFloat(data[0].lat);
-          locations[i].lng = parseFloat(data[0].lon);
-          // Save to storage + update map + render list
-          saveToStorage();
-          updateMap();
-          render(allLocations);
-          // Yield to browser to force repaint between iterations
-          await Promise.resolve();
-        }
-        success = true;
-      } catch (e) {
-        console.warn('Geocode failed:', e);
-        attempts++;
-        await new Promise(r => setTimeout(r, 5000));
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    /* Title bar */
+
+    .topbar {
+      height: 64px;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px 0 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 160px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #30365d;
+      font-size: 23px;
+    }
+
+    .brand-name {
+      font-size: 21px;
+      font-weight: 850;
+      letter-spacing: .2px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel2);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: #343d50;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #101218;
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn.danger {
+      color: #ffaaaa;
+      background: #382329;
+      border-color: #70404b;
+    }
+
+    .btn.danger:hover {
+      background: #512d38;
+    }
+
+    .btn.small {
+      min-height: 29px;
+      padding: 0 8px;
+      font-size: 11px;
+    }
+
+    /* Status bar */
+
+    .statusbar {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 19px;
+      border-bottom: 1px solid var(--border);
+      background: #141821;
+      color: #e0e5f0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    #statusText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-indicator {
+      width: 11px;
+      height: 11px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .status-indicator.busy {
+      background: var(--warning);
+      animation: statusPulse 1s infinite;
+    }
+
+    .status-indicator.busy:after {
+      content: "";
+      display: block;
+      width: 19px;
+      height: 19px;
+      margin: -4px;
+      border: 2px solid #ffd16a88;
+      border-top-color: var(--warning);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    #gpsStatus {
+      white-space: nowrap;
+      color: #e0e5f0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
     }
 
-    // Update progress
-    const geoIdx = i + 1;
-    const pct = Math.round((geoIdx / total) * 100);
-    loader.innerHTML = `<p>🔄 Se caută coordonatele GPS...</p><p class="hint">${geoIdx} / ${total} (${pct}%) — te rog așteaptă</p>`;
-
-    // 2s delay between requests (Nominatim: 1 req/sec + burst of 3)
-    await new Promise(r => setTimeout(r, 2000));
-  }
-
-  // Remove loading indicator
-  if (loader.parentNode) loader.parentNode.removeChild(loader);
-}
-
-// ─── Render list ───────────────────────────────────────────────────────
-
-function render(locs) {
-  results.style.display = 'block';
-  searchBox.style.display = 'block';
-  dropZone.style.display = 'none';
-  btnShowMap.style.display = 'inline-block';
-  mapContainer.style.display = 'block';
-
-  results.innerHTML = `<h2>${locs.length} <span class="count-badge">locații</span></h2>` + locs.map((l, i) => `
-    <div class="card">
-      <span class="company">${esc(l.company)}</span>
-      <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
-      ${!l.lat || !l.lng ? `<span class="no-gps" title="Fără GPS — nu apare pe hartă">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L2 22h20L12 2z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
-          <text x="12" y="17" text-anchor="middle" font-size="14" font-weight="bold" fill="#7c2d12">!</text>
-        </svg>
-      </span>` : ''}
-      <a class="maps-link" href="#" data-address="${esc(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
-      <button class="del-btn" data-idx="${i}">✕ Șterge</button>
-    </div>
-  `).join('');
-
-  // Attach delete handlers
-  results.querySelectorAll('.del-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx);
-      allLocations.splice(idx, 1);
-      saveToStorage();
-      updateMap();
-      render(allLocations);
-    });
-  });
-
-  // Attach maps-link handlers
-  results.querySelectorAll('.maps-link').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const dest = link.dataset.address;
-      window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
-    });
-  });
-}
-
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-// ─── Search ────────────────────────────────────────────────────────────
-
-searchBox.addEventListener('input', () => {
-  const q = searchBox.value.toLowerCase().trim();
-  const filtered = allLocations.filter(l =>
-    l.company.toLowerCase().includes(q) ||
-    l.address.toLowerCase().includes(q) ||
-    l.city.toLowerCase().includes(q)
-  );
-  render(filtered);
-  updateMap(filtered);
-});
-
-// ─── Map ───────────────────────────────────────────────────────────────
-
-map = L.map('map').setView([44.4268, 26.1025], 12); // Bucharest default
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
-
-function updateMap(locs) {
-  if (!map) return;
-  const visible = locs || allLocations;
-
-  // Add new markers (those not yet on the map)
-  visible.forEach(l => {
-    if (!l.lat || !l.lng) return;
-    // Check if marker already exists for this location
-    const existing = markers.find(m => {
-      const pos = m.getLatLng();
-      return pos.lat === l.lat && pos.lng === l.lng;
-    });
-    if (existing) return; // already on map
-
-    const address = l.address + ', ' + l.city;
-    const m = L.marker([l.lat, l.lng]).addTo(map);
-    const popupContent = `<strong>${esc(l.company)}</strong><br>${esc(address)}<br><a class="maps-link" href="#" data-address="${esc(address)}" target="_blank" rel="noopener">🗺️ Deschide în Google Maps</a>`;
-    m.bindPopup(popupContent);
-    markers.push(m);
-  });
-
-  // Fit bounds to all visible markers
-  if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.1));
-  }
-
-  // Force map repaint (async to let DOM settle first)
-  requestAnimationFrame(() => map.invalidateSize());
-}
-
-// ─── Init ──────────────────────────────────────────────────────────────
-
-loadFromStorage();
-if (allLocations.length > 0) {
-  updateMap();
-}
-
-
-</script>
-<script src="xlsx.full.min.js"></script>
-
-
-<script>
-const { ipcRenderer } = require('electron');
-
-(async () => {
-    try {
-        const coordinates = await ipcRenderer.invoke(
-            'geocode',
-            'Bucharest, Romania'
-        );
-
-        alert(JSON.stringify(coordinates));
-    } catch (error) {
-        console.error('Geolocation error:', error);
-        alert(error.message);
+    @keyframes statusPulse {
+      50% {
+        opacity: .4;
+      }
     }
-})();
-</script>
+
+    /* Main layout */
+
+    .workspace {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 11px 10px;
+      overflow: hidden;
+    }
+
+    .map-panel,
+    .sidebar {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .map-panel {
+      flex: 0 0 var(--map-height, 62%);
+      min-height: 220px;
+    }
+
+    .map-toolbar {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .map-heading,
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    .map-subheading {
+      margin-top: 1px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .map-toolbar-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .map-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #171c26;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 120px;
+      background: #202735;
+    }
+
+    .map-overlay {
+      position: absolute;
+      z-index: 500;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      border: 1px solid #ffffff30;
+      border-radius: 8px;
+      background: #141822ed;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 750;
+      pointer-events: none;
+    }
+
+    .map-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Draggable map/list divider */
+
+    .panel-resizer {
+      position: relative;
+      z-index: 20;
+      flex: 0 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: row-resize;
+      touch-action: none;
+    }
+
+    .panel-resizer::before {
+      content: "";
+      width: 58px;
+      height: 4px;
+      border-radius: 5px;
+      background: #59647b;
+      transition: background .15s, width .15s;
+    }
+
+    .panel-resizer:hover::before,
+    .panel-resizer.dragging::before {
+      width: 85px;
+      background: var(--accent);
+    }
+
+    body.resizing-panels {
+      cursor: row-resize !important;
+      user-select: none !important;
+    }
+
+    body.resizing-panels * {
+      cursor: row-resize !important;
+      user-select: none !important;
+    }
+
+    /* Location list */
+
+    .sidebar {
+      flex: 1 1 0;
+      min-height: 120px;
+    }
+
+    .sidebar-header {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sidebar-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .count-badge {
+      min-width: 32px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #30365d;
+      color: #d4d7ff;
+      font-size: 14px;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .filter-button {
+      height: 31px;
+      min-height: 31px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      vertical-align: middle;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #202532;
+      color: #c0c8d7;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .filter-button:hover {
+      background: #343d50;
+    }
+
+    .filter-button.active {
+      border-color: #b18b3e;
+      background: #49391d;
+      color: #ffe3a0;
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-top: 7px;
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 6px;
+      left: 11px;
+      color: var(--muted);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .search-box {
+      width: 100%;
+      height: 34px;
+      padding: 0 12px 0 36px;
+      outline: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #11151d;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .search-box:focus {
+      border-color: var(--accent);
+    }
+
+    .search-box::placeholder {
+      color: #929bad;
+    }
+
+    .location-list {
+      flex: 1 1 0;
+      min-height: 0;
+      height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 7px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      grid-auto-rows: max-content;
+      align-content: start;
+      gap: 6px;
+      scrollbar-gutter: stable;
+    }
+
+    .location-card {
+      min-width: 0;
+      padding: 7px 9px;
+      border: 1px solid #343d50;
+      border-radius: 8px;
+      background: #202532;
+      cursor: pointer;
+    }
+
+    .location-card:hover {
+      border-color: #596581;
+      background: #2a3243;
+    }
+
+    .location-card.active {
+      border-color: var(--accent);
+      background: #282d48;
+    }
+
+    .location-company {
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+
+    .location-address {
+      margin-top: 3px;
+      color: #d0d7e5;
+      font-size: 13px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .location-coordinates {
+      margin-top: 3px;
+      color: #aebaff;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .location-coordinates.missing {
+      color: var(--warning);
+    }
+
+    .location-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 6px;
+    }
+
+    .location-status {
+      color: var(--success);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .location-status.missing {
+      color: var(--warning);
+    }
+
+    .location-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .location-actions .btn {
+      min-height: 27px;
+      padding: 0 7px;
+      font-size: 10px;
+    }
+
+    .sidebar-footer {
+      flex: 0 0 auto;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-top: 1px solid var(--border);
+      color: #c0c8d7;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .empty-state {
+      grid-column: 1/-1;
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-icon {
+      margin-bottom: 7px;
+      font-size: 29px;
+    }
+
+    .empty-title {
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .empty-description {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* Import drop zone */
+
+    .drop-zone {
+      display: none;
+      margin: 8px;
+      padding: 12px;
+      border: 1px dashed #737da8;
+      border-radius: 9px;
+      background: #202532;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      background: #292e49;
+    }
+
+    .drop-zone p {
+      color: #d4d7ff;
+      font-size: 15px;
+    }
+
+    .drop-zone .hint {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .drop-zone input {
+      display: none;
+    }
+
+    /* Processing */
+
+    .processing-banner {
+      flex: 0 0 auto;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 13px;
+      border-bottom: 1px solid #67552c;
+      background: #302a1c;
+      color: #ffe3a0;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .processing-banner.visible {
+      display: flex;
+    }
+
+    .processing-spinner {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      border: 3px solid #ffe3a055;
+      border-top-color: var(--warning);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+
+    .processing-detail {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #e8d6aa;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .resolve-button.processing {
+      border-color: #9b7935;
+      background: #49391d;
+      color: #ffe3a0;
+    }
+
+    /* Leaflet and popups */
+
+    .leaflet-container {
+      font-family: inherit;
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+      background: #202532;
+      color: var(--text);
+    }
+
+    .leaflet-popup-content-wrapper {
+      border: 1px solid #596581;
+      border-radius: 10px;
+    }
+
+    .leaflet-popup-content {
+      min-width: 280px;
+      max-width: 390px;
+      margin: 15px;
+    }
+
+    .popup-company {
+      margin-bottom: 8px;
+      font-size: 18px;
+      font-weight: 850;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .popup-address {
+      margin-bottom: 10px;
+      color: #d0d7e5;
+      font-size: 15px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .popup-coordinates {
+      margin-bottom: 11px;
+      color: #b9c4ff;
+      font-size: 15px;
+      font-weight: 750;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .popup-coordinates.missing {
+      color: var(--warning);
+    }
+
+    .popup-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .leaflet-control-zoom a {
+      background: #202532 !important;
+      color: white !important;
+      border-color: #49546b !important;
+    }
+
+    .leaflet-control-attribution {
+      background: #141822cc !important;
+      color: #aab3c4 !important;
+    }
+
+    .leaflet-control-attribution a {
+      color: #a5adff !important;
+    }
+
+    /* Edit modal */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: #000b;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(540px, 100%);
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 20px 70px #0009;
+    }
+
+    .modal-title {
+      margin-bottom: 6px;
+      font-size: 21px;
+      font-weight: 850;
+    }
+
+    .modal-subtitle {
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .form-field.full {
+      grid-column: 1/-1;
+    }
+
+    .form-field label {
+      color: #c0c8d7;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .form-field input {
+      width: 100%;
+      height: 43px;
+      padding: 0 11px;
+      outline: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #11151d;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .form-field input:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 17px;
+    }
+
+    .modal-error {
+      display: none;
+      margin-top: 11px;
+      color: #ff9292;
+      font-size: 14px;
+    }
+
+    .modal-error.show {
+      display: block;
+    }
+
+    body:fullscreen {
+      width: 100%;
+      height: 100%;
+    }
+
+    @media(max-width:1000px) {
+      .topbar {
+        padding: 0 8px;
+      }
+
+      .brand-name {
+        font-size: 18px;
+      }
+
+      .topbar-actions {
+        gap: 5px;
+      }
+
+      .btn {
+        padding: 0 9px;
+        font-size: 13px;
+      }
+
+      .location-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @media(max-width:700px) {
+      .topbar {
+        height: 58px;
+        min-height: 58px;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .brand-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 19px;
+      }
+
+      .brand-name {
+        font-size: 16px;
+      }
+
+      .topbar-actions .btn {
+        min-height: 36px;
+        font-size: 11px;
+        padding: 0 7px;
+      }
+
+      .workspace {
+        padding: 6px;
+      }
+
+      .map-panel {
+        min-height: 180px;
+      }
+
+      .sidebar {
+        min-height: 110px;
+      }
+
+      .location-list {
+        grid-template-columns: 1fr;
+      }
+
+      .statusbar {
+        padding: 0 10px;
+        font-size: 13px;
+      }
+
+      .map-toolbar {
+        padding: 0 9px;
+      }
+
+      .map-toolbar-actions .btn {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">📍</div>
+      <div class="brand-name">Locații din Excel</div>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn primary" id="btnLoad">＋ IMPORTĂ EXCEL</button>
+      <button class="btn danger" id="btnClear">ȘTERGE TOT</button>
+    </div>
+  </header>
+
+  <div class="statusbar">
+    <div class="status-left">
+      <span class="status-indicator" id="statusIndicator"></span>
+      <span id="statusText">Gata</span>
+    </div>
+    <span id="gpsStatus">0 coordonate GPS</span>
+  </div>
+
+  <main class="workspace" id="workspace">
+    <section class="map-panel" id="mapPanel">
+      <div class="map-toolbar">
+        <div>
+          <div class="map-heading">Harta locațiilor</div>
+          <div class="map-subheading" id="mapSubtitle">Prezentare geografică</div>
+        </div>
+        <div class="map-toolbar-actions">
+          <button class="btn small" id="btnFit">ENCADREAZĂ</button>
+          <button class="btn small" id="btnShowMap">⛶ ECRAN INTEGRAL</button>
+        </div>
+      </div>
+
+      <div class="map-wrap" id="mapContainer">
+        <div id="map"></div>
+        <div class="map-overlay">
+          <span class="map-dot"></span>
+          <span id="mapOverlayText">0 locații pe hartă</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel-resizer" id="panelResizer" title="Trage pentru a redimensiona harta și lista"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <span class="sidebar-title">Locații importate</span>
+          <div class="sidebar-header-actions">
+            <button class="btn primary" id="btnScan" style="display:none;min-height:31px;padding:0 10px;font-size:12px">
+              CONTINUĂ SCANAREA
+            </button>
+
+            <button class="filter-button" id="btnMissingFilter">⚠ GPS LIPSĂ (0)</button>
+            <span class="count-badge" id="locationCount">0</span>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa...">
+        </div>
+      </div>
+
+      <div class="processing-banner" id="processingBanner">
+        <span class="processing-spinner"></span>
+        <div>
+          <div id="processingTitle">Se procesează coordonatele GPS...</div>
+          <div class="processing-detail" id="processingDetail">Se caută pe OpenStreetMap</div>
+        </div>
+      </div>
+
+      <div class="drop-zone" id="dropZone">
+        <p>📁 Deschide un fișier Excel</p>
+        <p class="hint">Trage fișierul aici sau dă click pentru a-l selecta</p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls">
+      </div>
+
+      <div class="location-list" id="results">
+        <div class="empty-state">
+          <div class="empty-icon">📍</div>
+          <div class="empty-title">Nicio locație deocamdată</div>
+          <div class="empty-description">Importă un fișier Excel pentru a afișa companiile pe hartă.</div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer" id="sidebarFooter">Importă un fișier .xlsx sau .xls</div>
+    </aside>
+  </main>
+
+  <div class="modal-backdrop" id="editModal">
+    <form class="modal" id="editForm">
+      <div class="modal-title">Editează locația</div>
+      <div class="modal-subtitle">Modifică detaliile companiei și coordonatele GPS.</div>
+
+      <div class="form-grid">
+        <div class="form-field full">
+          <label for="editCompany">Nume companie</label>
+          <input id="editCompany" type="text">
+        </div>
+        <div class="form-field full">
+          <label for="editAddress">Adresa</label>
+          <input id="editAddress" type="text">
+        </div>
+        <div class="form-field full">
+          <label for="editCity">Oraș</label>
+          <input id="editCity" type="text">
+        </div>
+        <div class="form-field">
+          <label for="editLat">Latitudine</label>
+          <input id="editLat" type="number" step="any" placeholder="44.4268">
+        </div>
+        <div class="form-field">
+          <label for="editLng">Longitudine</label>
+          <input id="editLng" type="number" step="any" placeholder="26.1025">
+        </div>
+      </div>
+
+      <div class="modal-error" id="editError"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="btnCancelEdit">RENUNCE</button>
+        <button type="submit" class="btn primary">SALVEAZĂ</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="leaflet.js"></script>
+  <script src="xlsx.full.min.js"></script>
+
+  <script>
+    const STORAGE_KEY = 'marius-xls-locations';
+    const MAP_HEIGHT_KEY = 'marius-xls-map-height';
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const searchBox = document.getElementById('searchBox');
+    const results = document.getElementById('results');
+    const statusText = document.getElementById('statusText');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    const scanButton = document.getElementById('btnScan');
+    const processingBanner = document.getElementById('processingBanner');
+    const missingFilterButton = document.getElementById('btnMissingFilter');
+    const workspace = document.getElementById('workspace');
+    const mapPanel = document.getElementById('mapPanel');
+    const panelResizer = document.getElementById('panelResizer');
+
+    let allLocations = [];
+    let markers = [];
+    let geocoding = false;
+    let stopRequested = false;
+    let editingIndex = null;
+    let editingOriginal = null;
+    let showMissingOnly = false;
+
+    let requestQueue = [];
+    let requestRunning = false;
+    let activeLocation = null;
+    let resolvingLocations = new Set();
+    let lastRequestAt = 0;
+
+    const map = L.map('map').setView([44.4268, 26.1025], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Helpers
+
+    function esc(value) {
+      const element = document.createElement('div');
+      element.textContent = String(value ?? '');
+      return element.innerHTML;
+    }
+
+    function parseCoordinate(value) {
+      if (value === '' || value === null || value === undefined) return null;
+      const number = Number(String(value).replace(',', '.'));
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function hasCoordinates(location) {
+      return Number.isFinite(location.lat) &&
+        Number.isFinite(location.lng) &&
+        location.lat !== null &&
+        location.lng !== null &&
+        location.lat >= -90 && location.lat <= 90 &&
+        location.lng >= -180 && location.lng <= 180;
+    }
+
+    function getAddress(location) {
+      return [location.address, location.city, 'Romania'].filter(Boolean).join(', ');
+    }
+
+    function getGoogleMapsUrl(location) {
+      const query = hasCoordinates(location)
+        ? `${location.lat},${location.lng}`
+        : getAddress(location);
+
+      return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(String(text));
+        setStatus('Copiat în clipboard');
+      } catch (error) {
+        console.error('Clipboard error:', error);
+        setStatus('Nu s-a putut copia în clipboard');
+      }
+    }
+
+    async function openGoogleMaps(location) {
+      window.open(getGoogleMapsUrl(location), '_blank');
+    }
+
+    function setStatus(message, busy = false) {
+      statusText.textContent = message;
+      statusIndicator.classList.toggle('busy', busy);
+    }
+
+    function getMissingLocations() {
+      return allLocations.filter(location => !hasCoordinates(location));
+    }
+
+    function getSearchLocations() {
+      const query = searchBox.value.toLowerCase().trim();
+
+      if (!query) return allLocations;
+
+      return allLocations.filter(location =>
+        String(location.company).toLowerCase().includes(query) ||
+        String(location.address).toLowerCase().includes(query) ||
+        String(location.city).toLowerCase().includes(query)
+      );
+    }
+
+    function getVisibleLocations() {
+      const locations = getSearchLocations();
+      return showMissingOnly
+        ? locations.filter(location => !hasCoordinates(location))
+        : locations;
+    }
+
+    function updateProcessingUI() {
+      const busy = requestRunning || geocoding;
+      processingBanner.classList.toggle('visible', busy);
+      statusIndicator.classList.toggle('busy', busy);
+
+      if (activeLocation) {
+        document.getElementById('processingTitle').textContent =
+          `Se rezolvă: ${activeLocation.company || 'Companie fără nume'}`;
+        document.getElementById('processingDetail').textContent =
+          getAddress(activeLocation);
+      } else if (geocoding) {
+        document.getElementById('processingTitle').textContent =
+          stopRequested ? 'Scanarea se oprește...' : 'Se scanează coordonatele GPS...';
+        document.getElementById('processingDetail').textContent =
+          `${getMissingLocations().length} locații încă au nevoie de GPS`;
+      }
+    }
+
+    function updateScanButton() {
+      const missing = getMissingLocations().length;
+      scanButton.style.display = missing > 0 ? 'inline-flex' : 'none';
+
+      if (geocoding) {
+        scanButton.textContent = stopRequested ? 'SE OPREȘTE...' : 'OPREȘTE SCANAREA';
+        scanButton.disabled = stopRequested;
+      } else {
+        scanButton.textContent = 'CONTINUĂ SCANAREA';
+        scanButton.disabled = false;
+      }
+
+      const shown = getVisibleLocations().length;
+      document.getElementById('sidebarFooter').textContent =
+        `${shown} afișate · ${allLocations.length} total · ${missing} fără GPS`;
+
+      updateFilterButton();
+    }
+
+    // Resizable map/list panels
+
+    function setMapHeight(percent) {
+      const clamped = Math.max(25, Math.min(80, percent));
+      mapPanel.style.flexBasis = `${clamped}%`;
+      localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+
+      requestAnimationFrame(() => map.invalidateSize());
+    }
+
+    function initializePanelResizer() {
+      const savedHeight = Number(localStorage.getItem(MAP_HEIGHT_KEY));
+      setMapHeight(Number.isFinite(savedHeight) && savedHeight >= 25 && savedHeight <= 80
+        ? savedHeight
+        : 62);
+
+      let dragging = false;
+
+      panelResizer.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+
+        dragging = true;
+        panelResizer.classList.add('dragging');
+        document.body.classList.add('resizing-panels');
+        panelResizer.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      });
+
+      panelResizer.addEventListener('pointermove', event => {
+        if (!dragging) return;
+
+        const workspaceRect = workspace.getBoundingClientRect();
+        const usableHeight = workspaceRect.height - 20;
+        const relativeY = event.clientY - workspaceRect.top - 8;
+        const percent = (relativeY / usableHeight) * 100;
+
+        const mapMinimum = 220;
+        const listMinimum = 120;
+        const dividerHeight = panelResizer.offsetHeight;
+        const available = workspace.clientHeight - 20 - dividerHeight;
+
+        const minPercent = Math.max(25, (mapMinimum / available) * 100);
+        const maxPercent = Math.min(80, 100 - (listMinimum / available) * 100);
+        const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
+
+        mapPanel.style.flexBasis = `${clamped}%`;
+        localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+
+        requestAnimationFrame(() => map.invalidateSize());
+      });
+
+      const stopDragging = () => {
+        if (!dragging) return;
+        dragging = false;
+        panelResizer.classList.remove('dragging');
+        document.body.classList.remove('resizing-panels');
+        map.invalidateSize();
+      };
+
+      panelResizer.addEventListener('pointerup', stopDragging);
+      panelResizer.addEventListener('pointercancel', stopDragging);
+      panelResizer.addEventListener('lostpointercapture', stopDragging);
+    }
+
+    // Storage
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
+    }
+
+    function loadFromStorage() {
+      try {
+        allLocations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch (error) {
+        console.error('Storage error:', error);
+        allLocations = [];
+      }
+      render();
+      updateMap();
+    }
+
+    // File upload
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', event => {
+      event.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', event => {
+      event.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (event.dataTransfer.files.length) readFile(event.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', event => {
+      if (event.target.files.length) {
+        readFile(event.target.files[0]);
+        fileInput.value = '';
+      }
+    });
+
+    document.getElementById('btnLoad').addEventListener('click', () => {
+      if (geocoding || requestRunning) {
+        alert('Așteaptă până se termină procesarea GPS înainte să imporți alt fișier.');
+        return;
+      }
+      fileInput.click();
+    });
+
+    // Excel processing
+
+    function readFile(file) {
+      if (geocoding || requestRunning) {
+        alert('Așteaptă până se termină procesarea GPS înainte să imporți alt fișier.');
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = async event => {
+        try {
+          const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          allLocations = rows.map(row => ({
+            company: row['Companie: Nume complet'] || '',
+            address: row['Adresa     1: Adresa'] || '',
+            city: row['Adresa     1: Orașul'] || '',
+            lat: parseCoordinate(row['Lat']),
+            lng: parseCoordinate(row['Lng'])
+          })).filter(location => location.company || location.address);
+
+          saveToStorage();
+          searchBox.value = '';
+          showMissingOnly = false;
+          updateFilterButton();
+          render();
+          updateMap(true);
+          await geocodeAll();
+        } catch (error) {
+          console.error('Excel processing error:', error);
+          alert('Nu s-a putut citi fișierul Excel: ' + error.message);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    // GPS resolution through the public Nominatim API.
+
+    async function geocodeAddress(address) {
+      const url = 'https://nominatim.openstreetmap.org/search?format=json&q=' +
+        encodeURIComponent(address) + '&limit=1&addressdetails=1';
+
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          const response = await fetch(url, {
+            headers: { 'Accept-Language': 'ro' }
+          });
+
+          if (response.status === 429) {
+            const retryAfter = Math.min(30000 * (attempt + 1), 120000);
+            await new Promise(resolve => setTimeout(resolve, retryAfter));
+            continue;
+          }
+
+          if (!response.ok) return null;
+
+          const data = await response.json();
+          if (data.length > 0) {
+            return {
+              lat: parseFloat(data[0].lat),
+              lng: parseFloat(data[0].lon)
+            };
+          }
+          return null;
+        } catch (error) {
+          console.warn('Geocode request failed:', error);
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      }
+
+      return null;
+    }
+
+    // Shared GPS request queue.
+    // Manual requests have priority over the next automatic scan request.
+    // Nominatim allows 1 request/second, so requests are spaced 2s apart.
+
+    function enqueueGeocode(location, priority = false) {
+      if (!allLocations.includes(location) || hasCoordinates(location)) {
+        return Promise.resolve(false);
+      }
+
+      const existing = requestQueue.find(item => item.location === location);
+      if (existing) return existing.promise;
+
+      return new Promise(resolve => {
+        const item = { location, resolve, promise: null };
+
+        item.promise = new Promise(innerResolve => {
+          item.resolve = value => {
+            innerResolve(value);
+            resolve(value);
+          };
+        });
+
+        if (priority) requestQueue.unshift(item);
+        else requestQueue.push(item);
+
+        updateProcessingUI();
+        processGeocodeQueue();
+      });
+    }
+
+    async function processGeocodeQueue() {
+      if (requestRunning || !requestQueue.length) {
+        updateProcessingUI();
+        return;
+      }
+
+      const item = requestQueue.shift();
+      const location = item.location;
+
+      if (!allLocations.includes(location) || hasCoordinates(location)) {
+        item.resolve(false);
+        processGeocodeQueue();
+        return;
+      }
+
+      requestRunning = true;
+      activeLocation = location;
+      resolvingLocations.add(location);
+      render();
+      updateProcessingUI();
+
+      let success = false;
+
+      try {
+        const elapsed = Date.now() - lastRequestAt;
+        if (elapsed < 2000) {
+          await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+        }
+        lastRequestAt = Date.now();
+
+        const coordinates = await geocodeAddress(getAddress(location));
+
+        if (
+          coordinates &&
+          Number.isFinite(coordinates.lat) &&
+          Number.isFinite(coordinates.lng) &&
+          coordinates.lat >= -90 && coordinates.lat <= 90 &&
+          coordinates.lng >= -180 && coordinates.lng <= 180
+        ) {
+          if (allLocations.includes(location)) {
+            location.lat = coordinates.lat;
+            location.lng = coordinates.lng;
+            saveToStorage();
+            success = true;
+            updateMap(true);
+          }
+        }
+      } catch (error) {
+        console.error(`Geocoding failed for ${getAddress(location)}:`, error);
+      } finally {
+        resolvingLocations.delete(location);
+        requestRunning = false;
+        activeLocation = null;
+
+        item.resolve(success);
+
+        render();
+        updateProcessingUI();
+
+        if (geocoding) {
+          setStatus(
+            stopRequested ? 'Scanarea se oprește după adresa curentă...' : 'Se scanează coordonatele GPS...',
+            true
+          );
+        } else if (!requestQueue.length) {
+          setStatus(success ? 'Coordonate GPS rezolvate' : 'Rezolvarea GPS a eșuat');
+        }
+
+        processGeocodeQueue();
+      }
+    }
+
+    // Scan: can be stopped and resumed.
+
+    scanButton.addEventListener('click', () => {
+      if (geocoding) {
+        stopRequested = true;
+        updateScanButton();
+        updateProcessingUI();
+        setStatus('Scanarea se va opri după adresa curentă...', true);
+        return;
+      }
+
+      geocodeAll();
+    });
+
+    async function geocodeAll() {
+      if (geocoding) return;
+
+      const pending = getMissingLocations();
+
+      if (!pending.length) {
+        setStatus('Toate locațiile au coordonate GPS');
+        render();
+        return;
+      }
+
+      geocoding = true;
+      stopRequested = false;
+
+      document.getElementById('btnLoad').disabled = true;
+      document.getElementById('btnClear').disabled = true;
+
+      updateScanButton();
+      updateProcessingUI();
+      setStatus(`Scanare GPS pornită: ${pending.length} adrese`, true);
+
+      let completed = 0;
+      let attempted = 0;
+      let stopped = false;
+
+      try {
+        for (const location of pending) {
+          if (stopRequested) {
+            stopped = true;
+            break;
+          }
+
+          if (!allLocations.includes(location) || hasCoordinates(location)) {
+            continue;
+          }
+
+          attempted++;
+          setStatus(`Scanare GPS: ${attempted} / ${pending.length}`, true);
+
+          const success = await enqueueGeocode(location, false);
+          if (success) completed++;
+
+          if (stopRequested) {
+            stopped = true;
+            break;
+          }
+        }
+      } finally {
+        geocoding = false;
+        stopRequested = false;
+
+        document.getElementById('btnLoad').disabled = false;
+        document.getElementById('btnClear').disabled = false;
+
+        render();
+        updateMap();
+        updateScanButton();
+        updateProcessingUI();
+
+        const missing = getMissingLocations().length;
+
+        if (stopped) {
+          setStatus(`Scanare oprită: ${completed} găsite în această sesiune, ${missing} rămase`);
+        } else if (missing) {
+          setStatus(`Scanare terminată: ${completed} găsite, ${missing} fără GPS`);
+        } else {
+          setStatus('Gata: toate locațiile au coordonate GPS');
+        }
+      }
+    }
+
+    // Resolve one location manually.
+
+    async function resolveOneLocation(index) {
+      const location = allLocations[index];
+      if (!location || hasCoordinates(location)) return;
+
+      if (resolvingLocations.has(location)) return;
+
+      setStatus(`Rezolvare GPS în coadă: ${location.company || 'Locație'}`, true);
+
+      const success = await enqueueGeocode(location, true);
+
+      if (success) {
+        setStatus(`GPS rezolvat: ${location.company || 'Locație'}`);
+      } else if (allLocations.includes(location) && !hasCoordinates(location)) {
+        setStatus(`Nu s-a putut rezolva GPS-ul: ${location.company || 'Locație'}`);
+      }
+
+      render();
+      updateMap();
+    }
+
+    // Recalculate GPS for a location that already has coordinates.
+
+    async function recalculateLocation(index) {
+      const location = allLocations[index];
+      if (!location || !hasCoordinates(location)) return;
+
+      if (resolvingLocations.has(location)) return;
+
+      if (!confirm(`Recalculatezi coordonatele GPS pentru ${location.company || 'această locație'} folosind adresa curentă?`)) {
+        return;
+      }
+
+      location.lat = null;
+      location.lng = null;
+
+      saveToStorage();
+      render();
+      updateMap();
+
+      setStatus(`Se recalculează GPS-ul: ${location.company || 'Locație'}`, true);
+
+      const success = await enqueueGeocode(location, true);
+
+      render();
+      updateMap();
+
+      if (success) {
+        setStatus(`GPS recalculate: ${location.company || 'Locație'}`);
+      } else if (allLocations.includes(location) && !hasCoordinates(location)) {
+        setStatus(`Recalcularea GPS-ului a eșuat: ${location.company || 'Locație'}`);
+      }
+    }
+
+    // Edit location
+
+    function openEditModal(index) {
+      const location = allLocations[index];
+      if (!location) return;
+
+      editingIndex = index;
+      editingOriginal = {
+        address: location.address || '',
+        city: location.city || '',
+        lat: location.lat,
+        lng: location.lng
+      };
+
+      document.getElementById('editCompany').value = location.company || '';
+      document.getElementById('editAddress').value = location.address || '';
+      document.getElementById('editCity').value = location.city || '';
+      document.getElementById('editLat').value = location.lat ?? '';
+      document.getElementById('editLng').value = location.lng ?? '';
+      document.getElementById('editError').classList.remove('show');
+
+      editModal.classList.add('open');
+      document.getElementById('editCompany').focus();
+    }
+
+    function closeEditModal() {
+      editingIndex = null;
+      editingOriginal = null;
+      editModal.classList.remove('open');
+    }
+
+    document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+
+    editModal.addEventListener('click', event => {
+      if (event.target === editModal) closeEditModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeEditModal();
+    });
+
+    editForm.addEventListener('submit', event => {
+      event.preventDefault();
+
+      if (editingIndex === null || !allLocations[editingIndex]) return;
+
+      const latText = document.getElementById('editLat').value.trim();
+      const lngText = document.getElementById('editLng').value.trim();
+      const lat = latText === '' ? null : parseCoordinate(latText);
+      const lng = lngText === '' ? null : parseCoordinate(lngText);
+      const errorElement = document.getElementById('editError');
+
+      if ((latText !== '' && lat === null) || (lngText !== '' && lng === null)) {
+        errorElement.textContent = 'Coordonatele trebuie să fie numere valide.';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      if ((lat === null) !== (lng === null)) {
+        errorElement.textContent = 'Completează ambele coordonate GPS sau lasă-le pe ambele goale.';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      if (lat !== null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
+        errorElement.textContent = 'Latitudinea trebuie să fie între -90 și 90, longitudinea între -180 și 180.';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      const location = allLocations[editingIndex];
+
+      const newAddress = document.getElementById('editAddress').value.trim();
+      const newCity = document.getElementById('editCity').value.trim();
+
+      const addressChanged =
+        newAddress !== editingOriginal.address ||
+        newCity !== editingOriginal.city;
+
+      const coordinatesUnchanged =
+        lat === editingOriginal.lat &&
+        lng === editingOriginal.lng;
+
+      location.company = document.getElementById('editCompany').value.trim();
+      location.address = newAddress;
+      location.city = newCity;
+
+      if (addressChanged && coordinatesUnchanged) {
+        location.lat = null;
+        location.lng = null;
+      } else {
+        location.lat = lat;
+        location.lng = lng;
+      }
+
+      const needsGps = !hasCoordinates(location);
+
+      saveToStorage();
+      closeEditModal();
+      render();
+      updateMap(true);
+
+      if (needsGps) {
+        setStatus('Adresa a fost actualizată. GPS-ul trebuie rezolvat.');
+      } else {
+        setStatus('Locație actualizată');
+      }
+    });
+
+    // Delete location
+
+    function deleteLocation(index) {
+      if (!Number.isInteger(index) || index < 0 || index >= allLocations.length) return;
+
+      const location = allLocations[index];
+
+      requestQueue = requestQueue.filter(item => {
+        if (item.location === location) {
+          item.resolve(false);
+          return false;
+        }
+        return true;
+      });
+
+      allLocations.splice(index, 1);
+      saveToStorage();
+      render();
+      updateMap();
+      setStatus('Locație ștersă');
+    }
+
+    // Missing GPS filter with live count
+
+    function updateFilterButton() {
+      const missing = getMissingLocations().length;
+
+      if (missing === 0 && showMissingOnly) {
+        showMissingOnly = false;
+        render();
+      }
+
+      missingFilterButton.style.display = missing > 0 ? 'inline-flex' : 'none';
+      missingFilterButton.classList.toggle('active', showMissingOnly);
+      missingFilterButton.textContent =
+        `${showMissingOnly ? '✓' : '⚠'} GPS LIPSĂ (${missing})`;
+    }
+
+    missingFilterButton.addEventListener('click', () => {
+      showMissingOnly = !showMissingOnly;
+      updateFilterButton();
+      render();
+    });
+
+    // Render list
+
+    function render() {
+      const locations = getVisibleLocations();
+      const gpsCount = allLocations.filter(hasCoordinates).length;
+
+      document.getElementById('locationCount').textContent =
+        showMissingOnly ? locations.length : allLocations.length;
+
+      document.getElementById('gpsStatus').textContent =
+        `${gpsCount} / ${allLocations.length} coordonate GPS`;
+
+      document.getElementById('mapSubtitle').textContent =
+        `${gpsCount} locații cu poziție GPS`;
+
+      document.getElementById('mapOverlayText').textContent =
+        `${gpsCount} locații pe hartă`;
+
+      updateFilterButton();
+
+      if (!allLocations.length) {
+        results.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📍</div>
+        <div class="empty-title">Nicio locație deocamdată</div>
+        <div class="empty-description">Importă un fișier Excel pentru a afișa companiile pe hartă.</div>
+      </div>`;
+        dropZone.style.display = 'block';
+        updateScanButton();
+        return;
+      }
+
+      dropZone.style.display = 'none';
+
+      if (!locations.length) {
+        results.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">${showMissingOnly ? '✓' : '⌕'}</div>
+        <div class="empty-title">${showMissingOnly ? 'Toate locațiile au GPS' : 'Niciun rezultat'}</div>
+        <div class="empty-description">${showMissingOnly
+            ? 'Nu există locații fără coordonate GPS.'
+            : 'Încearcă alt termen de căutare.'}</div>
+      </div>`;
+        updateScanButton();
+        updateProcessingUI();
+        return;
+      }
+
+      results.innerHTML = locations.map(location => {
+        const index = allLocations.indexOf(location);
+        const gps = hasCoordinates(location);
+        const processing = resolvingLocations.has(location);
+
+        return `
+      <div class="location-card" data-card-idx="${index}">
+        <div class="location-company">${esc(location.company || 'Companie fără nume')}</div>
+        <div class="location-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
+
+        <div class="location-coordinates ${gps ? '' : 'missing'}">
+          ${gps
+            ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
+            : 'GPS: Nerezolvat'}
+        </div>
+
+        <div class="location-footer">
+          <span class="location-status ${gps ? '' : 'missing'}">
+            ${gps ? '● GPS DISPONIBIL' : '⚠ GPS LIPSĂ'}
+          </span>
+        <div class="location-actions">
+          ${processing ? `
+            <button class="btn small primary resolve-button processing" disabled>
+              ⟳ SE REZOLVĂ...
+            </button>` : gps ? `
+            <button class="btn small primary" data-action="maps" data-idx="${index}">MAPS</button>
+            <button class="btn small" data-action="recalculate" data-idx="${index}">↻ RECALCULEAZĂ GPS</button>
+            <button class="btn small" data-action="copy-gps" data-idx="${index}">COPIAZĂ GPS</button>` : `
+            <button class="btn small primary resolve-button" data-action="resolve" data-idx="${index}">
+              ⌖ REZOLVĂ GPS
+            </button>`}
+          <button class="btn small" data-action="copy-address" data-idx="${index}">COPIAZĂ ADRESA</button>
+          ${gps ? '' : `<button class="btn small" data-action="maps" data-idx="${index}">MAPS</button>`}
+          <button class="btn small" data-action="edit" data-idx="${index}">EDITEAZĂ</button>
+          <button class="btn small danger" data-action="delete" data-idx="${index}">ȘTERGE</button>
+        </div>
+          
+        </div>
+      </div>`;
+      }).join('');
+
+      updateScanButton();
+      updateProcessingUI();
+    }
+
+    results.addEventListener('click', async event => {
+      const button = event.target.closest('button[data-action]');
+
+      if (button) {
+        event.stopPropagation();
+
+        const index = Number(button.dataset.idx);
+        const location = allLocations[index];
+        if (!location) return;
+
+        switch (button.dataset.action) {
+          case 'resolve':
+            await resolveOneLocation(index);
+            break;
+          case 'recalculate':
+            await recalculateLocation(index);
+            break;
+          case 'copy-address':
+            await copyText(getAddress(location));
+            break;
+          case 'copy-gps':
+            if (hasCoordinates(location)) {
+              await copyText(`${location.lat}, ${location.lng}`);
+            }
+            break;
+          case 'maps':
+            await openGoogleMaps(location);
+            break;
+          case 'edit':
+            openEditModal(index);
+            break;
+          case 'delete':
+            deleteLocation(index);
+            break;
+        }
+        return;
+      }
+
+      const card = event.target.closest('.location-card');
+      if (!card) return;
+
+      const location = allLocations[Number(card.dataset.cardIdx)];
+      if (!location) return;
+
+      if (hasCoordinates(location)) {
+        map.setView([location.lat, location.lng], 15);
+        const item = markers.find(marker => marker.location === location);
+        if (item) item.marker.openPopup();
+      }
+    });
+
+    // Map popups
+
+    function createPopup(location, index) {
+      const gps = hasCoordinates(location);
+      const processing = resolvingLocations.has(location);
+
+      return `
+    <div class="popup-company">${esc(location.company || 'Companie fără nume')}</div>
+    <div class="popup-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
+
+    <div class="popup-coordinates ${gps ? '' : 'missing'}">
+      ${gps
+          ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
+          : 'GPS: Nerezolvat'}
+    </div>
+
+    <div class="popup-actions">
+    ${processing ? `
+      <button class="btn small primary" disabled>⟳ SE REZOLVĂ...</button>` : gps ? `
+      <button class="btn small primary" data-map-action="maps" data-idx="${index}">MAPS</button>
+      <button class="btn small" data-map-action="recalculate" data-idx="${index}">↻ RECALCULEAZĂ GPS</button>
+      <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPIAZĂ GPS</button>` : `
+      <button class="btn small primary" data-map-action="resolve" data-idx="${index}">
+        ⌖ REZOLVĂ GPS
+      </button>`}
+    <button class="btn small" data-map-action="copy-address" data-idx="${index}">COPIAZĂ ADRESA</button>
+    ${gps ? '' : `<button class="btn small" data-map-action="maps" data-idx="${index}">MAPS</button>`}
+    <button class="btn small" data-map-action="edit" data-idx="${index}">EDITEAZĂ</button>
+    <button class="btn small danger" data-map-action="delete" data-idx="${index}">ȘTERGE</button>
+  </div>`;
+    }
+
+    function updateMap(fit = false) {
+      markers.forEach(item => map.removeLayer(item.marker));
+      markers = [];
+
+      getSearchLocations().forEach(location => {
+        if (!hasCoordinates(location)) return;
+
+        const index = allLocations.indexOf(location);
+        const marker = L.marker([location.lat, location.lng]).addTo(map);
+        marker.bindPopup(createPopup(location, index));
+        markers.push({ marker, location });
+      });
+
+      if (fit && markers.length) {
+        map.fitBounds(
+          L.featureGroup(markers.map(item => item.marker))
+            .getBounds()
+            .pad(0.12)
+        );
+      }
+
+      requestAnimationFrame(() => map.invalidateSize());
+    }
+
+    document.getElementById('map').addEventListener('click', async event => {
+      const button = event.target.closest('button[data-map-action]');
+      if (!button) return;
+
+      const index = Number(button.dataset.idx);
+      const location = allLocations[index];
+      if (!location) return;
+
+      switch (button.dataset.mapAction) {
+        case 'resolve':
+          await resolveOneLocation(index);
+          break;
+        case 'recalculate':
+          await recalculateLocation(index);
+          break;
+        case 'copy-address':
+          await copyText(getAddress(location));
+          break;
+        case 'copy-gps':
+          if (hasCoordinates(location)) {
+            await copyText(`${location.lat}, ${location.lng}`);
+          }
+          break;
+        case 'maps':
+          await openGoogleMaps(location);
+          break;
+        case 'edit':
+          map.closePopup();
+          openEditModal(index);
+          break;
+        case 'delete':
+          map.closePopup();
+          deleteLocation(index);
+          break;
+      }
+    });
+
+    // Map controls
+
+    document.getElementById('btnFit').addEventListener('click', () => {
+      updateMap(true);
+    });
+
+    document.getElementById('btnShowMap').addEventListener('click', async () => {
+      try {
+        const panel = document.querySelector('.map-panel');
+
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await panel.requestFullscreen();
+        }
+
+        setTimeout(() => map.invalidateSize(), 100);
+      } catch (error) {
+        console.error('Fullscreen error:', error);
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(() => map.invalidateSize(), 100);
+    });
+
+    searchBox.addEventListener('input', () => {
+      render();
+      updateMap();
+    });
+
+    // Clear all
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      if (geocoding || requestRunning) {
+        alert('Oprește procesarea GPS înainte să ștergi locațiile.');
+        return;
+      }
+
+      if (!allLocations.length) return;
+      if (!confirm('Sigur vrei să ștergi toate locațiile?')) return;
+
+      allLocations = [];
+      saveToStorage();
+      searchBox.value = '';
+      showMissingOnly = false;
+      updateFilterButton();
+      render();
+      updateMap();
+      setStatus('Toate locațiile au fost șterse');
+    });
+
+    // Init
+
+    function init() {
+      initializePanelResizer();
+      loadFromStorage();
+      updateFilterButton();
+      updateScanButton();
+      updateProcessingUI();
+
+      window.addEventListener('resize', () => {
+        map.invalidateSize();
+      });
+    }
+
+    init();
+  </script>
 </body>
+
 </html>
