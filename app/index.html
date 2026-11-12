@@ -1,1770 +1,2053 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
-<title>Geolocation</title>
-<link rel="stylesheet" href="leaflet.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
+  <title>Geolocation</title>
+  <link rel="stylesheet" href="leaflet.css">
 
-<style>
-:root {
-  color-scheme:dark;
-  --bg:#101218;
-  --panel:#181c25;
-  --panel2:#252c3b;
-  --border:#343d50;
-  --text:#f4f6fc;
-  --muted:#b0b9ca;
-  --accent:#929cff;
-  --accent-hover:#aab1ff;
-  --danger:#ff7777;
-  --success:#42d6a0;
-  --warning:#ffd16a;
-  --radius:10px;
-}
-* {
-  box-sizing:border-box;
-  user-select:none;
-  -webkit-user-select:none;
-}
-html,body {
-  width:100%;
-  height:100%;
-  min-width:0;
-  min-height:0;
-  margin:0;
-  overflow:hidden;
-}
-body {
-  display:flex;
-  flex-direction:column;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter,system-ui,sans-serif;
-  font-size:16px;
-}
-input,textarea {
-  user-select:text;
-  -webkit-user-select:text;
-  font:inherit;
-}
-button {
-  font:inherit;
-  border:0;
-  cursor:pointer;
-  transition:background .15s,border-color .15s;
-}
-button:disabled {
-  opacity:.55;
-  cursor:not-allowed;
-}
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101218;
+      --panel: #181c25;
+      --panel2: #252c3b;
+      --border: #343d50;
+      --text: #f4f6fc;
+      --muted: #b0b9ca;
+      --accent: #929cff;
+      --accent-hover: #aab1ff;
+      --danger: #ff7777;
+      --success: #42d6a0;
+      --warning: #ffd16a;
+      --radius: 10px;
+    }
 
-/* Title bar */
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-.topbar {
-  height:64px;
-  min-height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:0 14px 0 18px;
-  background:var(--panel);
-  border-bottom:1px solid var(--border);
-  -webkit-app-region:drag;
-}
-.brand {
-  display:flex;
-  align-items:center;
-  gap:11px;
-  min-width:160px;
-}
-.brand-icon {
-  width:40px;
-  height:40px;
-  display:grid;
-  place-items:center;
-  border-radius:9px;
-  background:#30365d;
-  font-size:23px;
-}
-.brand-name {
-  font-size:21px;
-  font-weight:850;
-  letter-spacing:.2px;
-}
-.topbar-actions {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  -webkit-app-region:no-drag;
-}
-.action-separator {
-  width:1px;
-  height:34px;
-  margin:0 5px;
-  background:var(--border);
-}
-.btn {
-  min-height:42px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  padding:0 14px;
-  border:1px solid var(--border);
-  border-radius:8px;
-  background:var(--panel2);
-  color:var(--text);
-  font-size:14px;
-  font-weight:800;
-  letter-spacing:.2px;
-  white-space:nowrap;
-}
-.btn:hover { background:#343d50; }
-.btn.primary {
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#101218;
-}
-.btn.primary:hover { background:var(--accent-hover); }
-.btn.danger {
-  color:#ffaaaa;
-  background:#382329;
-  border-color:#70404b;
-}
-.btn.danger:hover { background:#512d38; }
-.btn.small {
-  min-height:29px;
-  padding:0 8px;
-  font-size:11px;
-}
-.settings {
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:8px 10px;
-  border:1px solid var(--border);
-  border-radius:8px;
-  background:#11151d;
-}
-.settings-label {
-  color:var(--muted);
-  font-size:14px;
-  font-weight:700;
-  white-space:nowrap;
-}
-.switch {
-  position:relative;
-  width:42px;
-  height:24px;
-  flex:0 0 auto;
-}
-.switch input {
-  position:absolute;
-  width:1px;
-  height:1px;
-  opacity:0;
-}
-.slider {
-  position:absolute;
-  inset:0;
-  border-radius:20px;
-  background:#424b5d;
-  cursor:pointer;
-  transition:.2s;
-}
-.slider:before {
-  position:absolute;
-  content:"";
-  width:18px;
-  height:18px;
-  left:3px;
-  top:3px;
-  border-radius:50%;
-  background:white;
-  transition:.2s;
-}
-.switch input:checked + .slider { background:var(--accent); }
-.switch input:checked + .slider:before { transform:translateX(18px); }
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
 
-/* Hidden Google test tools */
+    body {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 16px;
+    }
 
-.reset-tools { position:relative; }
-.reset-tools summary {
-  list-style:none;
-  padding:7px 9px;
-  border:1px solid transparent;
-  border-radius:7px;
-  color:#7f899c;
-  font-size:11px;
-  font-weight:750;
-  cursor:pointer;
-  white-space:nowrap;
-}
-.reset-tools summary::-webkit-details-marker { display:none; }
-.reset-tools summary:hover {
-  color:var(--muted);
-  background:#252c3b;
-}
-.reset-tools[open] summary {
-  border-color:var(--border);
-  color:var(--text);
-}
-.reset-tools .reset-content {
-  position:absolute;
-  z-index:2000;
-  top:calc(100% + 7px);
-  right:0;
-  padding:9px;
-  border:1px solid var(--border);
-  border-radius:8px;
-  background:var(--panel);
-  box-shadow:0 8px 25px #0008;
-}
-.reset-tools .btn {
-  min-height:34px;
-  font-size:12px;
-}
+    input,
+    textarea {
+      user-select: text;
+      -webkit-user-select: text;
+      font: inherit;
+    }
 
-.window-controls {
-  display:flex;
-  align-items:center;
-  gap:4px;
-  margin-left:4px;
-}
-.window-control {
-  width:40px;
-  height:36px;
-  display:grid;
-  place-items:center;
-  border-radius:6px;
-  background:transparent;
-  color:var(--text);
-  font-size:19px;
-}
-.window-control:hover { background:#343d50; }
-.window-control.close:hover { background:#c93645;color:white; }
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
 
-/* Status bar */
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
 
-.statusbar {
-  min-height:44px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:0 19px;
-  border-bottom:1px solid var(--border);
-  background:#141821;
-  color:#e0e5f0;
-  font-size:15px;
-  font-weight:700;
-}
-.status-left {
-  display:flex;
-  align-items:center;
-  gap:11px;
-  min-width:0;
-}
-#statusText {
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.status-indicator {
-  width:11px;
-  height:11px;
-  flex:0 0 auto;
-  border-radius:50%;
-  background:var(--success);
-}
-.status-indicator.busy {
-  background:var(--warning);
-  animation:statusPulse 1s infinite;
-}
-.status-indicator.busy:after {
-  content:"";
-  display:block;
-  width:19px;
-  height:19px;
-  margin:-4px;
-  border:2px solid #ffd16a88;
-  border-top-color:var(--warning);
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-#gpsStatus {
-  white-space:nowrap;
-  color:#e0e5f0;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-@keyframes statusPulse { 50% { opacity:.4; } }
+    /* Title bar */
 
-/* Main layout */
+    .topbar {
+      height: 64px;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px 0 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      -webkit-app-region: drag;
+    }
 
-.workspace {
-  flex:1;
-  min-height:0;
-  display:flex;
-  flex-direction:column;
-  gap:0;
-  padding:8px 11px 10px;
-  overflow:hidden;
-}
-.map-panel,.sidebar {
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  background:var(--panel);
-}
-.map-panel {
-  flex:0 0 var(--map-height, 62%);
-  min-height:220px;
-}
-.map-toolbar {
-  min-height:46px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:0 13px;
-  border-bottom:1px solid var(--border);
-}
-.map-heading,.sidebar-title {
-  font-size:16px;
-  font-weight:850;
-}
-.map-subheading {
-  margin-top:1px;
-  color:var(--muted);
-  font-size:13px;
-}
-.map-toolbar-actions {
-  display:flex;
-  gap:7px;
-}
-.map-wrap {
-  position:relative;
-  flex:1;
-  min-height:0;
-  background:#171c26;
-}
-#map {
-  width:100%;
-  height:100%;
-  min-height:120px;
-  background:#202735;
-}
-.map-overlay {
-  position:absolute;
-  z-index:500;
-  top:12px;
-  left:12px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:9px 12px;
-  border:1px solid #ffffff30;
-  border-radius:8px;
-  background:#141822ed;
-  color:var(--text);
-  font-size:14px;
-  font-weight:750;
-  pointer-events:none;
-}
-.map-dot {
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:var(--success);
-}
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 160px;
+    }
 
-/* Draggable map/list divider */
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #30365d;
+      font-size: 23px;
+    }
 
-.panel-resizer {
-  position:relative;
-  z-index:20;
-  flex:0 0 12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:row-resize;
-  touch-action:none;
-}
-.panel-resizer::before {
-  content:"";
-  width:58px;
-  height:4px;
-  border-radius:5px;
-  background:#59647b;
-  transition:background .15s,width .15s;
-}
-.panel-resizer:hover::before,
-.panel-resizer.dragging::before {
-  width:85px;
-  background:var(--accent);
-}
-body.resizing-panels {
-  cursor:row-resize!important;
-  user-select:none!important;
-}
-body.resizing-panels * {
-  cursor:row-resize!important;
-  user-select:none!important;
-}
+    .brand-name {
+      font-size: 21px;
+      font-weight: 850;
+      letter-spacing: .2px;
+    }
 
-/* Location list */
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
 
-.sidebar {
-  flex:1 1 0;
-  min-height:120px;
-}
-.sidebar-header {
-  flex:0 0 auto;
-  padding:8px 12px;
-  border-bottom:1px solid var(--border);
-}
-.sidebar-title-row {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-.sidebar-header-actions {
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.count-badge {
-  min-width:32px;
-  padding:4px 10px;
-  border-radius:20px;
-  background:#30365d;
-  color:#d4d7ff;
-  font-size:14px;
-  font-weight:850;
-  text-align:center;
-}
-.filter-button {
-  min-height:31px;
-  padding:0 10px;
-  border:1px solid var(--border);
-  border-radius:7px;
-  background:#202532;
-  color:#c0c8d7;
-  font-size:12px;
-  font-weight:800;
-  white-space:nowrap;
-}
-.filter-button:hover { background:#343d50; }
-.filter-button.active {
-  border-color:#b18b3e;
-  background:#49391d;
-  color:#ffe3a0;
-}
-.search-wrap {
-  position:relative;
-  margin-top:7px;
-}
-.search-icon {
-  position:absolute;
-  top:6px;
-  left:11px;
-  color:var(--muted);
-  font-size:20px;
-  pointer-events:none;
-}
-.search-box {
-  width:100%;
-  height:34px;
-  padding:0 12px 0 36px;
-  outline:none;
-  border:1px solid var(--border);
-  border-radius:8px;
-  background:#11151d;
-  color:var(--text);
-  font-size:14px;
-}
-.search-box:focus { border-color:var(--accent); }
-.search-box::placeholder { color:#929bad; }
+    .action-separator {
+      width: 1px;
+      height: 34px;
+      margin: 0 5px;
+      background: var(--border);
+    }
 
-.location-list {
-  flex:1 1 0;
-  min-height:0;
-  height:0;
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding:7px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(330px,1fr));
-  grid-auto-rows:max-content;
-  align-content:start;
-  gap:6px;
-  scrollbar-gutter:stable;
-}
-.location-card {
-  min-width:0;
-  padding:7px 9px;
-  border:1px solid #343d50;
-  border-radius:8px;
-  background:#202532;
-  cursor:pointer;
-}
-.location-card:hover {
-  border-color:#596581;
-  background:#2a3243;
-}
-.location-card.active {
-  border-color:var(--accent);
-  background:#282d48;
-}
-.location-company {
-  overflow-wrap:anywhere;
-  color:var(--text);
-  font-size:15px;
-  font-weight:850;
-  line-height:1.25;
-}
-.location-address {
-  margin-top:3px;
-  color:#d0d7e5;
-  font-size:13px;
-  line-height:1.3;
-  overflow-wrap:anywhere;
-}
-.location-coordinates {
-  margin-top:3px;
-  color:#aebaff;
-  font-size:12px;
-  font-weight:700;
-  line-height:1.3;
-  overflow-wrap:anywhere;
-}
-.location-coordinates.missing { color:var(--warning); }
-.location-footer {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:5px;
-  margin-top:6px;
-}
-.location-status {
-  color:var(--success);
-  font-size:11px;
-  font-weight:800;
-  white-space:nowrap;
-}
-.location-status.missing { color:var(--warning); }
-.location-actions {
-  display:flex;
-  flex-wrap:wrap;
-  gap:4px;
-}
-.location-actions .btn {
-  min-height:27px;
-  padding:0 7px;
-  font-size:10px;
-}
-.sidebar-footer {
-  flex:0 0 auto;
-  min-height:30px;
-  display:flex;
-  align-items:center;
-  padding:4px 12px;
-  border-top:1px solid var(--border);
-  color:#c0c8d7;
-  font-size:12px;
-  font-weight:650;
-}
-.empty-state {
-  grid-column:1/-1;
-  padding:18px;
-  color:var(--muted);
-  text-align:center;
-}
-.empty-icon { margin-bottom:7px;font-size:29px; }
-.empty-title {
-  margin-bottom:5px;
-  color:var(--text);
-  font-size:17px;
-  font-weight:800;
-}
-.empty-description {
-  font-size:15px;
-  line-height:1.5;
-}
+    .btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel2);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      white-space: nowrap;
+    }
 
-/* Import drop zone */
+    .btn:hover {
+      background: #343d50;
+    }
 
-.drop-zone {
-  display:none;
-  margin:8px;
-  padding:12px;
-  border:1px dashed #737da8;
-  border-radius:9px;
-  background:#202532;
-  text-align:center;
-  cursor:pointer;
-}
-.drop-zone:hover,.drop-zone.dragover { background:#292e49; }
-.drop-zone p { color:#d4d7ff;font-size:15px; }
-.drop-zone .hint { margin-top:4px;color:var(--muted);font-size:14px; }
-.drop-zone input { display:none; }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #101218;
+    }
 
-/* Processing */
+    .btn.primary:hover {
+      background: var(--accent-hover);
+    }
 
-.processing-banner {
-  flex:0 0 auto;
-  display:none;
-  align-items:center;
-  gap:12px;
-  padding:8px 13px;
-  border-bottom:1px solid #67552c;
-  background:#302a1c;
-  color:#ffe3a0;
-  font-size:14px;
-  font-weight:750;
-}
-.processing-banner.visible { display:flex; }
-.processing-spinner {
-  width:18px;
-  height:18px;
-  flex:0 0 auto;
-  border:3px solid #ffe3a055;
-  border-top-color:var(--warning);
-  border-radius:50%;
-  animation:spin .75s linear infinite;
-}
-.processing-detail {
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  color:#e8d6aa;
-  font-size:12px;
-  font-weight:600;
-}
-.resolve-button.processing {
-  border-color:#9b7935;
-  background:#49391d;
-  color:#ffe3a0;
-}
+    .btn.danger {
+      color: #ffaaaa;
+      background: #382329;
+      border-color: #70404b;
+    }
 
-/* Leaflet and popups */
+    .btn.danger:hover {
+      background: #512d38;
+    }
 
-.leaflet-container { font-family:inherit; }
-.leaflet-popup-content-wrapper,.leaflet-popup-tip {
-  background:#202532;
-  color:var(--text);
-}
-.leaflet-popup-content-wrapper {
-  border:1px solid #596581;
-  border-radius:10px;
-}
-.leaflet-popup-content {
-  min-width:280px;
-  max-width:390px;
-  margin:15px;
-}
-.popup-company {
-  margin-bottom:8px;
-  font-size:18px;
-  font-weight:850;
-  line-height:1.4;
-  overflow-wrap:anywhere;
-}
-.popup-address {
-  margin-bottom:10px;
-  color:#d0d7e5;
-  font-size:15px;
-  line-height:1.55;
-  overflow-wrap:anywhere;
-}
-.popup-coordinates {
-  margin-bottom:11px;
-  color:#b9c4ff;
-  font-size:15px;
-  font-weight:750;
-  line-height:1.5;
-  overflow-wrap:anywhere;
-}
-.popup-coordinates.missing { color:var(--warning); }
-.popup-actions {
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-}
-.leaflet-control-zoom a {
-  background:#202532!important;
-  color:white!important;
-  border-color:#49546b!important;
-}
-.leaflet-control-attribution {
-  background:#141822cc!important;
-  color:#aab3c4!important;
-}
-.leaflet-control-attribution a { color:#a5adff!important; }
+    .btn.small {
+      min-height: 29px;
+      padding: 0 8px;
+      font-size: 11px;
+    }
 
-/* Edit modal */
+    .settings {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #11151d;
+    }
 
-.modal-backdrop {
-  position:fixed;
-  inset:0;
-  z-index:10000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:#000b;
-}
-.modal-backdrop.open { display:flex; }
-.modal {
-  width:min(540px,100%);
-  padding:20px;
-  border:1px solid var(--border);
-  border-radius:14px;
-  background:var(--panel);
-  box-shadow:0 20px 70px #0009;
-}
-.modal-title { margin-bottom:6px;font-size:21px;font-weight:850; }
-.modal-subtitle { margin-bottom:16px;color:var(--muted);font-size:15px; }
-.form-grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.form-field {
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-  min-width:0;
-}
-.form-field.full { grid-column:1/-1; }
-.form-field label { color:#c0c8d7;font-size:14px;font-weight:700; }
-.form-field input {
-  width:100%;
-  height:43px;
-  padding:0 11px;
-  outline:none;
-  border:1px solid var(--border);
-  border-radius:7px;
-  background:#11151d;
-  color:var(--text);
-  font-size:15px;
-}
-.form-field input:focus { border-color:var(--accent); }
-.modal-actions {
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-  margin-top:17px;
-}
-.modal-error { display:none;margin-top:11px;color:#ff9292;font-size:14px; }
-.modal-error.show { display:block; }
+    .settings-label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
 
-body:fullscreen { width:100%;height:100%; }
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
 
-@media(max-width:1000px) {
-  .topbar { padding:0 8px; }
-  .brand-name { font-size:18px; }
-  .settings-label { display:none; }
-  .topbar-actions { gap:5px; }
-  .btn { padding:0 9px;font-size:13px; }
-  .location-list { grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
-}
-@media(max-width:700px) {
-  .topbar { height:58px;min-height:58px; }
-  .brand { min-width:0; }
-  .brand-icon { width:34px;height:34px;font-size:19px; }
-  .brand-name { font-size:16px; }
-  .topbar-actions .btn { min-height:36px;font-size:11px;padding:0 7px; }
-  .window-control { width:29px; }
-  .workspace { padding:6px; }
-  .map-panel { min-height:180px; }
-  .sidebar { min-height:110px; }
-  .location-list { grid-template-columns:1fr; }
-  .statusbar { padding:0 10px;font-size:13px; }
-  .map-toolbar { padding:0 9px; }
-  .map-toolbar-actions .btn { font-size:11px; }
-  .reset-tools summary { font-size:9px;padding:6px; }
-}
-</style>
+    .switch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: #424b5d;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: white;
+      transition: .2s;
+    }
+
+    .switch input:checked+.slider {
+      background: var(--accent);
+    }
+
+    .switch input:checked+.slider:before {
+      transform: translateX(18px);
+    }
+
+    /* Hidden Google test tools */
+
+    .reset-tools {
+      position: relative;
+    }
+
+    .reset-tools summary {
+      list-style: none;
+      padding: 7px 9px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      color: #7f899c;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .reset-tools summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .reset-tools summary:hover {
+      color: var(--muted);
+      background: #252c3b;
+    }
+
+    .reset-tools[open] summary {
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .reset-tools .reset-content {
+      position: absolute;
+      z-index: 2000;
+      top: calc(100% + 7px);
+      right: 0;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 25px #0008;
+    }
+
+    .reset-tools .btn {
+      min-height: 34px;
+      font-size: 12px;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 4px;
+    }
+
+    .window-control {
+      width: 40px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font-size: 19px;
+    }
+
+    .window-control:hover {
+      background: #343d50;
+    }
+
+    .window-control.close:hover {
+      background: #c93645;
+      color: white;
+    }
+
+    /* Status bar */
+
+    .statusbar {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 19px;
+      border-bottom: 1px solid var(--border);
+      background: #141821;
+      color: #e0e5f0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    #statusText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-indicator {
+      width: 11px;
+      height: 11px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .status-indicator.busy {
+      background: var(--warning);
+      animation: statusPulse 1s infinite;
+    }
+
+    .status-indicator.busy:after {
+      content: "";
+      display: block;
+      width: 19px;
+      height: 19px;
+      margin: -4px;
+      border: 2px solid #ffd16a88;
+      border-top-color: var(--warning);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    #gpsStatus {
+      white-space: nowrap;
+      color: #e0e5f0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes statusPulse {
+      50% {
+        opacity: .4;
+      }
+    }
+
+    /* Main layout */
+
+    .workspace {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 8px 11px 10px;
+      overflow: hidden;
+    }
+
+    .map-panel,
+    .sidebar {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .map-panel {
+      flex: 0 0 var(--map-height, 62%);
+      min-height: 220px;
+    }
+
+    .map-toolbar {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .map-heading,
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    .map-subheading {
+      margin-top: 1px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .map-toolbar-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .map-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #171c26;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 120px;
+      background: #202735;
+    }
+
+    .map-overlay {
+      position: absolute;
+      z-index: 500;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      border: 1px solid #ffffff30;
+      border-radius: 8px;
+      background: #141822ed;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 750;
+      pointer-events: none;
+    }
+
+    .map-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Draggable map/list divider */
+
+    .panel-resizer {
+      position: relative;
+      z-index: 20;
+      flex: 0 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: row-resize;
+      touch-action: none;
+    }
+
+    .panel-resizer::before {
+      content: "";
+      width: 58px;
+      height: 4px;
+      border-radius: 5px;
+      background: #59647b;
+      transition: background .15s, width .15s;
+    }
+
+    .panel-resizer:hover::before,
+    .panel-resizer.dragging::before {
+      width: 85px;
+      background: var(--accent);
+    }
+
+    body.resizing-panels {
+      cursor: row-resize !important;
+      user-select: none !important;
+    }
+
+    body.resizing-panels * {
+      cursor: row-resize !important;
+      user-select: none !important;
+    }
+
+    /* Location list */
+
+    .sidebar {
+      flex: 1 1 0;
+      min-height: 120px;
+    }
+
+    .sidebar-header {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sidebar-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .count-badge {
+      min-width: 32px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #30365d;
+      color: #d4d7ff;
+      font-size: 14px;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .filter-button {
+      min-height: 31px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #202532;
+      color: #c0c8d7;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .filter-button:hover {
+      background: #343d50;
+    }
+
+    .filter-button.active {
+      border-color: #b18b3e;
+      background: #49391d;
+      color: #ffe3a0;
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-top: 7px;
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 6px;
+      left: 11px;
+      color: var(--muted);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .search-box {
+      width: 100%;
+      height: 34px;
+      padding: 0 12px 0 36px;
+      outline: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #11151d;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .search-box:focus {
+      border-color: var(--accent);
+    }
+
+    .search-box::placeholder {
+      color: #929bad;
+    }
+
+    .location-list {
+      flex: 1 1 0;
+      min-height: 0;
+      height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 7px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      grid-auto-rows: max-content;
+      align-content: start;
+      gap: 6px;
+      scrollbar-gutter: stable;
+    }
+
+    .location-card {
+      min-width: 0;
+      padding: 7px 9px;
+      border: 1px solid #343d50;
+      border-radius: 8px;
+      background: #202532;
+      cursor: pointer;
+    }
+
+    .location-card:hover {
+      border-color: #596581;
+      background: #2a3243;
+    }
+
+    .location-card.active {
+      border-color: var(--accent);
+      background: #282d48;
+    }
+
+    .location-company {
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+
+    .location-address {
+      margin-top: 3px;
+      color: #d0d7e5;
+      font-size: 13px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .location-coordinates {
+      margin-top: 3px;
+      color: #aebaff;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .location-coordinates.missing {
+      color: var(--warning);
+    }
+
+    .location-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 6px;
+    }
+
+    .location-status {
+      color: var(--success);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .location-status.missing {
+      color: var(--warning);
+    }
+
+    .location-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .location-actions .btn {
+      min-height: 27px;
+      padding: 0 7px;
+      font-size: 10px;
+    }
+
+    .sidebar-footer {
+      flex: 0 0 auto;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-top: 1px solid var(--border);
+      color: #c0c8d7;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .empty-state {
+      grid-column: 1/-1;
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-icon {
+      margin-bottom: 7px;
+      font-size: 29px;
+    }
+
+    .empty-title {
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .empty-description {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* Import drop zone */
+
+    .drop-zone {
+      display: none;
+      margin: 8px;
+      padding: 12px;
+      border: 1px dashed #737da8;
+      border-radius: 9px;
+      background: #202532;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      background: #292e49;
+    }
+
+    .drop-zone p {
+      color: #d4d7ff;
+      font-size: 15px;
+    }
+
+    .drop-zone .hint {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .drop-zone input {
+      display: none;
+    }
+
+    /* Processing */
+
+    .processing-banner {
+      flex: 0 0 auto;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 13px;
+      border-bottom: 1px solid #67552c;
+      background: #302a1c;
+      color: #ffe3a0;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .processing-banner.visible {
+      display: flex;
+    }
+
+    .processing-spinner {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      border: 3px solid #ffe3a055;
+      border-top-color: var(--warning);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+
+    .processing-detail {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #e8d6aa;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .resolve-button.processing {
+      border-color: #9b7935;
+      background: #49391d;
+      color: #ffe3a0;
+    }
+
+    /* Leaflet and popups */
+
+    .leaflet-container {
+      font-family: inherit;
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+      background: #202532;
+      color: var(--text);
+    }
+
+    .leaflet-popup-content-wrapper {
+      border: 1px solid #596581;
+      border-radius: 10px;
+    }
+
+    .leaflet-popup-content {
+      min-width: 280px;
+      max-width: 390px;
+      margin: 15px;
+    }
+
+    .popup-company {
+      margin-bottom: 8px;
+      font-size: 18px;
+      font-weight: 850;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .popup-address {
+      margin-bottom: 10px;
+      color: #d0d7e5;
+      font-size: 15px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .popup-coordinates {
+      margin-bottom: 11px;
+      color: #b9c4ff;
+      font-size: 15px;
+      font-weight: 750;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .popup-coordinates.missing {
+      color: var(--warning);
+    }
+
+    .popup-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .leaflet-control-zoom a {
+      background: #202532 !important;
+      color: white !important;
+      border-color: #49546b !important;
+    }
+
+    .leaflet-control-attribution {
+      background: #141822cc !important;
+      color: #aab3c4 !important;
+    }
+
+    .leaflet-control-attribution a {
+      color: #a5adff !important;
+    }
+
+    /* Edit modal */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: #000b;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(540px, 100%);
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 20px 70px #0009;
+    }
+
+    .modal-title {
+      margin-bottom: 6px;
+      font-size: 21px;
+      font-weight: 850;
+    }
+
+    .modal-subtitle {
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .form-field.full {
+      grid-column: 1/-1;
+    }
+
+    .form-field label {
+      color: #c0c8d7;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .form-field input {
+      width: 100%;
+      height: 43px;
+      padding: 0 11px;
+      outline: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #11151d;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .form-field input:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 17px;
+    }
+
+    .modal-error {
+      display: none;
+      margin-top: 11px;
+      color: #ff9292;
+      font-size: 14px;
+    }
+
+    .modal-error.show {
+      display: block;
+    }
+
+    body:fullscreen {
+      width: 100%;
+      height: 100%;
+    }
+
+    @media(max-width:1000px) {
+      .topbar {
+        padding: 0 8px;
+      }
+
+      .brand-name {
+        font-size: 18px;
+      }
+
+      .settings-label {
+        display: none;
+      }
+
+      .topbar-actions {
+        gap: 5px;
+      }
+
+      .btn {
+        padding: 0 9px;
+        font-size: 13px;
+      }
+
+      .location-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @media(max-width:700px) {
+      .topbar {
+        height: 58px;
+        min-height: 58px;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .brand-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 19px;
+      }
+
+      .brand-name {
+        font-size: 16px;
+      }
+
+      .topbar-actions .btn {
+        min-height: 36px;
+        font-size: 11px;
+        padding: 0 7px;
+      }
+
+      .window-control {
+        width: 29px;
+      }
+
+      .workspace {
+        padding: 6px;
+      }
+
+      .map-panel {
+        min-height: 180px;
+      }
+
+      .sidebar {
+        min-height: 110px;
+      }
+
+      .location-list {
+        grid-template-columns: 1fr;
+      }
+
+      .statusbar {
+        padding: 0 10px;
+        font-size: 13px;
+      }
+
+      .map-toolbar {
+        padding: 0 9px;
+      }
+
+      .map-toolbar-actions .btn {
+        font-size: 11px;
+      }
+
+      .reset-tools summary {
+        font-size: 9px;
+        padding: 6px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-icon">📍</div>
-    <div class="brand-name">Geolocation</div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">📍</div>
+      <div class="brand-name">Geolocation</div>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn primary" id="btnLoad">＋ IMPORT EXCEL</button>
+      <button class="btn danger" id="btnClear">CLEAR ALL</button>
+
+      <div class="action-separator"></div>
+
+      <div class="settings" title="Show or hide the Google Maps geocoding window">
+        <span class="settings-label">Google Maps window</span>
+        <label class="switch">
+          <input type="checkbox" id="visibilitySwitch">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <details class="reset-tools">
+        <summary>TEST TOOLS</summary>
+        <div class="reset-content">
+          <button class="btn danger" id="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
+        </div>
+      </details>
+
+      <div class="action-separator"></div>
+
+      <div class="window-controls">
+        <button class="window-control" id="btnMinimize" title="Minimize">−</button>
+        <button class="window-control" id="btnMaximize" title="Maximize">□</button>
+        <button class="window-control close" id="btnClose" title="Close">×</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="statusbar">
+    <div class="status-left">
+      <span class="status-indicator" id="statusIndicator"></span>
+      <span id="statusText">Ready</span>
+    </div>
+    <span id="gpsStatus">0 GPS coordinates</span>
   </div>
 
-  <div class="topbar-actions">
-    <button class="btn primary" id="btnLoad">＋ IMPORT EXCEL</button>
-    <button class="btn danger" id="btnClear">CLEAR ALL</button>
-    <button class="btn" id="btnScan" style="display:none">CONTINUE SCANNING</button>
-
-    <div class="action-separator"></div>
-
-    <div class="settings" title="Show or hide the Google Maps geocoding window">
-      <span class="settings-label">Google Maps window</span>
-      <label class="switch">
-        <input type="checkbox" id="visibilitySwitch">
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <details class="reset-tools">
-      <summary>TEST TOOLS</summary>
-      <div class="reset-content">
-        <button class="btn danger" id="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
-      </div>
-    </details>
-
-    <div class="action-separator"></div>
-
-    <div class="window-controls">
-      <button class="window-control" id="btnMinimize" title="Minimize">−</button>
-      <button class="window-control" id="btnMaximize" title="Maximize">□</button>
-      <button class="window-control close" id="btnClose" title="Close">×</button>
-    </div>
-  </div>
-</header>
-
-<div class="statusbar">
-  <div class="status-left">
-    <span class="status-indicator" id="statusIndicator"></span>
-    <span id="statusText">Ready</span>
-  </div>
-  <span id="gpsStatus">0 GPS coordinates</span>
-</div>
-
-<main class="workspace" id="workspace">
-  <section class="map-panel" id="mapPanel">
-    <div class="map-toolbar">
-      <div>
-        <div class="map-heading">Location map</div>
-        <div class="map-subheading" id="mapSubtitle">Geographic overview</div>
-      </div>
-      <div class="map-toolbar-actions">
-        <button class="btn small" id="btnFit">FIT LOCATIONS</button>
-        <button class="btn small" id="btnShowMap">⛶ FULLSCREEN</button>
-      </div>
-    </div>
-
-    <div class="map-wrap" id="mapContainer">
-      <div id="map"></div>
-      <div class="map-overlay">
-        <span class="map-dot"></span>
-        <span id="mapOverlayText">0 locations on map</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="panel-resizer" id="panelResizer" title="Drag to resize map and locations"></div>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title-row">
-        <span class="sidebar-title">Imported locations</span>
-        <div class="sidebar-header-actions">
-          <button class="filter-button" id="btnMissingFilter">⚠ GPS MISSING (0)</button>
-          <span class="count-badge" id="locationCount">0</span>
+  <main class="workspace" id="workspace">
+    <section class="map-panel" id="mapPanel">
+      <div class="map-toolbar">
+        <div>
+          <div class="map-heading">Location map</div>
+          <div class="map-subheading" id="mapSubtitle">Geographic overview</div>
+        </div>
+        <div class="map-toolbar-actions">
+          <button class="btn small" id="btnFit">FIT LOCATIONS</button>
+          <button class="btn small" id="btnShowMap">⛶ FULLSCREEN</button>
         </div>
       </div>
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span>
-        <input type="text" class="search-box" id="searchBox" placeholder="Search company or address...">
+
+      <div class="map-wrap" id="mapContainer">
+        <div id="map"></div>
+        <div class="map-overlay">
+          <span class="map-dot"></span>
+          <span id="mapOverlayText">0 locations on map</span>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="processing-banner" id="processingBanner">
-      <span class="processing-spinner"></span>
-      <div>
-        <div id="processingTitle">Processing GPS coordinates...</div>
-        <div class="processing-detail" id="processingDetail">Preparing Google Maps</div>
+    <div class="panel-resizer" id="panelResizer" title="Drag to resize map and locations"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <span class="sidebar-title">Imported locations</span>
+          <div class="sidebar-header-actions">
+            <button class="btn primary" id="btnScan" style="display:none;min-height:31px;padding:0 10px;font-size:12px">
+              CONTINUE SCANNING
+            </button>
+
+            <button class="filter-button" id="btnMissingFilter">⚠ GPS MISSING (0)</button>
+            <span class="count-badge" id="locationCount">0</span>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" class="search-box" id="searchBox" placeholder="Search company or address...">
+        </div>
       </div>
-    </div>
 
-    <div class="drop-zone" id="dropZone">
-      <p>📁 Open an Excel file</p>
-      <p class="hint">Drop your file here or click to select</p>
-      <input type="file" id="fileInput" accept=".xlsx,.xls">
-    </div>
-
-    <div class="location-list" id="results">
-      <div class="empty-state">
-        <div class="empty-icon">📍</div>
-        <div class="empty-title">No locations yet</div>
-        <div class="empty-description">Import an Excel file to display companies on the map.</div>
+      <div class="processing-banner" id="processingBanner">
+        <span class="processing-spinner"></span>
+        <div>
+          <div id="processingTitle">Processing GPS coordinates...</div>
+          <div class="processing-detail" id="processingDetail">Preparing Google Maps</div>
+        </div>
       </div>
-    </div>
 
-    <div class="sidebar-footer" id="sidebarFooter">Import an .xlsx or .xls file</div>
-  </aside>
-</main>
-
-<div class="modal-backdrop" id="editModal">
-  <form class="modal" id="editForm">
-    <div class="modal-title">Edit location</div>
-    <div class="modal-subtitle">Change company details and GPS coordinates.</div>
-
-    <div class="form-grid">
-      <div class="form-field full">
-        <label for="editCompany">Company name</label>
-        <input id="editCompany" type="text">
+      <div class="drop-zone" id="dropZone">
+        <p>📁 Open an Excel file</p>
+        <p class="hint">Drop your file here or click to select</p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls">
       </div>
-      <div class="form-field full">
-        <label for="editAddress">Address</label>
-        <input id="editAddress" type="text">
+
+      <div class="location-list" id="results">
+        <div class="empty-state">
+          <div class="empty-icon">📍</div>
+          <div class="empty-title">No locations yet</div>
+          <div class="empty-description">Import an Excel file to display companies on the map.</div>
+        </div>
       </div>
-      <div class="form-field full">
-        <label for="editCity">City</label>
-        <input id="editCity" type="text">
+
+      <div class="sidebar-footer" id="sidebarFooter">Import an .xlsx or .xls file</div>
+    </aside>
+  </main>
+
+  <div class="modal-backdrop" id="editModal">
+    <form class="modal" id="editForm">
+      <div class="modal-title">Edit location</div>
+      <div class="modal-subtitle">Change company details and GPS coordinates.</div>
+
+      <div class="form-grid">
+        <div class="form-field full">
+          <label for="editCompany">Company name</label>
+          <input id="editCompany" type="text">
+        </div>
+        <div class="form-field full">
+          <label for="editAddress">Address</label>
+          <input id="editAddress" type="text">
+        </div>
+        <div class="form-field full">
+          <label for="editCity">City</label>
+          <input id="editCity" type="text">
+        </div>
+        <div class="form-field">
+          <label for="editLat">Latitude</label>
+          <input id="editLat" type="number" step="any" placeholder="44.4268">
+        </div>
+        <div class="form-field">
+          <label for="editLng">Longitude</label>
+          <input id="editLng" type="number" step="any" placeholder="26.1025">
+        </div>
       </div>
-      <div class="form-field">
-        <label for="editLat">Latitude</label>
-        <input id="editLat" type="number" step="any" placeholder="44.4268">
+
+      <div class="modal-error" id="editError"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="btnCancelEdit">CANCEL</button>
+        <button type="submit" class="btn primary">SAVE</button>
       </div>
-      <div class="form-field">
-        <label for="editLng">Longitude</label>
-        <input id="editLng" type="number" step="any" placeholder="26.1025">
-      </div>
-    </div>
+    </form>
+  </div>
 
-    <div class="modal-error" id="editError"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn" id="btnCancelEdit">CANCEL</button>
-      <button type="submit" class="btn primary">SAVE</button>
-    </div>
-  </form>
-</div>
+  <script src="leaflet.js"></script>
+  <script src="xlsx.full.min.js"></script>
 
-<script src="leaflet.js"></script>
-<script src="xlsx.full.min.js"></script>
+  <script>
+    const STORAGE_KEY = 'marius-xls-locations';
+    const VISIBILITY_KEY = 'marius-xls-google-window-visible';
+    const MAP_HEIGHT_KEY = 'marius-xls-map-height';
 
-<script>
-const STORAGE_KEY = 'marius-xls-locations';
-const VISIBILITY_KEY = 'marius-xls-google-window-visible';
-const MAP_HEIGHT_KEY = 'marius-xls-map-height';
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const searchBox = document.getElementById('searchBox');
+    const results = document.getElementById('results');
+    const visibilitySwitch = document.getElementById('visibilitySwitch');
+    const statusText = document.getElementById('statusText');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    const scanButton = document.getElementById('btnScan');
+    const processingBanner = document.getElementById('processingBanner');
+    const missingFilterButton = document.getElementById('btnMissingFilter');
+    const workspace = document.getElementById('workspace');
+    const mapPanel = document.getElementById('mapPanel');
+    const panelResizer = document.getElementById('panelResizer');
 
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const searchBox = document.getElementById('searchBox');
-const results = document.getElementById('results');
-const visibilitySwitch = document.getElementById('visibilitySwitch');
-const statusText = document.getElementById('statusText');
-const statusIndicator = document.getElementById('statusIndicator');
-const editModal = document.getElementById('editModal');
-const editForm = document.getElementById('editForm');
-const scanButton = document.getElementById('btnScan');
-const processingBanner = document.getElementById('processingBanner');
-const missingFilterButton = document.getElementById('btnMissingFilter');
-const workspace = document.getElementById('workspace');
-const mapPanel = document.getElementById('mapPanel');
-const panelResizer = document.getElementById('panelResizer');
+    let allLocations = [];
+    let markers = [];
+    let geocoding = false;
+    let stopRequested = false;
+    let editingIndex = null;
+    let editingOriginal = null;
+    let showMissingOnly = false;
 
-let allLocations = [];
-let markers = [];
-let geocoding = false;
-let stopRequested = false;
-let editingIndex = null;
-let editingOriginal = null;
-let showMissingOnly = false;
+    let requestQueue = [];
+    let requestRunning = false;
+    let activeLocation = null;
+    let resolvingLocations = new Set();
 
-let requestQueue = [];
-let requestRunning = false;
-let activeLocation = null;
-let resolvingLocations = new Set();
+    const map = L.map('map').setView([44.4268, 26.1025], 7);
 
-const map = L.map('map').setView([44.4268, 26.1025], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution:'© OpenStreetMap contributors',
-  maxZoom:19
-}).addTo(map);
+    // Helpers
 
-// Helpers
-
-function esc(value) {
-  const element = document.createElement('div');
-  element.textContent = String(value ?? '');
-  return element.innerHTML;
-}
-
-function parseCoordinate(value) {
-  if (value === '' || value === null || value === undefined) return null;
-  const number = Number(String(value).replace(',', '.'));
-  return Number.isFinite(number) ? number : null;
-}
-
-function hasCoordinates(location) {
-  return Number.isFinite(location.lat) &&
-    Number.isFinite(location.lng) &&
-    location.lat !== null &&
-    location.lng !== null &&
-    location.lat >= -90 && location.lat <= 90 &&
-    location.lng >= -180 && location.lng <= 180;
-}
-
-function getAddress(location) {
-  return [location.address, location.city, 'Romania'].filter(Boolean).join(', ');
-}
-
-function getGoogleMapsUrl(location) {
-  const query = hasCoordinates(location)
-    ? `${location.lat},${location.lng}`
-    : getAddress(location);
-
-  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
-}
-
-async function copyText(text) {
-  try {
-    if (window.electronAPI?.copyText) {
-      await window.electronAPI.copyText(String(text));
-    } else {
-      await navigator.clipboard.writeText(String(text));
+    function esc(value) {
+      const element = document.createElement('div');
+      element.textContent = String(value ?? '');
+      return element.innerHTML;
     }
-    setStatus('Copied to clipboard');
-  } catch (error) {
-    console.error('Clipboard error:', error);
-    setStatus('Could not copy to clipboard');
-  }
-}
 
-async function openGoogleMaps(location) {
-  const url = getGoogleMapsUrl(location);
-  if (window.electronAPI?.openExternal) {
-    await window.electronAPI.openExternal(url);
-  } else {
-    window.open(url, '_blank');
-  }
-}
-
-function setStatus(message, busy = false) {
-  statusText.textContent = message;
-  statusIndicator.classList.toggle('busy', busy);
-}
-
-function getMissingLocations() {
-  return allLocations.filter(location => !hasCoordinates(location));
-}
-
-function getSearchLocations() {
-  const query = searchBox.value.toLowerCase().trim();
-
-  if (!query) return allLocations;
-
-  return allLocations.filter(location =>
-    String(location.company).toLowerCase().includes(query) ||
-    String(location.address).toLowerCase().includes(query) ||
-    String(location.city).toLowerCase().includes(query)
-  );
-}
-
-function getVisibleLocations() {
-  const locations = getSearchLocations();
-  return showMissingOnly
-    ? locations.filter(location => !hasCoordinates(location))
-    : locations;
-}
-
-function updateProcessingUI() {
-  const busy = requestRunning || geocoding;
-  processingBanner.classList.toggle('visible', busy);
-  statusIndicator.classList.toggle('busy', busy);
-
-  if (activeLocation) {
-    document.getElementById('processingTitle').textContent =
-      `Resolving: ${activeLocation.company || 'Company without name'}`;
-    document.getElementById('processingDetail').textContent =
-      getAddress(activeLocation);
-  } else if (geocoding) {
-    document.getElementById('processingTitle').textContent =
-      stopRequested ? 'Stopping scan...' : 'Scanning GPS coordinates...';
-    document.getElementById('processingDetail').textContent =
-      `${getMissingLocations().length} locations still need GPS`;
-  }
-}
-
-function updateScanButton() {
-  const missing = getMissingLocations().length;
-  scanButton.style.display = missing > 0 ? 'inline-flex' : 'none';
-
-  if (geocoding) {
-    scanButton.textContent = stopRequested ? 'STOPPING...' : 'STOP SCANNING';
-    scanButton.disabled = stopRequested;
-  } else {
-    scanButton.textContent = 'CONTINUE SCANNING';
-    scanButton.disabled = false;
-  }
-
-  const shown = getVisibleLocations().length;
-  document.getElementById('sidebarFooter').textContent =
-    `${shown} shown · ${allLocations.length} total · ${missing} without GPS`;
-
-  updateFilterButton();
-}
-
-// Resizable map/list panels
-
-function setMapHeight(percent) {
-  const clamped = Math.max(25, Math.min(80, percent));
-  mapPanel.style.flexBasis = `${clamped}%`;
-  localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
-
-  requestAnimationFrame(() => map.invalidateSize());
-}
-
-function initializePanelResizer() {
-  const savedHeight = Number(localStorage.getItem(MAP_HEIGHT_KEY));
-  setMapHeight(Number.isFinite(savedHeight) && savedHeight >= 25 && savedHeight <= 80
-    ? savedHeight
-    : 62);
-
-  let dragging = false;
-
-  panelResizer.addEventListener('pointerdown', event => {
-    if (event.button !== 0) return;
-
-    dragging = true;
-    panelResizer.classList.add('dragging');
-    document.body.classList.add('resizing-panels');
-    panelResizer.setPointerCapture(event.pointerId);
-    event.preventDefault();
-  });
-
-  panelResizer.addEventListener('pointermove', event => {
-    if (!dragging) return;
-
-    const workspaceRect = workspace.getBoundingClientRect();
-    const usableHeight = workspaceRect.height - 20;
-    const relativeY = event.clientY - workspaceRect.top - 8;
-    const percent = (relativeY / usableHeight) * 100;
-
-    const mapMinimum = 220;
-    const listMinimum = 120;
-    const dividerHeight = panelResizer.offsetHeight;
-    const available = workspace.clientHeight - 20 - dividerHeight;
-
-    const minPercent = Math.max(25, (mapMinimum / available) * 100);
-    const maxPercent = Math.min(80, 100 - (listMinimum / available) * 100);
-    const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
-
-    mapPanel.style.flexBasis = `${clamped}%`;
-    localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
-
-    requestAnimationFrame(() => map.invalidateSize());
-  });
-
-  const stopDragging = () => {
-    if (!dragging) return;
-    dragging = false;
-    panelResizer.classList.remove('dragging');
-    document.body.classList.remove('resizing-panels');
-    map.invalidateSize();
-  };
-
-  panelResizer.addEventListener('pointerup', stopDragging);
-  panelResizer.addEventListener('pointercancel', stopDragging);
-  panelResizer.addEventListener('lostpointercapture', stopDragging);
-}
-
-// Storage
-
-function saveToStorage() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
-}
-
-function loadFromStorage() {
-  try {
-    allLocations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch (error) {
-    console.error('Storage error:', error);
-    allLocations = [];
-  }
-  render();
-  updateMap();
-}
-
-// Google window visibility
-
-async function applyVisibilitySetting(visible) {
-  sessionStorage.setItem(VISIBILITY_KEY, String(visible));
-  visibilitySwitch.checked = visible;
-
-  try {
-    if (window.electronAPI?.setGeocodeWindowVisible) {
-      await window.electronAPI.setGeocodeWindowVisible(visible);
+    function parseCoordinate(value) {
+      if (value === '' || value === null || value === undefined) return null;
+      const number = Number(String(value).replace(',', '.'));
+      return Number.isFinite(number) ? number : null;
     }
-  } catch (error) {
-    console.error(error);
-    setStatus('Could not change Google window visibility');
-  }
-}
 
-visibilitySwitch.addEventListener('change', () => {
-  applyVisibilitySetting(visibilitySwitch.checked);
-});
+    function hasCoordinates(location) {
+      return Number.isFinite(location.lat) &&
+        Number.isFinite(location.lng) &&
+        location.lat !== null &&
+        location.lng !== null &&
+        location.lat >= -90 && location.lat <= 90 &&
+        location.lng >= -180 && location.lng <= 180;
+    }
 
-// Google session reset - kept inside test tools
+    function getAddress(location) {
+      return [location.address, location.city, 'Romania'].filter(Boolean).join(', ');
+    }
 
-document.getElementById('btnResetGoogle').addEventListener('click', async () => {
-  if (requestRunning || geocoding) {
-    alert('Wait until GPS processing has finished before resetting Google.');
-    return;
-  }
+    function getGoogleMapsUrl(location) {
+      const query = hasCoordinates(location)
+        ? `${location.lat},${location.lng}`
+        : getAddress(location);
 
-  if (!confirm('Delete the saved Google session? Google Maps may request consent or sign-in again.')) {
-    return;
-  }
+      return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
+    }
 
-  try {
-    setStatus('Resetting Google session...', true);
-    await window.electronAPI.resetGoogleSession();
-    setStatus('Google session has been reset');
-    document.querySelector('.reset-tools').open = false;
-    alert('Google session deleted. Google Maps may request consent again during the next scan.');
-  } catch (error) {
-    console.error(error);
-    setStatus('Google session reset failed');
-    alert('Could not reset Google session: ' + error.message);
-  }
-});
+    async function copyText(text) {
+      try {
+        if (window.electronAPI?.copyText) {
+          await window.electronAPI.copyText(String(text));
+        } else {
+          await navigator.clipboard.writeText(String(text));
+        }
+        setStatus('Copied to clipboard');
+      } catch (error) {
+        console.error('Clipboard error:', error);
+        setStatus('Could not copy to clipboard');
+      }
+    }
 
-// File upload
+    async function openGoogleMaps(location) {
+      const url = getGoogleMapsUrl(location);
+      if (window.electronAPI?.openExternal) {
+        await window.electronAPI.openExternal(url);
+      } else {
+        window.open(url, '_blank');
+      }
+    }
 
-dropZone.addEventListener('click', () => fileInput.click());
+    function setStatus(message, busy = false) {
+      statusText.textContent = message;
+      statusIndicator.classList.toggle('busy', busy);
+    }
 
-dropZone.addEventListener('dragover', event => {
-  event.preventDefault();
-  dropZone.classList.add('dragover');
-});
+    function getMissingLocations() {
+      return allLocations.filter(location => !hasCoordinates(location));
+    }
 
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('dragover');
-});
+    function getSearchLocations() {
+      const query = searchBox.value.toLowerCase().trim();
 
-dropZone.addEventListener('drop', event => {
-  event.preventDefault();
-  dropZone.classList.remove('dragover');
-  if (event.dataTransfer.files.length) readFile(event.dataTransfer.files[0]);
-});
+      if (!query) return allLocations;
 
-fileInput.addEventListener('change', event => {
-  if (event.target.files.length) {
-    readFile(event.target.files[0]);
-    fileInput.value = '';
-  }
-});
+      return allLocations.filter(location =>
+        String(location.company).toLowerCase().includes(query) ||
+        String(location.address).toLowerCase().includes(query) ||
+        String(location.city).toLowerCase().includes(query)
+      );
+    }
 
-document.getElementById('btnLoad').addEventListener('click', () => {
-  if (geocoding || requestRunning) {
-    alert('Wait until GPS processing has finished before importing another file.');
-    return;
-  }
-  fileInput.click();
-});
+    function getVisibleLocations() {
+      const locations = getSearchLocations();
+      return showMissingOnly
+        ? locations.filter(location => !hasCoordinates(location))
+        : locations;
+    }
 
-// Excel processing
+    function updateProcessingUI() {
+      const busy = requestRunning || geocoding;
+      processingBanner.classList.toggle('visible', busy);
+      statusIndicator.classList.toggle('busy', busy);
 
-function readFile(file) {
-  if (geocoding || requestRunning) {
-    alert('Wait until GPS processing has finished before importing another file.');
-    return;
-  }
+      if (activeLocation) {
+        document.getElementById('processingTitle').textContent =
+          `Resolving: ${activeLocation.company || 'Company without name'}`;
+        document.getElementById('processingDetail').textContent =
+          getAddress(activeLocation);
+      } else if (geocoding) {
+        document.getElementById('processingTitle').textContent =
+          stopRequested ? 'Stopping scan...' : 'Scanning GPS coordinates...';
+        document.getElementById('processingDetail').textContent =
+          `${getMissingLocations().length} locations still need GPS`;
+      }
+    }
 
-  const reader = new FileReader();
+    function updateScanButton() {
+      const missing = getMissingLocations().length;
+      scanButton.style.display = missing > 0 ? 'inline-flex' : 'none';
 
-  reader.onload = async event => {
-    try {
-      const workbook = XLSX.read(new Uint8Array(event.target.result), {type:'array'});
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+      if (geocoding) {
+        scanButton.textContent = stopRequested ? 'STOPPING...' : 'STOP SCANNING';
+        scanButton.disabled = stopRequested;
+      } else {
+        scanButton.textContent = 'CONTINUE SCANNING';
+        scanButton.disabled = false;
+      }
 
-      allLocations = rows.map(row => ({
-        company:row['Companie: Nume complet'] || '',
-        address:row['Adresa     1: Adresa'] || '',
-        city:row['Adresa     1: Orașul'] || '',
-        lat:parseCoordinate(row['Lat']),
-        lng:parseCoordinate(row['Lng'])
-      })).filter(location => location.company || location.address);
+      const shown = getVisibleLocations().length;
+      document.getElementById('sidebarFooter').textContent =
+        `${shown} shown · ${allLocations.length} total · ${missing} without GPS`;
 
-      saveToStorage();
-      searchBox.value = '';
-      showMissingOnly = false;
       updateFilterButton();
-      render();
-      updateMap(true);
-      await geocodeAll();
-    } catch (error) {
-      console.error('Excel processing error:', error);
-      alert('Could not read Excel file: ' + error.message);
     }
-  };
 
-  reader.readAsArrayBuffer(file);
-}
+    // Resizable map/list panels
 
-// Shared GPS request queue.
-// Manual requests have priority over the next automatic scan request.
+    function setMapHeight(percent) {
+      const clamped = Math.max(25, Math.min(80, percent));
+      mapPanel.style.flexBasis = `${clamped}%`;
+      localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
 
-function enqueueGeocode(location, priority = false) {
-  if (!allLocations.includes(location) || hasCoordinates(location)) {
-    return Promise.resolve(false);
-  }
+      requestAnimationFrame(() => map.invalidateSize());
+    }
 
-  const existing = requestQueue.find(item => item.location === location);
-  if (existing) return existing.promise;
+    function initializePanelResizer() {
+      const savedHeight = Number(localStorage.getItem(MAP_HEIGHT_KEY));
+      setMapHeight(Number.isFinite(savedHeight) && savedHeight >= 25 && savedHeight <= 80
+        ? savedHeight
+        : 62);
 
-  return new Promise(resolve => {
-    const item = {location, resolve, promise:null};
+      let dragging = false;
 
-    item.promise = new Promise(innerResolve => {
-      item.resolve = value => {
-        innerResolve(value);
-        resolve(value);
+      panelResizer.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+
+        dragging = true;
+        panelResizer.classList.add('dragging');
+        document.body.classList.add('resizing-panels');
+        panelResizer.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      });
+
+      panelResizer.addEventListener('pointermove', event => {
+        if (!dragging) return;
+
+        const workspaceRect = workspace.getBoundingClientRect();
+        const usableHeight = workspaceRect.height - 20;
+        const relativeY = event.clientY - workspaceRect.top - 8;
+        const percent = (relativeY / usableHeight) * 100;
+
+        const mapMinimum = 220;
+        const listMinimum = 120;
+        const dividerHeight = panelResizer.offsetHeight;
+        const available = workspace.clientHeight - 20 - dividerHeight;
+
+        const minPercent = Math.max(25, (mapMinimum / available) * 100);
+        const maxPercent = Math.min(80, 100 - (listMinimum / available) * 100);
+        const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
+
+        mapPanel.style.flexBasis = `${clamped}%`;
+        localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+
+        requestAnimationFrame(() => map.invalidateSize());
+      });
+
+      const stopDragging = () => {
+        if (!dragging) return;
+        dragging = false;
+        panelResizer.classList.remove('dragging');
+        document.body.classList.remove('resizing-panels');
+        map.invalidateSize();
       };
+
+      panelResizer.addEventListener('pointerup', stopDragging);
+      panelResizer.addEventListener('pointercancel', stopDragging);
+      panelResizer.addEventListener('lostpointercapture', stopDragging);
+    }
+
+    // Storage
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
+    }
+
+    function loadFromStorage() {
+      try {
+        allLocations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch (error) {
+        console.error('Storage error:', error);
+        allLocations = [];
+      }
+      render();
+      updateMap();
+    }
+
+    // Google window visibility
+
+    async function applyVisibilitySetting(visible) {
+      sessionStorage.setItem(VISIBILITY_KEY, String(visible));
+      visibilitySwitch.checked = visible;
+
+      try {
+        if (window.electronAPI?.setGeocodeWindowVisible) {
+          await window.electronAPI.setGeocodeWindowVisible(visible);
+        }
+      } catch (error) {
+        console.error(error);
+        setStatus('Could not change Google window visibility');
+      }
+    }
+
+    visibilitySwitch.addEventListener('change', () => {
+      applyVisibilitySetting(visibilitySwitch.checked);
     });
 
-    if (priority) requestQueue.unshift(item);
-    else requestQueue.push(item);
+    // Google session reset - kept inside test tools
 
-    updateProcessingUI();
-    processGeocodeQueue();
-  });
-}
-
-async function processGeocodeQueue() {
-  if (requestRunning || !requestQueue.length) {
-    updateProcessingUI();
-    return;
-  }
-
-  const item = requestQueue.shift();
-  const location = item.location;
-
-  if (!allLocations.includes(location) || hasCoordinates(location)) {
-    item.resolve(false);
-    processGeocodeQueue();
-    return;
-  }
-
-  requestRunning = true;
-  activeLocation = location;
-  resolvingLocations.add(location);
-  render();
-  updateProcessingUI();
-
-  let success = false;
-
-  try {
-    const coordinates = await window.electronAPI.geocode(getAddress(location));
-
-    if (
-      coordinates &&
-      Number.isFinite(coordinates.lat) &&
-      Number.isFinite(coordinates.lng) &&
-      coordinates.lat >= -90 && coordinates.lat <= 90 &&
-      coordinates.lng >= -180 && coordinates.lng <= 180
-    ) {
-      if (allLocations.includes(location)) {
-        location.lat = coordinates.lat;
-        location.lng = coordinates.lng;
-        saveToStorage();
-        success = true;
-        updateMap(true);
+    document.getElementById('btnResetGoogle').addEventListener('click', async () => {
+      if (requestRunning || geocoding) {
+        alert('Wait until GPS processing has finished before resetting Google.');
+        return;
       }
-    }
-  } catch (error) {
-    console.error(`Geocoding failed for ${getAddress(location)}:`, error);
-  } finally {
-    resolvingLocations.delete(location);
-    requestRunning = false;
-    activeLocation = null;
 
-    item.resolve(success);
-
-    render();
-    updateProcessingUI();
-
-    if (geocoding) {
-      setStatus(
-        stopRequested ? 'Stopping after current address...' : 'Scanning GPS coordinates...',
-        true
-      );
-    } else if (!requestQueue.length) {
-      setStatus(success ? 'GPS coordinates resolved' : 'GPS resolution failed');
-    }
-
-    processGeocodeQueue();
-  }
-}
-
-// Scan: can be stopped and resumed.
-
-scanButton.addEventListener('click', () => {
-  if (geocoding) {
-    stopRequested = true;
-    updateScanButton();
-    updateProcessingUI();
-    setStatus('Scan will stop after the current address...', true);
-    return;
-  }
-
-  geocodeAll();
-});
-
-async function geocodeAll() {
-  if (geocoding) return;
-
-  if (!window.electronAPI?.geocode) {
-    alert('Electron geocoding API is unavailable. Check preload.js.');
-    return;
-  }
-
-  const pending = getMissingLocations();
-
-  if (!pending.length) {
-    setStatus('All locations have GPS coordinates');
-    render();
-    return;
-  }
-
-  geocoding = true;
-  stopRequested = false;
-
-  document.getElementById('btnLoad').disabled = true;
-  document.getElementById('btnClear').disabled = true;
-
-  updateScanButton();
-  updateProcessingUI();
-  setStatus(`Starting GPS scan: ${pending.length} addresses`, true);
-
-  let completed = 0;
-  let attempted = 0;
-  let stopped = false;
-
-  try {
-    for (const location of pending) {
-      if (stopRequested) {
-        stopped = true;
-        break;
+      if (!confirm('Delete the saved Google session? Google Maps may request consent or sign-in again.')) {
+        return;
       }
+
+      try {
+        setStatus('Resetting Google session...', true);
+        await window.electronAPI.resetGoogleSession();
+        setStatus('Google session has been reset');
+        document.querySelector('.reset-tools').open = false;
+        alert('Google session deleted. Google Maps may request consent again during the next scan.');
+      } catch (error) {
+        console.error(error);
+        setStatus('Google session reset failed');
+        alert('Could not reset Google session: ' + error.message);
+      }
+    });
+
+    // File upload
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', event => {
+      event.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', event => {
+      event.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (event.dataTransfer.files.length) readFile(event.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', event => {
+      if (event.target.files.length) {
+        readFile(event.target.files[0]);
+        fileInput.value = '';
+      }
+    });
+
+    document.getElementById('btnLoad').addEventListener('click', () => {
+      if (geocoding || requestRunning) {
+        alert('Wait until GPS processing has finished before importing another file.');
+        return;
+      }
+      fileInput.click();
+    });
+
+    // Excel processing
+
+    function readFile(file) {
+      if (geocoding || requestRunning) {
+        alert('Wait until GPS processing has finished before importing another file.');
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = async event => {
+        try {
+          const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          allLocations = rows.map(row => ({
+            company: row['Companie: Nume complet'] || '',
+            address: row['Adresa     1: Adresa'] || '',
+            city: row['Adresa     1: Orașul'] || '',
+            lat: parseCoordinate(row['Lat']),
+            lng: parseCoordinate(row['Lng'])
+          })).filter(location => location.company || location.address);
+
+          saveToStorage();
+          searchBox.value = '';
+          showMissingOnly = false;
+          updateFilterButton();
+          render();
+          updateMap(true);
+          await geocodeAll();
+        } catch (error) {
+          console.error('Excel processing error:', error);
+          alert('Could not read Excel file: ' + error.message);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Shared GPS request queue.
+    // Manual requests have priority over the next automatic scan request.
+
+    function enqueueGeocode(location, priority = false) {
+      if (!allLocations.includes(location) || hasCoordinates(location)) {
+        return Promise.resolve(false);
+      }
+
+      const existing = requestQueue.find(item => item.location === location);
+      if (existing) return existing.promise;
+
+      return new Promise(resolve => {
+        const item = { location, resolve, promise: null };
+
+        item.promise = new Promise(innerResolve => {
+          item.resolve = value => {
+            innerResolve(value);
+            resolve(value);
+          };
+        });
+
+        if (priority) requestQueue.unshift(item);
+        else requestQueue.push(item);
+
+        updateProcessingUI();
+        processGeocodeQueue();
+      });
+    }
+
+    async function processGeocodeQueue() {
+      if (requestRunning || !requestQueue.length) {
+        updateProcessingUI();
+        return;
+      }
+
+      const item = requestQueue.shift();
+      const location = item.location;
 
       if (!allLocations.includes(location) || hasCoordinates(location)) {
-        continue;
+        item.resolve(false);
+        processGeocodeQueue();
+        return;
       }
 
-      attempted++;
-      setStatus(`Scanning GPS: ${attempted} / ${pending.length}`, true);
+      requestRunning = true;
+      activeLocation = location;
+      resolvingLocations.add(location);
+      render();
+      updateProcessingUI();
 
-      const success = await enqueueGeocode(location, false);
-      if (success) completed++;
+      let success = false;
 
-      if (stopRequested) {
-        stopped = true;
-        break;
+      try {
+        const coordinates = await window.electronAPI.geocode(getAddress(location));
+
+        if (
+          coordinates &&
+          Number.isFinite(coordinates.lat) &&
+          Number.isFinite(coordinates.lng) &&
+          coordinates.lat >= -90 && coordinates.lat <= 90 &&
+          coordinates.lng >= -180 && coordinates.lng <= 180
+        ) {
+          if (allLocations.includes(location)) {
+            location.lat = coordinates.lat;
+            location.lng = coordinates.lng;
+            saveToStorage();
+            success = true;
+            updateMap(true);
+          }
+        }
+      } catch (error) {
+        console.error(`Geocoding failed for ${getAddress(location)}:`, error);
+      } finally {
+        resolvingLocations.delete(location);
+        requestRunning = false;
+        activeLocation = null;
+
+        item.resolve(success);
+
+        render();
+        updateProcessingUI();
+
+        if (geocoding) {
+          setStatus(
+            stopRequested ? 'Stopping after current address...' : 'Scanning GPS coordinates...',
+            true
+          );
+        } else if (!requestQueue.length) {
+          setStatus(success ? 'GPS coordinates resolved' : 'GPS resolution failed');
+        }
+
+        processGeocodeQueue();
       }
     }
-  } finally {
-    geocoding = false;
-    stopRequested = false;
 
-    document.getElementById('btnLoad').disabled = false;
-    document.getElementById('btnClear').disabled = false;
+    // Scan: can be stopped and resumed.
 
-    render();
-    updateMap();
-    updateScanButton();
-    updateProcessingUI();
+    scanButton.addEventListener('click', () => {
+      if (geocoding) {
+        stopRequested = true;
+        updateScanButton();
+        updateProcessingUI();
+        setStatus('Scan will stop after the current address...', true);
+        return;
+      }
 
-    const missing = getMissingLocations().length;
+      geocodeAll();
+    });
 
-    if (stopped) {
-      setStatus(`Scan stopped: ${completed} found in this session, ${missing} remaining`);
-    } else if (missing) {
-      setStatus(`Scan finished: ${completed} found, ${missing} without GPS`);
-    } else {
-      setStatus('Complete: all locations have GPS coordinates');
+    async function geocodeAll() {
+      if (geocoding) return;
+
+      if (!window.electronAPI?.geocode) {
+        alert('Electron geocoding API is unavailable. Check preload.js.');
+        return;
+      }
+
+      const pending = getMissingLocations();
+
+      if (!pending.length) {
+        setStatus('All locations have GPS coordinates');
+        render();
+        return;
+      }
+
+      geocoding = true;
+      stopRequested = false;
+
+      document.getElementById('btnLoad').disabled = true;
+      document.getElementById('btnClear').disabled = true;
+
+      updateScanButton();
+      updateProcessingUI();
+      setStatus(`Starting GPS scan: ${pending.length} addresses`, true);
+
+      let completed = 0;
+      let attempted = 0;
+      let stopped = false;
+
+      try {
+        for (const location of pending) {
+          if (stopRequested) {
+            stopped = true;
+            break;
+          }
+
+          if (!allLocations.includes(location) || hasCoordinates(location)) {
+            continue;
+          }
+
+          attempted++;
+          setStatus(`Scanning GPS: ${attempted} / ${pending.length}`, true);
+
+          const success = await enqueueGeocode(location, false);
+          if (success) completed++;
+
+          if (stopRequested) {
+            stopped = true;
+            break;
+          }
+        }
+      } finally {
+        geocoding = false;
+        stopRequested = false;
+
+        document.getElementById('btnLoad').disabled = false;
+        document.getElementById('btnClear').disabled = false;
+
+        render();
+        updateMap();
+        updateScanButton();
+        updateProcessingUI();
+
+        const missing = getMissingLocations().length;
+
+        if (stopped) {
+          setStatus(`Scan stopped: ${completed} found in this session, ${missing} remaining`);
+        } else if (missing) {
+          setStatus(`Scan finished: ${completed} found, ${missing} without GPS`);
+        } else {
+          setStatus('Complete: all locations have GPS coordinates');
+        }
+      }
     }
-  }
-}
 
-// Resolve one location manually.
+    // Resolve one location manually.
 
-async function resolveOneLocation(index) {
-  const location = allLocations[index];
-  if (!location || hasCoordinates(location)) return;
+    async function resolveOneLocation(index) {
+      const location = allLocations[index];
+      if (!location || hasCoordinates(location)) return;
 
-  if (!window.electronAPI?.geocode) {
-    alert('Electron geocoding API is unavailable. Check preload.js.');
-    return;
-  }
+      if (!window.electronAPI?.geocode) {
+        alert('Electron geocoding API is unavailable. Check preload.js.');
+        return;
+      }
 
-  if (resolvingLocations.has(location)) return;
+      if (resolvingLocations.has(location)) return;
 
-  setStatus(`Queued GPS resolution: ${location.company || 'Location'}`, true);
+      setStatus(`Queued GPS resolution: ${location.company || 'Location'}`, true);
 
-  const success = await enqueueGeocode(location, true);
+      const success = await enqueueGeocode(location, true);
 
-  if (success) {
-    setStatus(`GPS resolved: ${location.company || 'Location'}`);
-  } else if (allLocations.includes(location) && !hasCoordinates(location)) {
-    setStatus(`Could not resolve GPS: ${location.company || 'Location'}`);
-  }
+      if (success) {
+        setStatus(`GPS resolved: ${location.company || 'Location'}`);
+      } else if (allLocations.includes(location) && !hasCoordinates(location)) {
+        setStatus(`Could not resolve GPS: ${location.company || 'Location'}`);
+      }
 
-  render();
-  updateMap();
-}
-
-// Recalculate GPS for a location that already has coordinates.
-
-async function recalculateLocation(index) {
-  const location = allLocations[index];
-  if (!location || !hasCoordinates(location)) return;
-
-  if (!window.electronAPI?.geocode) {
-    alert('Electron geocoding API is unavailable. Check preload.js.');
-    return;
-  }
-
-  if (resolvingLocations.has(location)) return;
-
-  if (!confirm(`Recalculate GPS coordinates for ${location.company || 'this location'} using its current address?`)) {
-    return;
-  }
-
-  location.lat = null;
-  location.lng = null;
-
-  saveToStorage();
-  render();
-  updateMap();
-
-  setStatus(`Recalculating GPS: ${location.company || 'Location'}`, true);
-
-  const success = await enqueueGeocode(location, true);
-
-  render();
-  updateMap();
-
-  if (success) {
-    setStatus(`GPS recalculated: ${location.company || 'Location'}`);
-  } else if (allLocations.includes(location) && !hasCoordinates(location)) {
-    setStatus(`GPS recalculation failed: ${location.company || 'Location'}`);
-  }
-}
-
-// Edit location
-
-function openEditModal(index) {
-  const location = allLocations[index];
-  if (!location) return;
-
-  editingIndex = index;
-  editingOriginal = {
-    address:location.address || '',
-    city:location.city || '',
-    lat:location.lat,
-    lng:location.lng
-  };
-
-  document.getElementById('editCompany').value = location.company || '';
-  document.getElementById('editAddress').value = location.address || '';
-  document.getElementById('editCity').value = location.city || '';
-  document.getElementById('editLat').value = location.lat ?? '';
-  document.getElementById('editLng').value = location.lng ?? '';
-  document.getElementById('editError').classList.remove('show');
-
-  editModal.classList.add('open');
-  document.getElementById('editCompany').focus();
-}
-
-function closeEditModal() {
-  editingIndex = null;
-  editingOriginal = null;
-  editModal.classList.remove('open');
-}
-
-document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
-
-editModal.addEventListener('click', event => {
-  if (event.target === editModal) closeEditModal();
-});
-
-document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') closeEditModal();
-});
-
-editForm.addEventListener('submit', event => {
-  event.preventDefault();
-
-  if (editingIndex === null || !allLocations[editingIndex]) return;
-
-  const latText = document.getElementById('editLat').value.trim();
-  const lngText = document.getElementById('editLng').value.trim();
-  const lat = latText === '' ? null : parseCoordinate(latText);
-  const lng = lngText === '' ? null : parseCoordinate(lngText);
-  const errorElement = document.getElementById('editError');
-
-  if ((latText !== '' && lat === null) || (lngText !== '' && lng === null)) {
-    errorElement.textContent = 'Coordinates must be valid numbers.';
-    errorElement.classList.add('show');
-    return;
-  }
-
-  if ((lat === null) !== (lng === null)) {
-    errorElement.textContent = 'Enter both GPS coordinates or leave both empty.';
-    errorElement.classList.add('show');
-    return;
-  }
-
-  if (lat !== null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
-    errorElement.textContent = 'Latitude must be between -90 and 90, longitude between -180 and 180.';
-    errorElement.classList.add('show');
-    return;
-  }
-
-  const location = allLocations[editingIndex];
-
-  const newAddress = document.getElementById('editAddress').value.trim();
-  const newCity = document.getElementById('editCity').value.trim();
-
-  const addressChanged =
-    newAddress !== editingOriginal.address ||
-    newCity !== editingOriginal.city;
-
-  const coordinatesUnchanged =
-    lat === editingOriginal.lat &&
-    lng === editingOriginal.lng;
-
-  location.company = document.getElementById('editCompany').value.trim();
-  location.address = newAddress;
-  location.city = newCity;
-
-  if (addressChanged && coordinatesUnchanged) {
-    location.lat = null;
-    location.lng = null;
-  } else {
-    location.lat = lat;
-    location.lng = lng;
-  }
-
-  const needsGps = !hasCoordinates(location);
-
-  saveToStorage();
-  closeEditModal();
-  render();
-  updateMap(true);
-
-  if (needsGps) {
-    setStatus('Address updated. GPS needs to be resolved.');
-  } else {
-    setStatus('Location updated');
-  }
-});
-
-// Delete location
-
-function deleteLocation(index) {
-  if (!Number.isInteger(index) || index < 0 || index >= allLocations.length) return;
-
-  const location = allLocations[index];
-
-  requestQueue = requestQueue.filter(item => {
-    if (item.location === location) {
-      item.resolve(false);
-      return false;
+      render();
+      updateMap();
     }
-    return true;
-  });
 
-  allLocations.splice(index, 1);
-  saveToStorage();
-  render();
-  updateMap();
-  setStatus('Location deleted');
-}
+    // Recalculate GPS for a location that already has coordinates.
 
-// Missing GPS filter with live count
+    async function recalculateLocation(index) {
+      const location = allLocations[index];
+      if (!location || !hasCoordinates(location)) return;
 
-function updateFilterButton() {
-  const missing = getMissingLocations().length;
+      if (!window.electronAPI?.geocode) {
+        alert('Electron geocoding API is unavailable. Check preload.js.');
+        return;
+      }
 
-  missingFilterButton.classList.toggle('active', showMissingOnly);
-  missingFilterButton.textContent =
-    `${showMissingOnly ? '✓' : '⚠'} GPS MISSING (${missing})`;
-}
+      if (resolvingLocations.has(location)) return;
 
-missingFilterButton.addEventListener('click', () => {
-  showMissingOnly = !showMissingOnly;
-  updateFilterButton();
-  render();
-  // The missing-only filter affects the list, not the map.
-});
+      if (!confirm(`Recalculate GPS coordinates for ${location.company || 'this location'} using its current address?`)) {
+        return;
+      }
 
-// Render list
+      location.lat = null;
+      location.lng = null;
 
-function render() {
-  const locations = getVisibleLocations();
-  const gpsCount = allLocations.filter(hasCoordinates).length;
+      saveToStorage();
+      render();
+      updateMap();
 
-  document.getElementById('locationCount').textContent =
-    showMissingOnly ? locations.length : allLocations.length;
+      setStatus(`Recalculating GPS: ${location.company || 'Location'}`, true);
 
-  document.getElementById('gpsStatus').textContent =
-    `${gpsCount} / ${allLocations.length} GPS coordinates`;
+      const success = await enqueueGeocode(location, true);
 
-  document.getElementById('mapSubtitle').textContent =
-    `${gpsCount} locations with GPS position`;
+      render();
+      updateMap();
 
-  document.getElementById('mapOverlayText').textContent =
-    `${gpsCount} locations on map`;
+      if (success) {
+        setStatus(`GPS recalculated: ${location.company || 'Location'}`);
+      } else if (allLocations.includes(location) && !hasCoordinates(location)) {
+        setStatus(`GPS recalculation failed: ${location.company || 'Location'}`);
+      }
+    }
 
-  updateFilterButton();
+    // Edit location
 
-  if (!allLocations.length) {
-    results.innerHTML = `
+    function openEditModal(index) {
+      const location = allLocations[index];
+      if (!location) return;
+
+      editingIndex = index;
+      editingOriginal = {
+        address: location.address || '',
+        city: location.city || '',
+        lat: location.lat,
+        lng: location.lng
+      };
+
+      document.getElementById('editCompany').value = location.company || '';
+      document.getElementById('editAddress').value = location.address || '';
+      document.getElementById('editCity').value = location.city || '';
+      document.getElementById('editLat').value = location.lat ?? '';
+      document.getElementById('editLng').value = location.lng ?? '';
+      document.getElementById('editError').classList.remove('show');
+
+      editModal.classList.add('open');
+      document.getElementById('editCompany').focus();
+    }
+
+    function closeEditModal() {
+      editingIndex = null;
+      editingOriginal = null;
+      editModal.classList.remove('open');
+    }
+
+    document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+
+    editModal.addEventListener('click', event => {
+      if (event.target === editModal) closeEditModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeEditModal();
+    });
+
+    editForm.addEventListener('submit', event => {
+      event.preventDefault();
+
+      if (editingIndex === null || !allLocations[editingIndex]) return;
+
+      const latText = document.getElementById('editLat').value.trim();
+      const lngText = document.getElementById('editLng').value.trim();
+      const lat = latText === '' ? null : parseCoordinate(latText);
+      const lng = lngText === '' ? null : parseCoordinate(lngText);
+      const errorElement = document.getElementById('editError');
+
+      if ((latText !== '' && lat === null) || (lngText !== '' && lng === null)) {
+        errorElement.textContent = 'Coordinates must be valid numbers.';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      if ((lat === null) !== (lng === null)) {
+        errorElement.textContent = 'Enter both GPS coordinates or leave both empty.';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      if (lat !== null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
+        errorElement.textContent = 'Latitude must be between -90 and 90, longitude between -180 and 180.';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      const location = allLocations[editingIndex];
+
+      const newAddress = document.getElementById('editAddress').value.trim();
+      const newCity = document.getElementById('editCity').value.trim();
+
+      const addressChanged =
+        newAddress !== editingOriginal.address ||
+        newCity !== editingOriginal.city;
+
+      const coordinatesUnchanged =
+        lat === editingOriginal.lat &&
+        lng === editingOriginal.lng;
+
+      location.company = document.getElementById('editCompany').value.trim();
+      location.address = newAddress;
+      location.city = newCity;
+
+      if (addressChanged && coordinatesUnchanged) {
+        location.lat = null;
+        location.lng = null;
+      } else {
+        location.lat = lat;
+        location.lng = lng;
+      }
+
+      const needsGps = !hasCoordinates(location);
+
+      saveToStorage();
+      closeEditModal();
+      render();
+      updateMap(true);
+
+      if (needsGps) {
+        setStatus('Address updated. GPS needs to be resolved.');
+      } else {
+        setStatus('Location updated');
+      }
+    });
+
+    // Delete location
+
+    function deleteLocation(index) {
+      if (!Number.isInteger(index) || index < 0 || index >= allLocations.length) return;
+
+      const location = allLocations[index];
+
+      requestQueue = requestQueue.filter(item => {
+        if (item.location === location) {
+          item.resolve(false);
+          return false;
+        }
+        return true;
+      });
+
+      allLocations.splice(index, 1);
+      saveToStorage();
+      render();
+      updateMap();
+      setStatus('Location deleted');
+    }
+
+    // Missing GPS filter with live count
+
+    function updateFilterButton() {
+      const missing = getMissingLocations().length;
+
+      missingFilterButton.classList.toggle('active', showMissingOnly);
+      missingFilterButton.textContent =
+        `${showMissingOnly ? '✓' : '⚠'} GPS MISSING (${missing})`;
+    }
+
+    missingFilterButton.addEventListener('click', () => {
+      showMissingOnly = !showMissingOnly;
+      updateFilterButton();
+      render();
+      // The missing-only filter affects the list, not the map.
+    });
+
+    // Render list
+
+    function render() {
+      const locations = getVisibleLocations();
+      const gpsCount = allLocations.filter(hasCoordinates).length;
+
+      document.getElementById('locationCount').textContent =
+        showMissingOnly ? locations.length : allLocations.length;
+
+      document.getElementById('gpsStatus').textContent =
+        `${gpsCount} / ${allLocations.length} GPS coordinates`;
+
+      document.getElementById('mapSubtitle').textContent =
+        `${gpsCount} locations with GPS position`;
+
+      document.getElementById('mapOverlayText').textContent =
+        `${gpsCount} locations on map`;
+
+      updateFilterButton();
+
+      if (!allLocations.length) {
+        results.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">📍</div>
         <div class="empty-title">No locations yet</div>
         <div class="empty-description">Import an Excel file to display companies on the map.</div>
       </div>`;
-    dropZone.style.display = 'block';
-    updateScanButton();
-    return;
-  }
+        dropZone.style.display = 'block';
+        updateScanButton();
+        return;
+      }
 
-  dropZone.style.display = 'none';
+      dropZone.style.display = 'none';
 
-  if (!locations.length) {
-    results.innerHTML = `
+      if (!locations.length) {
+        results.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">${showMissingOnly ? '✓' : '⌕'}</div>
         <div class="empty-title">${showMissingOnly ? 'All locations have GPS' : 'No results'}</div>
         <div class="empty-description">${showMissingOnly
-          ? 'There are no locations missing GPS coordinates.'
-          : 'Try another search term.'}</div>
+            ? 'There are no locations missing GPS coordinates.'
+            : 'Try another search term.'}</div>
       </div>`;
-    updateScanButton();
-    updateProcessingUI();
-    return;
-  }
+        updateScanButton();
+        updateProcessingUI();
+        return;
+      }
 
-  results.innerHTML = locations.map(location => {
-    const index = allLocations.indexOf(location);
-    const gps = hasCoordinates(location);
-    const processing = resolvingLocations.has(location);
+      results.innerHTML = locations.map(location => {
+        const index = allLocations.indexOf(location);
+        const gps = hasCoordinates(location);
+        const processing = resolvingLocations.has(location);
 
-    return `
+        return `
       <div class="location-card" data-card-idx="${index}">
         <div class="location-company">${esc(location.company || 'Company without name')}</div>
         <div class="location-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
@@ -1797,77 +2080,77 @@ function render() {
           </div>
         </div>
       </div>`;
-  }).join('');
+      }).join('');
 
-  updateScanButton();
-  updateProcessingUI();
-}
-
-results.addEventListener('click', async event => {
-  const button = event.target.closest('button[data-action]');
-
-  if (button) {
-    event.stopPropagation();
-
-    const index = Number(button.dataset.idx);
-    const location = allLocations[index];
-    if (!location) return;
-
-    switch (button.dataset.action) {
-      case 'resolve':
-        await resolveOneLocation(index);
-        break;
-      case 'recalculate':
-        await recalculateLocation(index);
-        break;
-      case 'copy-address':
-        await copyText(getAddress(location));
-        break;
-      case 'copy-gps':
-        if (hasCoordinates(location)) {
-          await copyText(`${location.lat}, ${location.lng}`);
-        }
-        break;
-      case 'maps':
-        await openGoogleMaps(location);
-        break;
-      case 'edit':
-        openEditModal(index);
-        break;
-      case 'delete':
-        deleteLocation(index);
-        break;
+      updateScanButton();
+      updateProcessingUI();
     }
-    return;
-  }
 
-  const card = event.target.closest('.location-card');
-  if (!card) return;
+    results.addEventListener('click', async event => {
+      const button = event.target.closest('button[data-action]');
 
-  const location = allLocations[Number(card.dataset.cardIdx)];
-  if (!location) return;
+      if (button) {
+        event.stopPropagation();
 
-  if (hasCoordinates(location)) {
-    map.setView([location.lat, location.lng], 15);
-    const item = markers.find(marker => marker.location === location);
-    if (item) item.marker.openPopup();
-  }
-});
+        const index = Number(button.dataset.idx);
+        const location = allLocations[index];
+        if (!location) return;
 
-// Map popups
+        switch (button.dataset.action) {
+          case 'resolve':
+            await resolveOneLocation(index);
+            break;
+          case 'recalculate':
+            await recalculateLocation(index);
+            break;
+          case 'copy-address':
+            await copyText(getAddress(location));
+            break;
+          case 'copy-gps':
+            if (hasCoordinates(location)) {
+              await copyText(`${location.lat}, ${location.lng}`);
+            }
+            break;
+          case 'maps':
+            await openGoogleMaps(location);
+            break;
+          case 'edit':
+            openEditModal(index);
+            break;
+          case 'delete':
+            deleteLocation(index);
+            break;
+        }
+        return;
+      }
 
-function createPopup(location, index) {
-  const gps = hasCoordinates(location);
-  const processing = resolvingLocations.has(location);
+      const card = event.target.closest('.location-card');
+      if (!card) return;
 
-  return `
+      const location = allLocations[Number(card.dataset.cardIdx)];
+      if (!location) return;
+
+      if (hasCoordinates(location)) {
+        map.setView([location.lat, location.lng], 15);
+        const item = markers.find(marker => marker.location === location);
+        if (item) item.marker.openPopup();
+      }
+    });
+
+    // Map popups
+
+    function createPopup(location, index) {
+      const gps = hasCoordinates(location);
+      const processing = resolvingLocations.has(location);
+
+      return `
     <div class="popup-company">${esc(location.company || 'Company without name')}</div>
     <div class="popup-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
 
     <div class="popup-coordinates ${gps ? '' : 'missing'}">
       ${gps
-        ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
-        : 'GPS: Not resolved'}
+          ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
+          : 'GPS: Not resolved'}
     </div>
 
     <div class="popup-actions">
@@ -1883,154 +2166,155 @@ function createPopup(location, index) {
       <button class="btn small" data-map-action="edit" data-idx="${index}">EDIT</button>
       <button class="btn small danger" data-map-action="delete" data-idx="${index}">DELETE</button>
     </div>`;
-}
-
-function updateMap(fit = false) {
-  markers.forEach(item => map.removeLayer(item.marker));
-  markers = [];
-
-  getSearchLocations().forEach(location => {
-    if (!hasCoordinates(location)) return;
-
-    const index = allLocations.indexOf(location);
-    const marker = L.marker([location.lat, location.lng]).addTo(map);
-    marker.bindPopup(createPopup(location, index));
-    markers.push({marker, location});
-  });
-
-  if (fit && markers.length) {
-    map.fitBounds(
-      L.featureGroup(markers.map(item => item.marker))
-        .getBounds()
-        .pad(0.12)
-    );
-  }
-
-  requestAnimationFrame(() => map.invalidateSize());
-}
-
-document.getElementById('map').addEventListener('click', async event => {
-  const button = event.target.closest('button[data-map-action]');
-  if (!button) return;
-
-  const index = Number(button.dataset.idx);
-  const location = allLocations[index];
-  if (!location) return;
-
-  switch (button.dataset.mapAction) {
-    case 'resolve':
-      await resolveOneLocation(index);
-      break;
-    case 'recalculate':
-      await recalculateLocation(index);
-      break;
-    case 'copy-address':
-      await copyText(getAddress(location));
-      break;
-    case 'copy-gps':
-      if (hasCoordinates(location)) {
-        await copyText(`${location.lat}, ${location.lng}`);
-      }
-      break;
-    case 'maps':
-      await openGoogleMaps(location);
-      break;
-    case 'edit':
-      map.closePopup();
-      openEditModal(index);
-      break;
-    case 'delete':
-      map.closePopup();
-      deleteLocation(index);
-      break;
-  }
-});
-
-// Map controls
-
-document.getElementById('btnFit').addEventListener('click', () => {
-  updateMap(true);
-});
-
-document.getElementById('btnShowMap').addEventListener('click', async () => {
-  try {
-    const panel = document.querySelector('.map-panel');
-
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-    } else {
-      await panel.requestFullscreen();
     }
 
-    setTimeout(() => map.invalidateSize(), 100);
-  } catch (error) {
-    console.error('Fullscreen error:', error);
-  }
-});
+    function updateMap(fit = false) {
+      markers.forEach(item => map.removeLayer(item.marker));
+      markers = [];
 
-document.addEventListener('fullscreenchange', () => {
-  setTimeout(() => map.invalidateSize(), 100);
-});
+      getSearchLocations().forEach(location => {
+        if (!hasCoordinates(location)) return;
 
-searchBox.addEventListener('input', () => {
-  render();
-  updateMap();
-});
+        const index = allLocations.indexOf(location);
+        const marker = L.marker([location.lat, location.lng]).addTo(map);
+        marker.bindPopup(createPopup(location, index));
+        markers.push({ marker, location });
+      });
 
-// Clear all
+      if (fit && markers.length) {
+        map.fitBounds(
+          L.featureGroup(markers.map(item => item.marker))
+            .getBounds()
+            .pad(0.12)
+        );
+      }
 
-document.getElementById('btnClear').addEventListener('click', () => {
-  if (geocoding || requestRunning) {
-    alert('Stop GPS processing before deleting locations.');
-    return;
-  }
+      requestAnimationFrame(() => map.invalidateSize());
+    }
 
-  if (!allLocations.length) return;
-  if (!confirm('Are you sure you want to delete all locations?')) return;
+    document.getElementById('map').addEventListener('click', async event => {
+      const button = event.target.closest('button[data-map-action]');
+      if (!button) return;
 
-  allLocations = [];
-  saveToStorage();
-  searchBox.value = '';
-  showMissingOnly = false;
-  updateFilterButton();
-  render();
-  updateMap();
-  setStatus('All locations deleted');
-});
+      const index = Number(button.dataset.idx);
+      const location = allLocations[index];
+      if (!location) return;
 
-// Window controls
+      switch (button.dataset.mapAction) {
+        case 'resolve':
+          await resolveOneLocation(index);
+          break;
+        case 'recalculate':
+          await recalculateLocation(index);
+          break;
+        case 'copy-address':
+          await copyText(getAddress(location));
+          break;
+        case 'copy-gps':
+          if (hasCoordinates(location)) {
+            await copyText(`${location.lat}, ${location.lng}`);
+          }
+          break;
+        case 'maps':
+          await openGoogleMaps(location);
+          break;
+        case 'edit':
+          map.closePopup();
+          openEditModal(index);
+          break;
+        case 'delete':
+          map.closePopup();
+          deleteLocation(index);
+          break;
+      }
+    });
 
-document.getElementById('btnMinimize').addEventListener('click', () => {
-  window.electronAPI?.minimizeWindow?.();
-});
+    // Map controls
 
-document.getElementById('btnMaximize').addEventListener('click', () => {
-  window.electronAPI?.maximizeWindow?.();
-});
+    document.getElementById('btnFit').addEventListener('click', () => {
+      updateMap(true);
+    });
 
-document.getElementById('btnClose').addEventListener('click', () => {
-  window.electronAPI?.closeWindow?.();
-});
+    document.getElementById('btnShowMap').addEventListener('click', async () => {
+      try {
+        const panel = document.querySelector('.map-panel');
 
-// Init
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await panel.requestFullscreen();
+        }
 
-async function init() {
-  initializePanelResizer();
+        setTimeout(() => map.invalidateSize(), 100);
+      } catch (error) {
+        console.error('Fullscreen error:', error);
+      }
+    });
 
-  const visible = sessionStorage.getItem(VISIBILITY_KEY) === 'true';
-  await applyVisibilitySetting(visible);
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(() => map.invalidateSize(), 100);
+    });
 
-  loadFromStorage();
-  updateFilterButton();
-  updateScanButton();
-  updateProcessingUI();
+    searchBox.addEventListener('input', () => {
+      render();
+      updateMap();
+    });
 
-  window.addEventListener('resize', () => {
-    map.invalidateSize();
-  });
-}
+    // Clear all
 
-init();
-</script>
+    document.getElementById('btnClear').addEventListener('click', () => {
+      if (geocoding || requestRunning) {
+        alert('Stop GPS processing before deleting locations.');
+        return;
+      }
+
+      if (!allLocations.length) return;
+      if (!confirm('Are you sure you want to delete all locations?')) return;
+
+      allLocations = [];
+      saveToStorage();
+      searchBox.value = '';
+      showMissingOnly = false;
+      updateFilterButton();
+      render();
+      updateMap();
+      setStatus('All locations deleted');
+    });
+
+    // Window controls
+
+    document.getElementById('btnMinimize').addEventListener('click', () => {
+      window.electronAPI?.minimizeWindow?.();
+    });
+
+    document.getElementById('btnMaximize').addEventListener('click', () => {
+      window.electronAPI?.maximizeWindow?.();
+    });
+
+    document.getElementById('btnClose').addEventListener('click', () => {
+      window.electronAPI?.closeWindow?.();
+    });
+
+    // Init
+
+    async function init() {
+      initializePanelResizer();
+
+      const visible = sessionStorage.getItem(VISIBILITY_KEY) === 'true';
+      await applyVisibilitySetting(visible);
+
+      loadFromStorage();
+      updateFilterButton();
+      updateScanButton();
+      updateProcessingUI();
+
+      window.addEventListener('resize', () => {
+        map.invalidateSize();
+      });
+    }
+
+    init();
+  </script>
 </body>
+
 </html>

@@ -115,7 +115,7 @@ app.whenReady().then(async () => {
     });
 
     ipcMain.handle('window-close', (event) => {
-        BrowserWindow.fromWebContents(event.sender)?.close();
+        app.quit();
     });
 
     createWindow();
