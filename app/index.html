@@ -546,8 +546,14 @@
     }
 
     .filter-button {
+      height: 31px;
       min-height: 31px;
       padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      vertical-align: middle;
       border: 1px solid var(--border);
       border-radius: 7px;
       background: #202532;
@@ -1982,6 +1988,12 @@
     function updateFilterButton() {
       const missing = getMissingLocations().length;
 
+      if (missing === 0 && showMissingOnly) {
+        showMissingOnly = false;
+        renderLocations();
+      }
+
+      missingFilterButton.style.display = missing > 0 ? 'inline-flex' : 'none';
       missingFilterButton.classList.toggle('active', showMissingOnly);
       missingFilterButton.textContent =
         `${showMissingOnly ? '✓' : '⚠'} GPS MISSING (${missing})`;
@@ -2062,22 +2074,23 @@
           <span class="location-status ${gps ? '' : 'missing'}">
             ${gps ? '● GPS AVAILABLE' : '⚠ GPS MISSING'}
           </span>
-
-          <div class="location-actions">
-            ${processing ? `
-              <button class="btn small primary resolve-button processing" disabled>
-                ⟳ RESOLVING...
-              </button>` : gps ? `
-              <button class="btn small primary" data-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
-              <button class="btn small" data-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
-              <button class="btn small primary resolve-button" data-action="resolve" data-idx="${index}">
-                ⌖ RESOLVE GPS
-              </button>`}
-            <button class="btn small" data-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
-            <button class="btn small" data-action="maps" data-idx="${index}">MAPS</button>
-            <button class="btn small" data-action="edit" data-idx="${index}">EDIT</button>
-            <button class="btn small danger" data-action="delete" data-idx="${index}">DELETE</button>
-          </div>
+        <div class="location-actions">
+          ${processing ? `
+            <button class="btn small primary resolve-button processing" disabled>
+              ⟳ RESOLVING...
+            </button>` : gps ? `
+            <button class="btn small primary" data-action="maps" data-idx="${index}">MAPS</button>
+            <button class="btn small" data-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
+            <button class="btn small" data-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
+            <button class="btn small primary resolve-button" data-action="resolve" data-idx="${index}">
+              ⌖ RESOLVE GPS
+            </button>`}
+          <button class="btn small" data-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
+          ${gps ? '' : `<button class="btn small" data-action="maps" data-idx="${index}">MAPS</button>`}
+          <button class="btn small" data-action="edit" data-idx="${index}">EDIT</button>
+          <button class="btn small danger" data-action="delete" data-idx="${index}">DELETE</button>
+        </div>
+          
         </div>
       </div>`;
       }).join('');
@@ -2154,18 +2167,19 @@
     </div>
 
     <div class="popup-actions">
-      ${processing ? `
-        <button class="btn small primary" disabled>⟳ RESOLVING...</button>` : gps ? `
-        <button class="btn small primary" data-map-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
-        <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
-        <button class="btn small primary" data-map-action="resolve" data-idx="${index}">
-          ⌖ RESOLVE GPS
-        </button>`}
-      <button class="btn small" data-map-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
-      <button class="btn small" data-map-action="maps" data-idx="${index}">MAPS</button>
-      <button class="btn small" data-map-action="edit" data-idx="${index}">EDIT</button>
-      <button class="btn small danger" data-map-action="delete" data-idx="${index}">DELETE</button>
-    </div>`;
+    ${processing ? `
+      <button class="btn small primary" disabled>⟳ RESOLVING...</button>` : gps ? `
+      <button class="btn small primary" data-map-action="maps" data-idx="${index}">MAPS</button>
+      <button class="btn small" data-map-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
+      <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
+      <button class="btn small primary" data-map-action="resolve" data-idx="${index}">
+        ⌖ RESOLVE GPS
+      </button>`}
+    <button class="btn small" data-map-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
+    ${gps ? '' : `<button class="btn small" data-map-action="maps" data-idx="${index}">MAPS</button>`}
+    <button class="btn small" data-map-action="edit" data-idx="${index}">EDIT</button>
+    <button class="btn small danger" data-map-action="delete" data-idx="${index}">DELETE</button>
+  </div>`;
     }
 
     function updateMap(fit = false) {
