@@ -137,9 +137,9 @@ button:disabled {
 }
 .btn.danger:hover { background:#512d38; }
 .btn.small {
-  min-height:37px;
-  padding:0 11px;
-  font-size:13px;
+  min-height:32px;
+  padding:0 9px;
+  font-size:12px;
 }
 .settings {
   display:flex;
@@ -189,6 +189,48 @@ button:disabled {
 }
 .switch input:checked + .slider { background:var(--accent); }
 .switch input:checked + .slider:before { transform:translateX(18px); }
+
+/* Hidden Google test tools */
+
+.reset-tools {
+  position:relative;
+}
+.reset-tools summary {
+  list-style:none;
+  padding:7px 9px;
+  border:1px solid transparent;
+  border-radius:7px;
+  color:#7f899c;
+  font-size:11px;
+  font-weight:750;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.reset-tools summary::-webkit-details-marker { display:none; }
+.reset-tools summary:hover {
+  color:var(--muted);
+  background:#252c3b;
+}
+.reset-tools[open] summary {
+  border-color:var(--border);
+  color:var(--text);
+}
+.reset-tools .reset-content {
+  position:absolute;
+  z-index:2000;
+  top:calc(100% + 7px);
+  right:0;
+  padding:9px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--panel);
+  box-shadow:0 8px 25px #0008;
+}
+.reset-tools .btn {
+  min-height:34px;
+  font-size:12px;
+}
+
 .window-controls {
   display:flex;
   align-items:center;
@@ -208,7 +250,7 @@ button:disabled {
 .window-control:hover { background:#343d50; }
 .window-control.close:hover { background:#c93645;color:white; }
 
-/* Status bar: directly under title bar */
+/* Status bar */
 
 .statusbar {
   min-height:44px;
@@ -272,8 +314,8 @@ button:disabled {
   min-height:0;
   display:flex;
   flex-direction:column;
-  gap:9px;
-  padding:9px 12px 12px;
+  gap:8px;
+  padding:8px 11px 10px;
 }
 .map-panel,.sidebar {
   min-width:0;
@@ -285,30 +327,30 @@ button:disabled {
   background:var(--panel);
 }
 .map-panel {
-  flex:0 0 54%;
-  min-height:220px;
+  flex:0 0 62%;
+  min-height:260px;
 }
 .map-toolbar {
-  min-height:52px;
+  min-height:46px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
-  padding:0 15px;
+  padding:0 13px;
   border-bottom:1px solid var(--border);
 }
 .map-heading,.sidebar-title {
-  font-size:17px;
+  font-size:16px;
   font-weight:850;
 }
 .map-subheading {
-  margin-top:2px;
+  margin-top:1px;
   color:var(--muted);
-  font-size:14px;
+  font-size:13px;
 }
 .map-toolbar-actions {
   display:flex;
-  gap:8px;
+  gap:7px;
 }
 .map-wrap {
   position:relative;
@@ -346,14 +388,14 @@ button:disabled {
   background:var(--success);
 }
 
-/* Sidebar below full-width map */
+/* Location list */
 
 .sidebar {
   flex:1;
-  min-height:170px;
+  min-height:140px;
 }
 .sidebar-header {
-  padding:10px 14px;
+  padding:8px 12px;
   border-bottom:1px solid var(--border);
 }
 .sidebar-title-row {
@@ -362,56 +404,79 @@ button:disabled {
   justify-content:space-between;
   gap:10px;
 }
+.sidebar-header-actions {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
 .count-badge {
   min-width:32px;
   padding:4px 10px;
   border-radius:20px;
   background:#30365d;
   color:#d4d7ff;
-  font-size:15px;
+  font-size:14px;
   font-weight:850;
   text-align:center;
 }
+.filter-button {
+  min-height:31px;
+  padding:0 10px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:#202532;
+  color:#c0c8d7;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.filter-button:hover { background:#343d50; }
+.filter-button.active {
+  border-color:#b18b3e;
+  background:#49391d;
+  color:#ffe3a0;
+}
 .search-wrap {
   position:relative;
-  margin-top:9px;
+  margin-top:7px;
 }
 .search-icon {
   position:absolute;
-  top:8px;
-  left:12px;
+  top:6px;
+  left:11px;
   color:var(--muted);
   font-size:20px;
   pointer-events:none;
 }
 .search-box {
   width:100%;
-  height:40px;
-  padding:0 12px 0 38px;
+  height:34px;
+  padding:0 12px 0 36px;
   outline:none;
   border:1px solid var(--border);
   border-radius:8px;
   background:#11151d;
   color:var(--text);
-  font-size:15px;
+  font-size:14px;
 }
 .search-box:focus { border-color:var(--accent); }
 .search-box::placeholder { color:#929bad; }
+
 .location-list {
   flex:1;
   min-height:0;
   overflow-y:auto;
-  padding:9px;
+  padding:7px;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(330px,1fr));
   align-content:start;
-  gap:9px;
+  gap:6px;
 }
 .location-card {
   min-width:0;
-  padding:11px 12px;
+  padding:7px 9px;
   border:1px solid #343d50;
-  border-radius:9px;
+  border-radius:8px;
   background:#202532;
   cursor:pointer;
 }
@@ -426,52 +491,59 @@ button:disabled {
 .location-company {
   overflow-wrap:anywhere;
   color:var(--text);
-  font-size:17px;
+  font-size:15px;
   font-weight:850;
-  line-height:1.35;
+  line-height:1.25;
 }
 .location-address {
-  margin-top:6px;
+  margin-top:3px;
   color:#d0d7e5;
-  font-size:15px;
-  line-height:1.5;
+  font-size:13px;
+  line-height:1.3;
   overflow-wrap:anywhere;
 }
 .location-coordinates {
-  margin-top:7px;
+  margin-top:3px;
   color:#aebaff;
-  font-size:14px;
+  font-size:12px;
   font-weight:700;
-  line-height:1.5;
+  line-height:1.3;
   overflow-wrap:anywhere;
 }
 .location-coordinates.missing { color:var(--warning); }
 .location-footer {
   display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:8px;
-  margin-top:10px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:6px;
 }
 .location-status {
   color:var(--success);
-  font-size:14px;
+  font-size:11px;
   font-weight:800;
+  white-space:nowrap;
 }
 .location-status.missing { color:var(--warning); }
 .location-actions {
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
+  gap:4px;
+}
+.location-actions .btn {
+  min-height:27px;
+  padding:0 7px;
+  font-size:10px;
 }
 .sidebar-footer {
-  min-height:34px;
+  min-height:30px;
   display:flex;
   align-items:center;
-  padding:5px 13px;
+  padding:4px 12px;
   border-top:1px solid var(--border);
   color:#c0c8d7;
-  font-size:14px;
+  font-size:12px;
   font-weight:650;
 }
 .empty-state {
@@ -509,23 +581,23 @@ button:disabled {
 .drop-zone .hint { margin-top:4px;color:var(--muted);font-size:14px; }
 .drop-zone input { display:none; }
 
-/* Active processing */
+/* Processing */
 
 .processing-banner {
   display:none;
   align-items:center;
   gap:12px;
-  padding:10px 14px;
+  padding:8px 13px;
   border-bottom:1px solid #67552c;
   background:#302a1c;
   color:#ffe3a0;
-  font-size:15px;
+  font-size:14px;
   font-weight:750;
 }
 .processing-banner.visible { display:flex; }
 .processing-spinner {
-  width:19px;
-  height:19px;
+  width:18px;
+  height:18px;
   flex:0 0 auto;
   border:3px solid #ffe3a055;
   border-top-color:var(--warning);
@@ -538,7 +610,7 @@ button:disabled {
   text-overflow:ellipsis;
   white-space:nowrap;
   color:#e8d6aa;
-  font-size:14px;
+  font-size:12px;
   font-weight:600;
 }
 .resolve-button.processing {
@@ -591,6 +663,7 @@ button:disabled {
   flex-wrap:wrap;
   gap:6px;
 }
+
 .leaflet-control-zoom a {
   background:#202532!important;
   color:white!important;
@@ -677,11 +750,12 @@ body:fullscreen { width:100%;height:100%; }
   .topbar-actions .btn { min-height:36px;font-size:11px;padding:0 7px; }
   .window-control { width:29px; }
   .workspace { padding:6px;gap:6px; }
-  .map-panel { flex-basis:48%; }
+  .map-panel { flex-basis:55%; }
   .location-list { grid-template-columns:1fr; }
   .statusbar { padding:0 10px;font-size:13px; }
   .map-toolbar { padding:0 9px; }
   .map-toolbar-actions .btn { font-size:11px; }
+  .reset-tools summary { font-size:9px;padding:6px; }
 }
 </style>
 </head>
@@ -709,7 +783,12 @@ body:fullscreen { width:100%;height:100%; }
       </label>
     </div>
 
-    <button class="btn danger" id="btnResetGoogle">↻ RESET GOOGLE</button>
+    <details class="reset-tools">
+      <summary>TEST TOOLS</summary>
+      <div class="reset-content">
+        <button class="btn danger" id="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
+      </div>
+    </details>
 
     <div class="action-separator"></div>
 
@@ -755,7 +834,10 @@ body:fullscreen { width:100%;height:100%; }
     <div class="sidebar-header">
       <div class="sidebar-title-row">
         <span class="sidebar-title">Imported locations</span>
-        <span class="count-badge" id="locationCount">0</span>
+        <div class="sidebar-header-actions">
+          <button class="filter-button" id="btnMissingFilter">⚠ GPS MISSING</button>
+          <span class="count-badge" id="locationCount">0</span>
+        </div>
       </div>
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
@@ -843,12 +925,15 @@ const editModal = document.getElementById('editModal');
 const editForm = document.getElementById('editForm');
 const scanButton = document.getElementById('btnScan');
 const processingBanner = document.getElementById('processingBanner');
+const missingFilterButton = document.getElementById('btnMissingFilter');
 
 let allLocations = [];
 let markers = [];
 let geocoding = false;
 let stopRequested = false;
 let editingIndex = null;
+let editingOriginal = null;
+let showMissingOnly = false;
 
 let requestQueue = [];
 let requestRunning = false;
@@ -929,8 +1014,9 @@ function getMissingLocations() {
   return allLocations.filter(location => !hasCoordinates(location));
 }
 
-function getVisibleLocations() {
+function getSearchLocations() {
   const query = searchBox.value.toLowerCase().trim();
+
   if (!query) return allLocations;
 
   return allLocations.filter(location =>
@@ -938,6 +1024,13 @@ function getVisibleLocations() {
     String(location.address).toLowerCase().includes(query) ||
     String(location.city).toLowerCase().includes(query)
   );
+}
+
+function getVisibleLocations() {
+  const locations = getSearchLocations();
+  return showMissingOnly
+    ? locations.filter(location => !hasCoordinates(location))
+    : locations;
 }
 
 function updateProcessingUI() {
@@ -970,8 +1063,9 @@ function updateScanButton() {
     scanButton.disabled = false;
   }
 
+  const shown = getVisibleLocations().length;
   document.getElementById('sidebarFooter').textContent =
-    `${getVisibleLocations().length} shown · ${allLocations.length} total · ${missing} without GPS`;
+    `${shown} shown · ${allLocations.length} total · ${missing} without GPS`;
 }
 
 // Storage
@@ -1011,7 +1105,7 @@ visibilitySwitch.addEventListener('change', () => {
   applyVisibilitySetting(visibilitySwitch.checked);
 });
 
-// Google session reset
+// Google session reset - kept inside test tools
 
 document.getElementById('btnResetGoogle').addEventListener('click', async () => {
   if (requestRunning || geocoding) {
@@ -1027,6 +1121,7 @@ document.getElementById('btnResetGoogle').addEventListener('click', async () => 
     setStatus('Resetting Google session...', true);
     await window.electronAPI.resetGoogleSession();
     setStatus('Google session has been reset');
+    document.querySelector('.reset-tools').open = false;
     alert('Google session deleted. Google Maps may request consent again during the next scan.');
   } catch (error) {
     console.error(error);
@@ -1095,6 +1190,8 @@ function readFile(file) {
 
       saveToStorage();
       searchBox.value = '';
+      showMissingOnly = false;
+      updateFilterButton();
       render();
       updateMap(true);
       await geocodeAll();
@@ -1108,8 +1205,7 @@ function readFile(file) {
 }
 
 // Shared GPS request queue.
-// The existing Google Maps window processes one address at a time.
-// Individual requests are placed ahead of the next automatic scan request.
+// Manual requests have priority over the next automatic scan request.
 
 function enqueueGeocode(location, priority = false) {
   if (!allLocations.includes(location) || hasCoordinates(location)) {
@@ -1121,6 +1217,7 @@ function enqueueGeocode(location, priority = false) {
 
   return new Promise(resolve => {
     const item = {location, resolve, promise:null};
+
     item.promise = new Promise(innerResolve => {
       item.resolve = value => {
         innerResolve(value);
@@ -1287,7 +1384,7 @@ async function geocodeAll() {
     } else if (missing) {
       setStatus(`Scan finished: ${completed} found, ${missing} without GPS`);
     } else {
-      setStatus(`Complete: all locations have GPS coordinates`);
+      setStatus('Complete: all locations have GPS coordinates');
     }
   }
 }
@@ -1307,7 +1404,6 @@ async function resolveOneLocation(index) {
 
   setStatus(`Queued GPS resolution: ${location.company || 'Location'}`, true);
 
-  // Priority means this runs before the next address in the automatic scan.
   const success = await enqueueGeocode(location, true);
 
   if (success) {
@@ -1320,6 +1416,44 @@ async function resolveOneLocation(index) {
   updateMap();
 }
 
+// Recalculate GPS for a location that already has coordinates.
+
+async function recalculateLocation(index) {
+  const location = allLocations[index];
+  if (!location || !hasCoordinates(location)) return;
+
+  if (!window.electronAPI?.geocode) {
+    alert('Electron geocoding API is unavailable. Check preload.js.');
+    return;
+  }
+
+  if (resolvingLocations.has(location)) return;
+
+  if (!confirm(`Recalculate GPS coordinates for ${location.company || 'this location'} using its current address?`)) {
+    return;
+  }
+
+  location.lat = null;
+  location.lng = null;
+
+  saveToStorage();
+  render();
+  updateMap();
+
+  setStatus(`Recalculating GPS: ${location.company || 'Location'}`, true);
+
+  const success = await enqueueGeocode(location, true);
+
+  render();
+  updateMap();
+
+  if (success) {
+    setStatus(`GPS recalculated: ${location.company || 'Location'}`);
+  } else if (allLocations.includes(location) && !hasCoordinates(location)) {
+    setStatus(`GPS recalculation failed: ${location.company || 'Location'}`);
+  }
+}
+
 // Edit location
 
 function openEditModal(index) {
@@ -1327,6 +1461,12 @@ function openEditModal(index) {
   if (!location) return;
 
   editingIndex = index;
+  editingOriginal = {
+    address:location.address || '',
+    city:location.city || '',
+    lat:location.lat,
+    lng:location.lng
+  };
 
   document.getElementById('editCompany').value = location.company || '';
   document.getElementById('editAddress').value = location.address || '';
@@ -1341,6 +1481,7 @@ function openEditModal(index) {
 
 function closeEditModal() {
   editingIndex = null;
+  editingOriginal = null;
   editModal.classList.remove('open');
 }
 
@@ -1385,17 +1526,42 @@ editForm.addEventListener('submit', event => {
 
   const location = allLocations[editingIndex];
 
+  const newAddress = document.getElementById('editAddress').value.trim();
+  const newCity = document.getElementById('editCity').value.trim();
+
+  const addressChanged =
+    newAddress !== editingOriginal.address ||
+    newCity !== editingOriginal.city;
+
+  const coordinatesUnchanged =
+    lat === editingOriginal.lat &&
+    lng === editingOriginal.lng;
+
   location.company = document.getElementById('editCompany').value.trim();
-  location.address = document.getElementById('editAddress').value.trim();
-  location.city = document.getElementById('editCity').value.trim();
-  location.lat = lat;
-  location.lng = lng;
+  location.address = newAddress;
+  location.city = newCity;
+
+  // Old coordinates must not remain attached to a changed address.
+  if (addressChanged && coordinatesUnchanged) {
+    location.lat = null;
+    location.lng = null;
+  } else {
+    location.lat = lat;
+    location.lng = lng;
+  }
+
+  const needsGps = !hasCoordinates(location);
 
   saveToStorage();
   closeEditModal();
   render();
   updateMap(true);
-  setStatus('Location updated');
+
+  if (needsGps) {
+    setStatus('Address updated. GPS needs to be resolved.');
+  } else {
+    setStatus('Location updated');
+  }
 });
 
 // Delete location
@@ -1420,13 +1586,31 @@ function deleteLocation(index) {
   setStatus('Location deleted');
 }
 
+// Missing GPS filter
+
+function updateFilterButton() {
+  missingFilterButton.classList.toggle('active', showMissingOnly);
+  missingFilterButton.textContent = showMissingOnly
+    ? '✓ GPS MISSING'
+    : '⚠ GPS MISSING';
+}
+
+missingFilterButton.addEventListener('click', () => {
+  showMissingOnly = !showMissingOnly;
+  updateFilterButton();
+  render();
+  updateMap();
+});
+
 // Render list
 
 function render() {
   const locations = getVisibleLocations();
   const gpsCount = allLocations.filter(hasCoordinates).length;
 
-  document.getElementById('locationCount').textContent = allLocations.length;
+  document.getElementById('locationCount').textContent =
+    showMissingOnly ? locations.length : allLocations.length;
+
   document.getElementById('gpsStatus').textContent =
     `${gpsCount} / ${allLocations.length} GPS coordinates`;
 
@@ -1453,11 +1637,14 @@ function render() {
   if (!locations.length) {
     results.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⌕</div>
-        <div class="empty-title">No results</div>
-        <div class="empty-description">Try another search term.</div>
+        <div class="empty-icon">${showMissingOnly ? '✓' : '⌕'}</div>
+        <div class="empty-title">${showMissingOnly ? 'All locations have GPS' : 'No results'}</div>
+        <div class="empty-description">${showMissingOnly
+          ? 'There are no locations missing GPS coordinates.'
+          : 'Try another search term.'}</div>
       </div>`;
     updateScanButton();
+    updateProcessingUI();
     return;
   }
 
@@ -1483,12 +1670,15 @@ function render() {
           </span>
 
           <div class="location-actions">
-            ${!gps ? `
-              <button class="btn small primary resolve-button ${processing ? 'processing' : ''}"
-                data-action="resolve" data-idx="${index}" ${processing ? 'disabled' : ''}>
-                ${processing ? '⟳ RESOLVING...' : '⌖ RESOLVE GPS'}
-              </button>` : `
-              <button class="btn small" data-action="copy-gps" data-idx="${index}">COPY GPS</button>`}
+            ${processing ? `
+              <button class="btn small primary resolve-button processing" disabled>
+                ⟳ RESOLVING...
+              </button>` : gps ? `
+              <button class="btn small primary" data-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
+              <button class="btn small" data-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
+              <button class="btn small primary resolve-button" data-action="resolve" data-idx="${index}">
+                ⌖ RESOLVE GPS
+              </button>`}
             <button class="btn small" data-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
             <button class="btn small" data-action="maps" data-idx="${index}">MAPS</button>
             <button class="btn small" data-action="edit" data-idx="${index}">EDIT</button>
@@ -1515,6 +1705,9 @@ results.addEventListener('click', async event => {
     switch (button.dataset.action) {
       case 'resolve':
         await resolveOneLocation(index);
+        break;
+      case 'recalculate':
+        await recalculateLocation(index);
         break;
       case 'copy-address':
         await copyText(getAddress(location));
@@ -1554,6 +1747,7 @@ results.addEventListener('click', async event => {
 
 function createPopup(location, index) {
   const gps = hasCoordinates(location);
+  const processing = resolvingLocations.has(location);
 
   return `
     <div class="popup-company">${esc(location.company || 'Company without name')}</div>
@@ -1566,11 +1760,13 @@ function createPopup(location, index) {
     </div>
 
     <div class="popup-actions">
-      ${!gps ? `
+      ${processing ? `
+        <button class="btn small primary" disabled>⟳ RESOLVING...</button>` : gps ? `
+        <button class="btn small primary" data-map-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
+        <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
         <button class="btn small primary" data-map-action="resolve" data-idx="${index}">
           ⌖ RESOLVE GPS
-        </button>` : `
-        <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPY GPS</button>`}
+        </button>`}
       <button class="btn small" data-map-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
       <button class="btn small" data-map-action="maps" data-idx="${index}">MAPS</button>
       <button class="btn small" data-map-action="edit" data-idx="${index}">EDIT</button>
@@ -1582,7 +1778,8 @@ function updateMap(fit = false) {
   markers.forEach(item => map.removeLayer(item.marker));
   markers = [];
 
-  getVisibleLocations().forEach(location => {
+  // The missing-GPS filter only affects the list, not the map.
+  getSearchLocations().forEach(location => {
     if (!hasCoordinates(location)) return;
 
     const index = allLocations.indexOf(location);
@@ -1613,6 +1810,9 @@ document.getElementById('map').addEventListener('click', async event => {
   switch (button.dataset.mapAction) {
     case 'resolve':
       await resolveOneLocation(index);
+      break;
+    case 'recalculate':
+      await recalculateLocation(index);
       break;
     case 'copy-address':
       await copyText(getAddress(location));
@@ -1681,6 +1881,8 @@ document.getElementById('btnClear').addEventListener('click', () => {
   allLocations = [];
   saveToStorage();
   searchBox.value = '';
+  showMissingOnly = false;
+  updateFilterButton();
   render();
   updateMap();
   setStatus('All locations deleted');
@@ -1706,6 +1908,7 @@ async function init() {
   const visible = sessionStorage.getItem(VISIBILITY_KEY) === 'true';
   await applyVisibilitySetting(visible);
   loadFromStorage();
+  updateFilterButton();
   updateScanButton();
   updateProcessingUI();
 }
