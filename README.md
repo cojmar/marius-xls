@@ -8,6 +8,12 @@ Aplicație pentru geocodarea adreselor din fișiere Excel și vizualizarea lor p
 
 > ⚠️ Varianta web **nu este 100% reliable** — geocodarea prin browser poate eșua sau poate fi blocată de Google. Pentru rezultate stabile folosește aplicația de desktop.
 
+## Fișier de test
+
+Descarcă Excel-ul de test cu adrese:
+
+[sarcini-marius-ramase-de-realizat_2026-10-15_Custom.xlsx](https://github.com/cojmar/marius-xls/raw/refs/heads/main/sarcini-marius-ramase-de-realizat_2026-10-15_Custom.xlsx)
+
 ## Descărcări (release `APP`)
 
 | Platformă | Descărcare |
