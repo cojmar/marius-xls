@@ -1,12 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
+
 <title>Locații din Excel</title>
+
+<link rel="stylesheet" href="leaflet.css">
 
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
   background: #f8f9fa;
@@ -15,13 +22,16 @@ body {
   max-width: 900px;
   margin: 0 auto;
 }
+
 h1 { font-size: 1.3rem; margin-bottom: 12px; }
+
 .toolbar {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 16px;
 }
+
 .btn {
   padding: 8px 16px;
   border: none;
@@ -30,29 +40,51 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   cursor: pointer;
   background: #6366f1;
   color: #fff;
-  transition: background 0.2s;
 }
+
 .btn:hover { background: #4f46e5; }
 .btn.danger { background: #ef4444; }
 .btn.danger:hover { background: #dc2626; }
 .btn.secondary { background: #e5e7eb; color: #374151; }
 .btn.secondary:hover { background: #d1d5db; }
+
 .drop-zone {
   border: 2px dashed #6366f1;
   border-radius: 12px;
   padding: 32px 16px;
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s;
   margin-bottom: 16px;
 }
-.drop-zone:hover, .drop-zone.dragover { background: #eef2ff; }
+
+.drop-zone:hover,
+.drop-zone.dragover { background: #eef2ff; }
+
 .drop-zone input { display: none; }
 .drop-zone p { color: #6366f1; font-size: 1rem; }
 .drop-zone .hint { color: #888; font-size: 0.8rem; margin-top: 6px; }
-#map { height: 300px; border-radius: 12px; margin: 16px 0; }
+
+#map {
+  height: 300px;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+#mapContainer { margin: 16px 0; }
+
+#mapContainer:fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  margin: 0;
+  border-radius: 0;
+}
+
+#mapContainer:fullscreen #map { height: 100vh; }
+
 #results { display: none; }
 #results h2 { font-size: 1rem; margin: 16px 0 8px; }
+
 .card {
   background: #fff;
   border-radius: 8px;
@@ -64,8 +96,10 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   gap: 8px;
   flex-wrap: wrap;
 }
+
 .card .company { font-weight: 600; flex: 1 1 200px; }
 .card .address { color: #555; flex: 2 1 200px; font-size: 0.85rem; }
+
 .card a.maps-link {
   color: #6366f1;
   text-decoration: none;
@@ -74,7 +108,9 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   font-size: 0.8rem;
   white-space: nowrap;
 }
+
 .card a.maps-link:hover { background: #eef2ff; }
+
 .card .del-btn {
   background: #fee2e2;
   color: #dc2626;
@@ -83,21 +119,15 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   padding: 6px 10px;
   cursor: pointer;
   font-size: 0.8rem;
-  white-space: nowrap;
 }
-.card .del-btn:hover { background: #fecaca; }
+
 .no-gps {
   cursor: help;
   display: inline-flex;
   align-items: center;
   margin-left: 4px;
 }
-.no-gps:hover svg { transform: scale(1.25); }
-.no-gps svg {
-  transition: transform 0.2s;
-  display: inline-block;
-  margin-left: 4px;
-}
+
 .search-box {
   width: 100%;
   padding: 10px 14px;
@@ -106,13 +136,12 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   font-size: 1rem;
   margin-bottom: 12px;
 }
-.search-box:focus { outline: none; border-color: #6366f1; }
-#mapContainer { margin: 16px 0; }
-#mapContainer:fullscreen {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9999; margin: 0; border-radius: 0;
+
+.search-box:focus {
+  outline: none;
+  border-color: #6366f1;
 }
-#mapContainer:fullscreen #map { height: 100vh; }
+
 .count-badge {
   background: #6366f1;
   color: #fff;
@@ -121,17 +150,18 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
   font-size: 0.75rem;
   margin-left: 4px;
 }
+
 @media (max-width: 600px) {
   body { padding: 10px; }
-  .card .company, .card .address { flex: 1 1 100%; }
+  .card .company,
+  .card .address { flex: 1 1 100%; }
   .toolbar { gap: 6px; }
   .btn { padding: 6px 12px; font-size: 0.8rem; }
 }
 </style>
 </head>
+
 <body>
-<link rel="stylesheet" href="leaflet.css" />
-<script src="leaflet.js"></script>
 
 <h1>📍 Locații din Excel</h1>
 
@@ -143,16 +173,21 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
 
 <div class="drop-zone" id="dropZone">
   <p>Deschide un fișier .xlsx sau .xls</p>
-  <p class="hint">trage fișierul aici sau dă click</p>
+  <p class="hint">Trage fișierul aici sau dă click</p>
   <input type="file" id="fileInput" accept=".xlsx,.xls">
 </div>
 
-<input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa..." style="display:none;">
+<input type="text" class="search-box" id="searchBox"
+placeholder="Caută companie sau adresa..." style="display:none;">
 
 <div id="mapContainer">
   <div id="map"></div>
 </div>
+
 <div id="results"></div>
+
+<script src="leaflet.js"></script>
+<script src="xlsx.full.min.js"></script>
 
 <script>
 const dropZone = document.getElementById('dropZone');
@@ -160,292 +195,325 @@ const fileInput = document.getElementById('fileInput');
 const searchBox = document.getElementById('searchBox');
 const results = document.getElementById('results');
 const mapContainer = document.getElementById('mapContainer');
-const btnLoad = document.getElementById('btnLoad');
-const btnShowMap = document.getElementById('btnShowMap');
-const btnClear = document.getElementById('btnClear');
-
-let allLocations = [];
-let map = null;
-let markers = [];
 
 const STORAGE_KEY = 'marius-xls-locations';
 
-// ─── Storage ───────────────────────────────────────────────────────────
+let allLocations = [];
+let markers = [];
+let geocoding = false;
 
-function loadFromStorage() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      allLocations = JSON.parse(data);
-      render(allLocations);
-      searchBox.style.display = 'block';
-      dropZone.style.display = 'none';
-    }
-  } catch (e) {
-    console.error('Failed to load from storage:', e);
-  }
-}
+const map = L.map('map').setView([44.4268, 26.1025], 12);
 
-function saveToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
-  } catch (e) {
-    console.error('Failed to save to storage:', e);
-  }
-}
-
-// ─── File upload ───────────────────────────────────────────────────────
-
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => { if (e.target.files.length) readFile(e.target.files[0]); });
-btnLoad.addEventListener('click', () => fileInput.click());
-
-// ─── Clear all ─────────────────────────────────────────────────────────
-
-btnClear.addEventListener('click', () => {
-  if (confirm('Sigur vrei să ștergi toate locațiile?')) {
-    allLocations = [];
-    localStorage.removeItem(STORAGE_KEY);
-    dropZone.style.display = 'block';
-    results.style.display = 'none';
-    searchBox.style.display = 'none';
-    mapContainer.style.display = 'none';
-    if (map) { markers.forEach(m => map.removeLayer(m)); map = null; markers = []; }
-  }
-});
-
-// ─── MAP fullscreen ────────────────────────────────────────────────────
-
-btnShowMap.addEventListener('click', () => {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    mapContainer.requestFullscreen().catch(() => {});
-  }
-  if (map) map.invalidateSize();
-});
-
-// ─── Parse XLS → clear old data → save → render → start geocoding ──────
-
-function readFile(file) {
-  const reader = new FileReader();
-  reader.onload = async function (e) {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data, { type: 'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-    // Parse new locations
-    const newLocations = rows.map(r => ({
-      company: r['Companie: Nume complet'] || '',
-      address: r['Adresa     1: Adresa'] || '',
-      city: r['Adresa     1: Orașul'] || '',
-      lat: parseFloat(r['Lat'] || ''),
-      lng: parseFloat(r['Lng'] || '')
-    })).filter(l => l.company || l.address);
-
-    // Clear old data, save new, render list
-    allLocations = newLocations;
-    saveToStorage();
-    render(allLocations);
-
-    // Start geocoding chain for locations without coords
-    const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
-    if (toGeocode.length > 0) {
-      await geocodeAll(toGeocode);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-// ─── GPS Geocoding (chained, 2s between queries) ──────────────────────
-
-async function geocodeAll(locations) {
-  const total = locations.length;
-  const loader = document.createElement('div');
-  loader.className = 'drop-zone';
-  loader.style.marginBottom = '12px';
-  loader.innerHTML = `<p>🔄 Se caută coordonatele GPS...</p><p class="hint">${total} locații de geocodat — te rog așteaptă</p>`;
-  mapContainer.insertBefore(loader, document.getElementById('map'));
-
-  for (let i = 0; i < locations.length; i++) {
-    // Only geocode if still missing coords (may have been resolved)
-    if (locations[i].lat && locations[i].lng) continue;
-
-    const address = encodeURIComponent(locations[i].address + ', ' + locations[i].city + ', Romania');
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${address}&limit=1&addressdetails=1`;
-
-    let success = false;
-    let attempts = 0;
-    while (!success && attempts < 5) {
-      try {
-        const resp = await fetch(url, {
-          headers: {
-            'Accept-Language': 'ro',
-            'User-Agent': 'MariusXLS/1.0 (local-leaflet-map-app)'
-          }
-        });
-        if (resp.status === 429) {
-          const retryAfter = Math.min(30000 * (attempts + 1), 120000);
-          console.warn(`429 Too Many Requests — retrying in ${retryAfter / 1000}s`);
-          await new Promise(r => setTimeout(r, retryAfter));
-          attempts++;
-          continue;
-        }
-        if (!resp.ok) {
-          console.warn(`Geocode failed (${resp.status})`);
-          break;
-        }
-        const data = await resp.json();
-        if (data.length > 0) {
-          locations[i].lat = parseFloat(data[0].lat);
-          locations[i].lng = parseFloat(data[0].lon);
-          // Save to storage + update map + render list
-          saveToStorage();
-          updateMap();
-          render(allLocations);
-          // Yield to browser to force repaint between iterations
-          await Promise.resolve();
-        }
-        success = true;
-      } catch (e) {
-        console.warn('Geocode failed:', e);
-        attempts++;
-        await new Promise(r => setTimeout(r, 5000));
-      }
-    }
-
-    // Update progress
-    const geoIdx = i + 1;
-    const pct = Math.round((geoIdx / total) * 100);
-    loader.innerHTML = `<p>🔄 Se caută coordonatele GPS...</p><p class="hint">${geoIdx} / ${total} (${pct}%) — te rog așteaptă</p>`;
-
-    // 2s delay between requests (Nominatim: 1 req/sec + burst of 3)
-    await new Promise(r => setTimeout(r, 2000));
-  }
-
-  // Remove loading indicator
-  if (loader.parentNode) loader.parentNode.removeChild(loader);
-}
-
-// ─── Render list ───────────────────────────────────────────────────────
-
-function render(locs) {
-  results.style.display = 'block';
-  searchBox.style.display = 'block';
-  dropZone.style.display = 'none';
-  btnShowMap.style.display = 'inline-block';
-  mapContainer.style.display = 'block';
-
-  results.innerHTML = `<h2>${locs.length} <span class="count-badge">locații</span></h2>` + locs.map((l, i) => `
-    <div class="card">
-      <span class="company">${esc(l.company)}</span>
-      <span class="address">${esc(l.address)}, ${esc(l.city)}</span>
-      ${!l.lat || !l.lng ? `<span class="no-gps" title="Fără GPS — nu apare pe hartă">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L2 22h20L12 2z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
-          <text x="12" y="17" text-anchor="middle" font-size="14" font-weight="bold" fill="#7c2d12">!</text>
-        </svg>
-      </span>` : ''}
-      <a class="maps-link" href="#" data-address="${esc(l.address + ', ' + l.city)}" target="_blank" rel="noopener">🗺️ Maps</a>
-      <button class="del-btn" data-idx="${i}">✕ Șterge</button>
-    </div>
-  `).join('');
-
-  // Attach delete handlers
-  results.querySelectorAll('.del-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.idx);
-      allLocations.splice(idx, 1);
-      saveToStorage();
-      updateMap();
-      render(allLocations);
-    });
-  });
-
-  // Attach maps-link handlers
-  results.querySelectorAll('.maps-link').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const dest = link.dataset.address;
-      window.open('https://www.google.com/maps/dir/?api=1&origin=current&destination=' + encodeURIComponent(dest), '_blank');
-    });
-  });
-}
-
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-// ─── Search ────────────────────────────────────────────────────────────
-
-searchBox.addEventListener('input', () => {
-  const q = searchBox.value.toLowerCase().trim();
-  const filtered = allLocations.filter(l =>
-    l.company.toLowerCase().includes(q) ||
-    l.address.toLowerCase().includes(q) ||
-    l.city.toLowerCase().includes(q)
-  );
-  render(filtered);
-  updateMap(filtered);
-});
-
-// ─── Map ───────────────────────────────────────────────────────────────
-
-map = L.map('map').setView([44.4268, 26.1025], 12); // Bucharest default
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-function updateMap(locs) {
-  if (!map) return;
-  const visible = locs || allLocations;
+// ─── Storage ──────────────────────────────────────────────
 
-  // Add new markers (those not yet on the map)
-  visible.forEach(l => {
-    if (!l.lat || !l.lng) return;
-    // Check if marker already exists for this location
-    const existing = markers.find(m => {
-      const pos = m.getLatLng();
-      return pos.lat === l.lat && pos.lng === l.lng;
-    });
-    if (existing) return; // already on map
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
+}
 
-    const address = l.address + ', ' + l.city;
-    const m = L.marker([l.lat, l.lng]).addTo(map);
-    const popupContent = `<strong>${esc(l.company)}</strong><br>${esc(address)}<br><a class="maps-link" href="#" data-address="${esc(address)}" target="_blank" rel="noopener">🗺️ Deschide în Google Maps</a>`;
-    m.bindPopup(popupContent);
-    markers.push(m);
-  });
+function loadFromStorage() {
+  try {
+    allLocations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    if (allLocations.length) {
+      render(allLocations);
+      updateMap();
+    }
+  } catch (error) {
+    console.error('Storage error:', error);
+  }
+}
 
-  // Fit bounds to all visible markers
-  if (markers.length > 0) {
-    const group = L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.1));
+// ─── File upload ──────────────────────────────────────────
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', event => {
+  event.preventDefault();
+  dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', event => {
+  event.preventDefault();
+  dropZone.classList.remove('dragover');
+
+  if (event.dataTransfer.files.length) {
+    readFile(event.dataTransfer.files[0]);
+  }
+});
+
+fileInput.addEventListener('change', event => {
+  if (event.target.files.length) {
+    readFile(event.target.files[0]);
+    fileInput.value = '';
+  }
+});
+
+document.getElementById('btnLoad').addEventListener('click', () => {
+  fileInput.click();
+});
+
+// ─── Excel processing ─────────────────────────────────────
+
+function readFile(file) {
+  const reader = new FileReader();
+
+  reader.onload = async event => {
+    try {
+      const workbook = XLSX.read(
+        new Uint8Array(event.target.result),
+        { type: 'array' }
+      );
+
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+      allLocations = rows.map(row => ({
+        company: row['Companie: Nume complet'] || '',
+        address: row['Adresa     1: Adresa'] || '',
+        city: row['Adresa     1: Orașul'] || '',
+        lat: parseFloat(row['Lat']) || null,
+        lng: parseFloat(row['Lng']) || null
+      })).filter(location => location.company || location.address);
+
+      saveToStorage();
+      render(allLocations);
+      updateMap();
+
+      await geocodeAll();
+
+    } catch (error) {
+      console.error('Excel processing error:', error);
+      alert('Eroare la citirea fișierului: ' + error.message);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+// ─── Electron Google Maps geocoding ───────────────────────
+
+async function geocodeAll() {
+  if (geocoding) return;
+
+  if (!window.electronAPI?.geocode) {
+    alert('Electron geocoding API is unavailable. Check preload.js.');
+    return;
   }
 
-  // Force map repaint (async to let DOM settle first)
+  geocoding = true;
+
+  const loader = document.createElement('div');
+  loader.className = 'drop-zone';
+  mapContainer.insertBefore(loader, document.getElementById('map'));
+
+  try {
+    const pending = allLocations.filter(
+      location => !location.lat || !location.lng
+    );
+
+    for (let i = 0; i < pending.length; i++) {
+      const location = pending[i];
+
+      loader.innerHTML = `
+        <p>🔄 Se caută coordonatele GPS...</p>
+        <p class="hint">${i + 1} / ${pending.length} locații</p>
+      `;
+
+      try {
+        const address = [
+          location.address,
+          location.city,
+          'Romania'
+        ].filter(Boolean).join(', ');
+
+        const coordinates = await window.electronAPI.geocode(address);
+
+        if (coordinates &&
+            Number.isFinite(coordinates.lat) &&
+            Number.isFinite(coordinates.lng)) {
+
+          location.lat = coordinates.lat;
+          location.lng = coordinates.lng;
+
+          saveToStorage();
+          updateMap();
+          render(allLocations);
+        }
+
+      } catch (error) {
+        console.error(
+          `Geocoding failed for ${location.address}:`,
+          error
+        );
+      }
+    }
+
+  } finally {
+    loader.remove();
+    geocoding = false;
+  }
+}
+
+// ─── Render locations ─────────────────────────────────────
+
+function render(locations) {
+  results.style.display = 'block';
+  searchBox.style.display = 'block';
+  dropZone.style.display = 'none';
+  mapContainer.style.display = 'block';
+
+  results.innerHTML = `
+    <h2>${locations.length}
+      <span class="count-badge">locații</span>
+    </h2>
+  ` + locations.map(location => {
+    const index = allLocations.indexOf(location);
+
+    return `
+      <div class="card">
+        <span class="company">${esc(location.company)}</span>
+        <span class="address">
+          ${esc(location.address)}, ${esc(location.city)}
+        </span>
+
+        ${!location.lat || !location.lng ? `
+          <span class="no-gps" title="Fără GPS — nu apare pe hartă">
+            ⚠️
+          </span>
+        ` : ''}
+
+        <a class="maps-link"
+           href="#"
+           data-address="${esc(location.address + ', ' + location.city)}">
+           🗺️ Maps
+        </a>
+
+        <button class="del-btn" data-idx="${index}">
+          ✕ Șterge
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  results.querySelectorAll('.del-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      allLocations.splice(Number(button.dataset.idx), 1);
+      saveToStorage();
+      render(allLocations);
+      updateMap();
+    });
+  });
+
+  results.querySelectorAll('.maps-link').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+
+      window.open(
+        'https://www.google.com/maps/dir/?api=1&origin=current&destination=' +
+        encodeURIComponent(link.dataset.address),
+        '_blank'
+      );
+    });
+  });
+}
+
+function esc(value) {
+  const element = document.createElement('div');
+  element.textContent = String(value ?? '');
+  return element.innerHTML;
+}
+
+// ─── Search ───────────────────────────────────────────────
+
+searchBox.addEventListener('input', () => {
+  const query = searchBox.value.toLowerCase().trim();
+
+  const filtered = allLocations.filter(location =>
+    location.company.toLowerCase().includes(query) ||
+    location.address.toLowerCase().includes(query) ||
+    location.city.toLowerCase().includes(query)
+  );
+
+  render(filtered);
+  updateMap(filtered);
+});
+
+// ─── Map ──────────────────────────────────────────────────
+
+function updateMap(locations = allLocations) {
+  markers.forEach(marker => map.removeLayer(marker));
+  markers = [];
+
+  locations.forEach(location => {
+    if (!location.lat || !location.lng) return;
+
+    const marker = L.marker([
+      location.lat,
+      location.lng
+    ]).addTo(map);
+
+    marker.bindPopup(`
+      <strong>${esc(location.company)}</strong><br>
+      ${esc(location.address)}, ${esc(location.city)}
+    `);
+
+    markers.push(marker);
+  });
+
+  if (markers.length) {
+    map.fitBounds(
+      L.featureGroup(markers).getBounds().pad(0.1)
+    );
+  }
+
   requestAnimationFrame(() => map.invalidateSize());
 }
 
-// ─── Init ──────────────────────────────────────────────────────────────
+// ─── Controls ─────────────────────────────────────────────
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  if (!confirm('Sigur vrei să ștergi toate locațiile?')) return;
+
+  allLocations = [];
+  saveToStorage();
+
+  render([]);
+  results.style.display = 'none';
+  searchBox.style.display = 'none';
+  dropZone.style.display = 'block';
+
+  updateMap();
+});
+
+document.getElementById('btnShowMap').addEventListener('click', async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await mapContainer.requestFullscreen();
+    }
+
+    map.invalidateSize();
+  } catch (error) {
+    console.error('Fullscreen error:', error);
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  map.invalidateSize();
+});
+
+// ─── Init ─────────────────────────────────────────────────
 
 loadFromStorage();
-if (allLocations.length > 0) {
-  updateMap();
-}
 
 </script>
-<script src="xlsx.full.min.js"></script>
-
 </body>
 </html>

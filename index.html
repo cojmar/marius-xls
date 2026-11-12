@@ -444,8 +444,27 @@ if (allLocations.length > 0) {
   updateMap();
 }
 
+
 </script>
 <script src="xlsx.full.min.js"></script>
 
+
+<script>
+const { ipcRenderer } = require('electron');
+
+(async () => {
+    try {
+        const coordinates = await ipcRenderer.invoke(
+            'geocode',
+            'Bucharest, Romania'
+        );
+
+        alert(JSON.stringify(coordinates));
+    } catch (error) {
+        console.error('Geolocation error:', error);
+        alert(error.message);
+    }
+})();
+</script>
 </body>
 </html>
