@@ -2,11 +2,17 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+  openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
 
-    onFileSelected: (cb) =>
-        ipcRenderer.on('file-selected', (_e, path) => cb(path)),
+  onFileSelected: (cb) => {
+    ipcRenderer.on('file-selected', (_event, filePath) => cb(filePath));
+  },
 
-    geocode: (address) =>
-        ipcRenderer.invoke('geocode', address)
+  geocode: (address) => ipcRenderer.invoke('geocode', address),
+
+  setGeocodeWindowVisible: (visible) =>
+    ipcRenderer.invoke('set-geocode-window-visible', Boolean(visible)),
+
+  openExternal: (url) =>
+    ipcRenderer.invoke('open-external', url)
 });

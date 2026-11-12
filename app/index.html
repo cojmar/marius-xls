@@ -8,205 +8,747 @@
 content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
 
 <title>Locații din Excel</title>
-
 <link rel="stylesheet" href="leaflet.css">
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f8f9fa;
-  color: #1a1a2e;
-  padding: 16px;
-  max-width: 900px;
-  margin: 0 auto;
+:root {
+  color-scheme: dark;
+  --bg: #101218;
+  --panel: #181c25;
+  --panel2: #202532;
+  --border: #2b3241;
+  --text: #edf0f7;
+  --muted: #929bad;
+  --accent: #818cf8;
+  --accent-hover: #6d78ed;
+  --danger: #ef6464;
+  --success: #42c995;
+  --warning: #f5bd4f;
+  --radius: 12px;
 }
 
-h1 { font-size: 1.3rem; margin-bottom: 12px; }
+* { box-sizing: border-box; }
 
-.toolbar {
+html, body {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+}
+
+button, input { font: inherit; }
+
+button {
+  border: 0;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.topbar {
+  height: 66px;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 22px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #30365d;
+  font-size: 19px;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .1px;
+}
+
+.brand-subtitle {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  -webkit-app-region: no-drag;
 }
 
 .btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  background: #6366f1;
-  color: #fff;
-}
-
-.btn:hover { background: #4f46e5; }
-.btn.danger { background: #ef4444; }
-.btn.danger:hover { background: #dc2626; }
-.btn.secondary { background: #e5e7eb; color: #374151; }
-.btn.secondary:hover { background: #d1d5db; }
-
-.drop-zone {
-  border: 2px dashed #6366f1;
-  border-radius: 12px;
-  padding: 32px 16px;
-  text-align: center;
-  cursor: pointer;
-  margin-bottom: 16px;
-}
-
-.drop-zone:hover,
-.drop-zone.dragover { background: #eef2ff; }
-
-.drop-zone input { display: none; }
-.drop-zone p { color: #6366f1; font-size: 1rem; }
-.drop-zone .hint { color: #888; font-size: 0.8rem; margin-top: 6px; }
-
-#map {
-  height: 300px;
-  border-radius: 12px;
-  margin: 16px 0;
-}
-
-#mapContainer { margin: 16px 0; }
-
-#mapContainer:fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  margin: 0;
-  border-radius: 0;
-}
-
-#mapContainer:fullscreen #map { height: 100vh; }
-
-#results { display: none; }
-#results h2 { font-size: 1rem; margin: 16px 0 8px; }
-
-.card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  display: flex;
+  min-height: 36px;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.card .company { font-weight: 600; flex: 1 1 200px; }
-.card .address { color: #555; flex: 2 1 200px; font-size: 0.85rem; }
-
-.card a.maps-link {
-  color: #6366f1;
-  text-decoration: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.card a.maps-link:hover { background: #eef2ff; }
+.btn:hover { background: #2a3141; }
 
-.card .del-btn {
-  background: #fee2e2;
-  color: #dc2626;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #101218;
 }
 
-.no-gps {
-  cursor: help;
-  display: inline-flex;
+.btn.primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn.danger {
+  color: #ff9292;
+  background: #382329;
+  border-color: #583039;
+}
+
+.btn.danger:hover { background: #4a2932; }
+
+.btn.small {
+  min-height: 29px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(290px, 350px) minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+}
+
+.sidebar {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.sidebar-header {
+  padding: 17px 16px 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-title-row {
+  display: flex;
   align-items: center;
-  margin-left: 4px;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.count-badge {
+  min-width: 25px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: #30365d;
+  color: #c5c9ff;
+  font-size: 11px;
+  text-align: center;
+}
+
+.search-wrap {
+  position: relative;
+  margin-top: 13px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 10px;
+  left: 11px;
+  color: var(--muted);
+  pointer-events: none;
 }
 
 .search-box {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-bottom: 12px;
-}
-
-.search-box:focus {
+  height: 36px;
+  padding: 0 12px 0 34px;
   outline: none;
-  border-color: #6366f1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #11151d;
+  color: var(--text);
+  font-size: 12px;
 }
 
-.count-badge {
-  background: #6366f1;
-  color: #fff;
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  margin-left: 4px;
+.search-box:focus { border-color: var(--accent); }
+
+.search-box::placeholder { color: #717b8d; }
+
+.location-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
 }
 
-@media (max-width: 600px) {
-  body { padding: 10px; }
-  .card .company,
-  .card .address { flex: 1 1 100%; }
-  .toolbar { gap: 6px; }
-  .btn { padding: 6px 12px; font-size: 0.8rem; }
+.location-card {
+  padding: 11px;
+  margin-bottom: 7px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: #202532;
+}
+
+.location-card:hover {
+  border-color: #414b63;
+  background: #252c3b;
+}
+
+.location-card.active {
+  border-color: var(--accent);
+  background: #282d48;
+}
+
+.location-company {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-address {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.location-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.location-status {
+  color: var(--success);
+  font-size: 10px;
+}
+
+.location-status.missing { color: var(--warning); }
+
+.location-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.empty-state {
+  padding: 36px 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-icon {
+  margin-bottom: 12px;
+  font-size: 30px;
+  opacity: .7;
+}
+
+.empty-title {
+  margin-bottom: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.empty-description {
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.sidebar-footer {
+  padding: 11px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.map-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.map-toolbar {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.map-heading {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.map-subheading {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.map-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.map-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #171c26;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  background: #202735;
+}
+
+.map-overlay {
+  position: absolute;
+  z-index: 500;
+  top: 13px;
+  left: 13px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  background: rgba(20,24,34,.92);
+  color: var(--text);
+  font-size: 10px;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.map-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.statusbar {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 15px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.status-indicator.busy { background: var(--warning); }
+
+.drop-zone {
+  display: none;
+  margin: 12px;
+  padding: 25px 12px;
+  border: 1px dashed #59618d;
+  border-radius: 9px;
+  background: #202532;
+  text-align: center;
+  cursor: pointer;
+}
+
+.drop-zone:hover, .drop-zone.dragover { background: #292e49; }
+
+.drop-zone p { color: #c4c8ff; font-size: 12px; }
+.drop-zone .hint { margin-top: 6px; color: var(--muted); font-size: 10px; }
+.drop-zone input { display: none; }
+
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #11151d;
+  -webkit-app-region: no-drag;
+}
+
+.settings-label {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.switch input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: #424b5d;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  width: 14px;
+  height: 14px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: white;
+  transition: .2s;
+}
+
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(16px); }
+
+.leaflet-container { font-family: inherit; }
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #202532;
+  color: var(--text);
+}
+
+.leaflet-popup-content-wrapper {
+  border: 1px solid #394256;
+  border-radius: 10px;
+}
+
+.leaflet-popup-content {
+  min-width: 190px;
+  margin: 12px;
+}
+
+.popup-company {
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.popup-address {
+  margin-bottom: 10px;
+  color: #aab3c4;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.popup-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.popup-actions button {
+  flex: 1;
+}
+
+.leaflet-control-zoom a {
+  background: #202532 !important;
+  color: white !important;
+  border-color: #394256 !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(20,24,34,.8) !important;
+  color: #aab3c4 !important;
+}
+
+.leaflet-control-attribution a { color: #a5adff !important; }
+
+body:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 850px) {
+  .workspace {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 9px;
+    padding: 9px;
+  }
+
+  .topbar { padding: 0 12px; }
+  .settings-label { display: none; }
+}
+
+@media (max-width: 620px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(180px, 38%) minmax(0, 1fr);
+  }
+
+  .sidebar { order: 2; }
+  .map-panel { order: 1; }
+  .brand-subtitle { display: none; }
+  .topbar { height: 58px; min-height: 58px; }
+  .topbar-actions { gap: 5px; }
+  .btn { padding: 0 9px; }
 }
 </style>
 </head>
 
 <body>
 
-<h1>📍 Locații din Excel</h1>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">📍</div>
+    <div>
+      <div class="brand-name">Locații din Excel</div>
+      <div class="brand-subtitle">Company location manager</div>
+    </div>
+  </div>
 
-<div class="toolbar">
-  <button class="btn" id="btnLoad">📁 Încarcă fișier</button>
-  <button class="btn secondary" id="btnShowMap">MAP</button>
-  <button class="btn danger" id="btnClear">🗑️ Șterge tot</button>
-</div>
+  <div class="topbar-actions">
+    <div class="settings" title="Show or hide the Google Maps geocoding window">
+      <span class="settings-label">Google Maps window</span>
+      <label class="switch">
+        <input type="checkbox" id="visibilitySwitch">
+        <span class="slider"></span>
+      </label>
+    </div>
 
-<div class="drop-zone" id="dropZone">
-  <p>Deschide un fișier .xlsx sau .xls</p>
-  <p class="hint">Trage fișierul aici sau dă click</p>
-  <input type="file" id="fileInput" accept=".xlsx,.xls">
-</div>
+    <button class="btn primary" id="btnLoad">＋ Import Excel</button>
+    <button class="btn danger" id="btnClear">Șterge tot</button>
+  </div>
+</header>
 
-<input type="text" class="search-box" id="searchBox"
-placeholder="Caută companie sau adresa..." style="display:none;">
+<main class="workspace">
 
-<div id="mapContainer">
-  <div id="map"></div>
-</div>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title-row">
+        <span class="sidebar-title">Locații importate</span>
+        <span class="count-badge" id="locationCount">0</span>
+      </div>
 
-<div id="results"></div>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          class="search-box"
+          id="searchBox"
+          placeholder="Caută companie sau adresă..."
+        >
+      </div>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+      <p>📁 Deschide un fișier Excel</p>
+      <p class="hint">Trage fișierul aici sau apasă pentru selectare</p>
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+    </div>
+
+    <div class="location-list" id="results">
+      <div class="empty-state">
+        <div class="empty-icon">📍</div>
+        <div class="empty-title">Nicio locație încă</div>
+        <div class="empty-description">
+          Importă un fișier Excel pentru a afișa companiile pe hartă.
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer" id="sidebarFooter">
+      Importă un fișier .xlsx sau .xls
+    </div>
+  </aside>
+
+  <section class="map-panel">
+    <div class="map-toolbar">
+      <div>
+        <div class="map-heading">Hartă locații</div>
+        <div class="map-subheading" id="mapSubtitle">Vizualizare geografică</div>
+      </div>
+
+      <div class="map-toolbar-actions">
+        <button class="btn small" id="btnFit">Încadrează</button>
+        <button class="btn small" id="btnShowMap">⛶ Fullscreen</button>
+      </div>
+    </div>
+
+    <div class="map-wrap" id="mapContainer">
+      <div id="map"></div>
+      <div class="map-overlay">
+        <span class="map-dot"></span>
+        <span id="mapOverlayText">0 locații pe hartă</span>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="status-left">
+        <span class="status-indicator" id="statusIndicator"></span>
+        <span id="statusText">Pregătit</span>
+      </div>
+      <span id="gpsStatus">0 coordonate GPS</span>
+    </div>
+  </section>
+
+</main>
 
 <script src="leaflet.js"></script>
 <script src="xlsx.full.min.js"></script>
 
 <script>
+const STORAGE_KEY = 'marius-xls-locations';
+const VISIBILITY_KEY = 'marius-xls-google-window-visible';
+
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const searchBox = document.getElementById('searchBox');
 const results = document.getElementById('results');
-const mapContainer = document.getElementById('mapContainer');
-
-const STORAGE_KEY = 'marius-xls-locations';
+const visibilitySwitch = document.getElementById('visibilitySwitch');
+const statusText = document.getElementById('statusText');
+const statusIndicator = document.getElementById('statusIndicator');
 
 let allLocations = [];
 let markers = [];
 let geocoding = false;
 
-const map = L.map('map').setView([44.4268, 26.1025], 12);
+const map = L.map('map').setView([44.4268, 26.1025], 7);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 19
 }).addTo(map);
+
+// ─── Helpers ──────────────────────────────────────────────
+
+function esc(value) {
+  const element = document.createElement('div');
+  element.textContent = String(value ?? '');
+  return element.innerHTML;
+}
+
+function hasCoordinates(location) {
+  return Number.isFinite(Number(location.lat)) &&
+         Number.isFinite(Number(location.lng)) &&
+         location.lat !== null &&
+         location.lng !== null;
+}
+
+function getAddress(location) {
+  return [location.address, location.city, 'Romania']
+    .filter(Boolean)
+    .join(', ');
+}
+
+function getGoogleMapsUrl(location) {
+  const query = hasCoordinates(location)
+    ? `${location.lat},${location.lng}`
+    : getAddress(location);
+
+  return 'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(query);
+}
+
+async function openGoogleMaps(location) {
+  const url = getGoogleMapsUrl(location);
+
+  if (window.electronAPI?.openExternal) {
+    await window.electronAPI.openExternal(url);
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+function setStatus(message, busy = false) {
+  statusText.textContent = message;
+  statusIndicator.classList.toggle('busy', busy);
+}
 
 // ─── Storage ──────────────────────────────────────────────
 
@@ -217,14 +759,34 @@ function saveToStorage() {
 function loadFromStorage() {
   try {
     allLocations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    if (allLocations.length) {
-      render(allLocations);
-      updateMap();
-    }
   } catch (error) {
     console.error('Storage error:', error);
+    allLocations = [];
+  }
+
+  render();
+  updateMap();
+}
+
+// ─── Google Maps window visibility ────────────────────────
+
+async function applyVisibilitySetting(visible) {
+  sessionStorage.setItem(VISIBILITY_KEY, String(visible));
+  visibilitySwitch.checked = visible;
+
+  try {
+    if (window.electronAPI?.setGeocodeWindowVisible) {
+      await window.electronAPI.setGeocodeWindowVisible(visible);
+    }
+  } catch (error) {
+    console.error('Could not update Google Maps window visibility:', error);
+    setStatus('Could not update Google Maps window visibility');
   }
 }
+
+visibilitySwitch.addEventListener('change', () => {
+  applyVisibilitySetting(visibilitySwitch.checked);
+});
 
 // ─── File upload ──────────────────────────────────────────
 
@@ -278,12 +840,13 @@ function readFile(file) {
         company: row['Companie: Nume complet'] || '',
         address: row['Adresa     1: Adresa'] || '',
         city: row['Adresa     1: Orașul'] || '',
-        lat: parseFloat(row['Lat']) || null,
-        lng: parseFloat(row['Lng']) || null
+        lat: parseCoordinate(row['Lat']),
+        lng: parseCoordinate(row['Lng'])
       })).filter(location => location.company || location.address);
 
       saveToStorage();
-      render(allLocations);
+      searchBox.value = '';
+      render();
       updateMap();
 
       await geocodeAll();
@@ -295,6 +858,13 @@ function readFile(file) {
   };
 
   reader.readAsArrayBuffer(file);
+}
+
+function parseCoordinate(value) {
+  if (value === '' || value === null || value === undefined) return null;
+
+  const number = Number(String(value).replace(',', '.'));
+  return Number.isFinite(number) ? number : null;
 }
 
 // ─── Electron Google Maps geocoding ───────────────────────
@@ -309,15 +879,29 @@ async function geocodeAll() {
 
   geocoding = true;
 
+  const pending = allLocations.filter(location => !hasCoordinates(location));
+
+  if (!pending.length) {
+    setStatus('Toate locațiile au coordonate GPS');
+    geocoding = false;
+    return;
+  }
+
   const loader = document.createElement('div');
   loader.className = 'drop-zone';
-  mapContainer.insertBefore(loader, document.getElementById('map'));
+  loader.style.display = 'block';
+  loader.innerHTML = `
+    <p>🔄 Se caută coordonatele GPS...</p>
+    <p class="hint">Se pregătește Google Maps</p>
+  `;
+  document.querySelector('.sidebar').insertBefore(
+    loader,
+    document.querySelector('.location-list')
+  );
+
+  let completed = 0;
 
   try {
-    const pending = allLocations.filter(
-      location => !location.lat || !location.lng
-    );
-
     for (let i = 0; i < pending.length; i++) {
       const location = pending[i];
 
@@ -326,194 +910,299 @@ async function geocodeAll() {
         <p class="hint">${i + 1} / ${pending.length} locații</p>
       `;
 
-      try {
-        const address = [
-          location.address,
-          location.city,
-          'Romania'
-        ].filter(Boolean).join(', ');
+      setStatus(`Geocoding ${i + 1} / ${pending.length}`, true);
 
-        const coordinates = await window.electronAPI.geocode(address);
+      try {
+        const coordinates = await window.electronAPI.geocode(
+          getAddress(location)
+        );
 
         if (coordinates &&
             Number.isFinite(coordinates.lat) &&
             Number.isFinite(coordinates.lng)) {
-
           location.lat = coordinates.lat;
           location.lng = coordinates.lng;
 
           saveToStorage();
+          completed++;
+          render();
           updateMap();
-          render(allLocations);
         }
 
       } catch (error) {
-        console.error(
-          `Geocoding failed for ${location.address}:`,
-          error
-        );
+        console.error(`Geocoding failed for ${getAddress(location)}:`, error);
       }
     }
-
   } finally {
     loader.remove();
     geocoding = false;
+
+    render();
+    updateMap();
+
+    const missing = allLocations.filter(location => !hasCoordinates(location)).length;
+    setStatus(
+      missing
+        ? `Finalizat: ${completed} locații găsite, ${missing} fără GPS`
+        : `Finalizat: ${completed} locații geocodate`
+    );
   }
 }
 
-// ─── Render locations ─────────────────────────────────────
+// ─── List rendering ──────────────────────────────────────
 
-function render(locations) {
-  results.style.display = 'block';
-  searchBox.style.display = 'block';
+function getVisibleLocations() {
+  const query = searchBox.value.toLowerCase().trim();
+
+  if (!query) return allLocations;
+
+  return allLocations.filter(location =>
+    String(location.company).toLowerCase().includes(query) ||
+    String(location.address).toLowerCase().includes(query) ||
+    String(location.city).toLowerCase().includes(query)
+  );
+}
+
+function render() {
+  const locations = getVisibleLocations();
+  const gpsCount = allLocations.filter(hasCoordinates).length;
+
+  document.getElementById('locationCount').textContent = allLocations.length;
+  document.getElementById('sidebarFooter').textContent =
+    `${locations.length} afișate · ${allLocations.length} în total`;
+  document.getElementById('gpsStatus').textContent =
+    `${gpsCount} / ${allLocations.length} coordonate GPS`;
+  document.getElementById('mapSubtitle').textContent =
+    `${gpsCount} locații cu poziție GPS`;
+  document.getElementById('mapOverlayText').textContent =
+    `${gpsCount} locații pe hartă`;
+
+  if (!allLocations.length) {
+    results.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📍</div>
+        <div class="empty-title">Nicio locație încă</div>
+        <div class="empty-description">
+          Importă un fișier Excel pentru a afișa companiile pe hartă.
+        </div>
+      </div>
+    `;
+
+    dropZone.style.display = 'block';
+    return;
+  }
+
   dropZone.style.display = 'none';
-  mapContainer.style.display = 'block';
 
-  results.innerHTML = `
-    <h2>${locations.length}
-      <span class="count-badge">locații</span>
-    </h2>
-  ` + locations.map(location => {
+  if (!locations.length) {
+    results.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⌕</div>
+        <div class="empty-title">Niciun rezultat</div>
+        <div class="empty-description">Încearcă alt termen de căutare.</div>
+      </div>
+    `;
+    return;
+  }
+
+  results.innerHTML = locations.map(location => {
     const index = allLocations.indexOf(location);
+    const hasGps = hasCoordinates(location);
 
     return `
-      <div class="card">
-        <span class="company">${esc(location.company)}</span>
-        <span class="address">
-          ${esc(location.address)}, ${esc(location.city)}
-        </span>
+      <div class="location-card" data-card-idx="${index}">
+        <div class="location-company">${esc(location.company || 'Companie fără nume')}</div>
+        <div class="location-address">
+          ${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}
+        </div>
 
-        ${!location.lat || !location.lng ? `
-          <span class="no-gps" title="Fără GPS — nu apare pe hartă">
-            ⚠️
+        <div class="location-footer">
+          <span class="location-status ${hasGps ? '' : 'missing'}">
+            ${hasGps ? '● GPS disponibil' : '⚠ Fără GPS'}
           </span>
-        ` : ''}
 
-        <a class="maps-link"
-           href="#"
-           data-address="${esc(location.address + ', ' + location.city)}">
-           🗺️ Maps
-        </a>
-
-        <button class="del-btn" data-idx="${index}">
-          ✕ Șterge
-        </button>
+          <div class="location-actions">
+            <button class="btn small" data-action="maps" data-idx="${index}">
+              🗺 Maps
+            </button>
+            <button class="btn small danger" data-action="delete" data-idx="${index}">
+              ✕
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
-
-  results.querySelectorAll('.del-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      allLocations.splice(Number(button.dataset.idx), 1);
-      saveToStorage();
-      render(allLocations);
-      updateMap();
-    });
-  });
-
-  results.querySelectorAll('.maps-link').forEach(link => {
-    link.addEventListener('click', event => {
-      event.preventDefault();
-
-      window.open(
-        'https://www.google.com/maps/dir/?api=1&origin=current&destination=' +
-        encodeURIComponent(link.dataset.address),
-        '_blank'
-      );
-    });
-  });
 }
 
-function esc(value) {
-  const element = document.createElement('div');
-  element.textContent = String(value ?? '');
-  return element.innerHTML;
+results.addEventListener('click', async event => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+
+  const index = Number(button.dataset.idx);
+  const location = allLocations[index];
+
+  if (!location) return;
+
+  if (button.dataset.action === 'maps') {
+    await openGoogleMaps(location);
+  }
+
+  if (button.dataset.action === 'delete') {
+    deleteLocation(index);
+  }
+});
+
+results.addEventListener('click', event => {
+  const card = event.target.closest('.location-card');
+  if (!card || event.target.closest('button')) return;
+
+  const index = Number(card.dataset.cardIdx);
+  const location = allLocations[index];
+
+  if (location && hasCoordinates(location)) {
+    map.setView([location.lat, location.lng], 15);
+    const marker = markers.find(item => item.location === location);
+    if (marker) marker.marker.openPopup();
+  }
+});
+
+// ─── Delete location ──────────────────────────────────────
+
+function deleteLocation(index) {
+  if (!Number.isInteger(index) || index < 0 || index >= allLocations.length) return;
+
+  allLocations.splice(index, 1);
+  saveToStorage();
+  render();
+  updateMap();
 }
 
 // ─── Search ───────────────────────────────────────────────
 
 searchBox.addEventListener('input', () => {
-  const query = searchBox.value.toLowerCase().trim();
-
-  const filtered = allLocations.filter(location =>
-    location.company.toLowerCase().includes(query) ||
-    location.address.toLowerCase().includes(query) ||
-    location.city.toLowerCase().includes(query)
-  );
-
-  render(filtered);
-  updateMap(filtered);
+  render();
+  updateMap();
 });
 
 // ─── Map ──────────────────────────────────────────────────
 
-function updateMap(locations = allLocations) {
-  markers.forEach(marker => map.removeLayer(marker));
+function createPopup(location, index) {
+  return `
+    <div class="popup-company">${esc(location.company || 'Companie fără nume')}</div>
+    <div class="popup-address">
+      ${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}
+    </div>
+    <div class="popup-actions">
+      <button class="btn small" data-map-action="maps" data-idx="${index}">
+        🗺 Google Maps
+      </button>
+      <button class="btn small danger" data-map-action="delete" data-idx="${index}">
+        ✕ Șterge
+      </button>
+    </div>
+  `;
+}
+
+function updateMap(fit = false) {
+  markers.forEach(item => map.removeLayer(item.marker));
   markers = [];
 
+  const locations = getVisibleLocations();
+
   locations.forEach(location => {
-    if (!location.lat || !location.lng) return;
+    if (!hasCoordinates(location)) return;
+
+    const index = allLocations.indexOf(location);
 
     const marker = L.marker([
       location.lat,
       location.lng
     ]).addTo(map);
 
-    marker.bindPopup(`
-      <strong>${esc(location.company)}</strong><br>
-      ${esc(location.address)}, ${esc(location.city)}
-    `);
-
-    markers.push(marker);
+    marker.bindPopup(createPopup(location, index));
+    markers.push({ marker, location });
   });
 
-  if (markers.length) {
+  if (fit && markers.length) {
     map.fitBounds(
-      L.featureGroup(markers).getBounds().pad(0.1)
+      L.featureGroup(markers.map(item => item.marker)).getBounds().pad(0.12)
     );
   }
 
   requestAnimationFrame(() => map.invalidateSize());
 }
 
-// ─── Controls ─────────────────────────────────────────────
+document.getElementById('map').addEventListener('click', async event => {
+  const button = event.target.closest('button[data-map-action]');
+  if (!button) return;
 
-document.getElementById('btnClear').addEventListener('click', () => {
-  if (!confirm('Sigur vrei să ștergi toate locațiile?')) return;
+  const index = Number(button.dataset.idx);
+  const location = allLocations[index];
 
-  allLocations = [];
-  saveToStorage();
+  if (!location) return;
 
-  render([]);
-  results.style.display = 'none';
-  searchBox.style.display = 'none';
-  dropZone.style.display = 'block';
+  if (button.dataset.mapAction === 'maps') {
+    await openGoogleMaps(location);
+  }
 
-  updateMap();
+  if (button.dataset.mapAction === 'delete') {
+    map.closePopup();
+    deleteLocation(index);
+  }
+});
+
+// ─── Map controls ─────────────────────────────────────────
+
+document.getElementById('btnFit').addEventListener('click', () => {
+  updateMap(true);
 });
 
 document.getElementById('btnShowMap').addEventListener('click', async () => {
   try {
+    const mapPanel = document.querySelector('.map-panel');
+
     if (document.fullscreenElement) {
       await document.exitFullscreen();
     } else {
-      await mapContainer.requestFullscreen();
+      await mapPanel.requestFullscreen();
     }
 
-    map.invalidateSize();
+    setTimeout(() => map.invalidateSize(), 100);
   } catch (error) {
     console.error('Fullscreen error:', error);
   }
 });
 
 document.addEventListener('fullscreenchange', () => {
-  map.invalidateSize();
+  setTimeout(() => map.invalidateSize(), 100);
+});
+
+// ─── Clear all ────────────────────────────────────────────
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  if (!allLocations.length) return;
+  if (!confirm('Sigur vrei să ștergi toate locațiile?')) return;
+
+  allLocations = [];
+  saveToStorage();
+  searchBox.value = '';
+  render();
+  updateMap();
+  setStatus('Toate locațiile au fost șterse');
 });
 
 // ─── Init ─────────────────────────────────────────────────
 
-loadFromStorage();
+async function init() {
+  const savedVisibility = sessionStorage.getItem(VISIBILITY_KEY) === 'true';
+  await applyVisibilitySetting(savedVisibility);
 
+  loadFromStorage();
+}
+
+init();
 </script>
+
 </body>
 </html>

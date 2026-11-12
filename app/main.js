@@ -1,5 +1,5 @@
 
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 
 const GeoLocation = require('./GeoLocation');
@@ -8,10 +8,13 @@ let geoLocation;
 
 function createWindow() {
     const win = new BrowserWindow({
-        width: 1100,
-        height: 800,
-        title: 'Locații Excel',
+        width: 1440,
+        height: 900,
+        minWidth: 700,
+        minHeight: 500,
+        title: 'Locații din Excel',
         icon: path.join(__dirname, 'images/icon.png'),
+        backgroundColor: '#101218',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -20,29 +23,45 @@ function createWindow() {
         }
     });
 
-    win.webContents.openDevTools({ mode: 'detach' });
     win.loadFile(path.join(__dirname, 'index.html'));
+
+    return win;
 }
 
 app.whenReady().then(async () => {
     geoLocation = new GeoLocation({
-        headless: false
+        headless: true
     });
 
     await geoLocation.initialize();
 
-    ipcMain.handle('geocode', async (event, address) => {
+    ipcMain.handle('geocode', async (_event, address) => {
         return await geoLocation.geocode(address);
     });
 
-    ipcMain.handle('open-file-dialog', async () => {
-        const result = await dialog.showOpenDialog({
-            title: 'Selectează fișier .xlsx / .xls',
-            filters: [{ name: 'Excel Files', extensions: ['xlsx', 'xls'] }],
-            properties: ['openFile']
-        });
+    ipcMain.handle('set-geocode-window-visible', async (_event, visible) => {
+        geoLocation.headless = !visible;
 
-        return result.canceled ? null : result.filePaths[0];
+        if (geoLocation.window && !geoLocation.window.isDestroyed()) {
+            if (visible) {
+                geoLocation.window.show();
+                geoLocation.window.focus();
+            } else {
+                geoLocation.window.hide();
+            }
+        }
+
+        return true;
+    });
+
+    ipcMain.handle('open-external', async (_event, url) => {
+        if (typeof url !== 'string' ||
+            !url.startsWith('https://www.google.com/maps/')) {
+            throw new Error('Invalid external URL');
+        }
+
+        await shell.openExternal(url);
+        return true;
     });
 
     createWindow();
