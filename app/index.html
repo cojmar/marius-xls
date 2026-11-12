@@ -212,7 +212,7 @@ btnLoad.addEventListener('click', () => fileInput.click());
 if (electronAPI) {
   btnLoad.addEventListener('click', async () => {
     const filePath = await electronAPI.openFileDialog();
-    if (filePath) readFile(filePath);
+    await readFile(filePath);
   });
 }
 
@@ -243,7 +243,7 @@ btnShowMap.addEventListener('click', () => {
 
 // ─── Parse XLS → clear old data → save → render → start geocoding ──────
 
-function readFile(fileOrPath) {
+async function readFile(fileOrPath) {
   let data;
   if (typeof fileOrPath === "string") {
     const fs = require("fs");
@@ -252,15 +252,15 @@ function readFile(fileOrPath) {
     const reader = new FileReader();
     reader.onload = async function(e) {
       data = new Uint8Array(e.target.result);
-      processFile(data);
+      await processFile(data);
     };
     reader.readAsArrayBuffer(fileOrPath);
     return;
   }
-  processFile(data);
+  await processFile(data);
 }
 
-function processFile(data) {
+async function processFile(data) {
   const wb = XLSX.read(data, { type: "array" });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
@@ -284,7 +284,6 @@ function processFile(data) {
   if (toGeocode.length > 0) {
     await geocodeAll(toGeocode);
   }
-}
 }
 
 // ─── GPS Geocoding (chained, 2s between queries) ──────────────────────
