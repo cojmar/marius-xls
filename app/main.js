@@ -1,7 +1,13 @@
+const {
+    app,
+    BrowserWindow,
+    ipcMain,
+    dialog,
+    shell,
+    clipboard
+} = require('electron');
 
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
-
 const GeoLocation = require('./GeoLocation');
 
 let geoLocation;
@@ -10,11 +16,13 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1440,
         height: 900,
-        minWidth: 700,
-        minHeight: 500,
+        minWidth: 850,
+        minHeight: 600,
+        frame: false,
         title: 'Locații din Excel',
         icon: path.join(__dirname, 'images/icon.png'),
         backgroundColor: '#101218',
+        autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -55,13 +63,59 @@ app.whenReady().then(async () => {
     });
 
     ipcMain.handle('open-external', async (_event, url) => {
-        if (typeof url !== 'string' ||
-            !url.startsWith('https://www.google.com/maps/')) {
+        if (
+            typeof url !== 'string' ||
+            !url.startsWith('https://www.google.com/maps/')
+        ) {
             throw new Error('Invalid external URL');
         }
 
         await shell.openExternal(url);
         return true;
+    });
+
+    ipcMain.handle('copy-text', (_event, value) => {
+        clipboard.writeText(String(value));
+        return true;
+    });
+
+    ipcMain.handle('reset-google-session', async () => {
+        if (geoLocation.processing) {
+            throw new Error('Wait for the current geocoding operation to finish.');
+        }
+
+        await geoLocation.close();
+
+        await geoLocation.session.clearStorageData({
+            storages: [
+                'cookies',
+                'localstorage',
+                'indexdb',
+                'serviceworkers',
+                'cachestorage'
+            ]
+        });
+
+        return true;
+    });
+
+    ipcMain.handle('window-minimize', (event) => {
+        BrowserWindow.fromWebContents(event.sender)?.minimize();
+    });
+
+    ipcMain.handle('window-maximize', (event) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        if (!win) return;
+
+        if (win.isMaximized()) {
+            win.unmaximize();
+        } else {
+            win.maximize();
+        }
+    });
+
+    ipcMain.handle('window-close', (event) => {
+        BrowserWindow.fromWebContents(event.sender)?.close();
     });
 
     createWindow();
