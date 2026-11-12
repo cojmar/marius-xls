@@ -155,7 +155,6 @@ h1 { font-size: 1.3rem; margin-bottom: 12px; }
 <div id="results"></div>
 
 <script>
-const electronAPI = window.electronAPI;
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const searchBox = document.getElementById('searchBox');
@@ -208,14 +207,6 @@ dropZone.addEventListener('drop', e => {
 fileInput.addEventListener('change', e => { if (e.target.files.length) readFile(e.target.files[0]); });
 btnLoad.addEventListener('click', () => fileInput.click());
 
-// Electron native dialog handler
-if (electronAPI) {
-  btnLoad.addEventListener('click', async () => {
-    const filePath = await electronAPI.openFileDialog();
-    await readFile(filePath);
-  });
-}
-
 // ─── Clear all ─────────────────────────────────────────────────────────
 
 btnClear.addEventListener('click', () => {
@@ -243,47 +234,35 @@ btnShowMap.addEventListener('click', () => {
 
 // ─── Parse XLS → clear old data → save → render → start geocoding ──────
 
-async function readFile(fileOrPath) {
-  let data;
-  if (typeof fileOrPath === "string") {
-    const fs = require("fs");
-    data = new Uint8Array(fs.readFileSync(fileOrPath));
-  } else {
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-      data = new Uint8Array(e.target.result);
-      await processFile(data);
-    };
-    reader.readAsArrayBuffer(fileOrPath);
-    return;
-  }
-  await processFile(data);
-}
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
-async function processFile(data) {
-  const wb = XLSX.read(data, { type: "array" });
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+    // Parse new locations
+    const newLocations = rows.map(r => ({
+      company: r['Companie: Nume complet'] || '',
+      address: r['Adresa     1: Adresa'] || '',
+      city: r['Adresa     1: Orașul'] || '',
+      lat: parseFloat(r['Lat'] || ''),
+      lng: parseFloat(r['Lng'] || '')
+    })).filter(l => l.company || l.address);
 
-  // Parse new locations
-  const newLocations = rows.map(r => ({
-    company: r["Companie: Nume complet"] || "",
-    address: r["Adresa     1: Adresa"] || "",
-    city: r["Adresa     1: Orașul"] || "",
-    lat: parseFloat(r["Lat"] || ""),
-    lng: parseFloat(r["Lng"] || "")
-  })).filter(l => l.company || l.address);
+    // Clear old data, save new, render list
+    allLocations = newLocations;
+    saveToStorage();
+    render(allLocations);
 
-  // Clear old data, save new, render list
-  allLocations = newLocations;
-  saveToStorage();
-  render(allLocations);
-
-  // Start geocoding chain for locations without coords
-  const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
-  if (toGeocode.length > 0) {
-    await geocodeAll(toGeocode);
-  }
+    // Start geocoding chain for locations without coords
+    const toGeocode = newLocations.filter(l => !l.lat || !l.lng);
+    if (toGeocode.length > 0) {
+      await geocodeAll(toGeocode);
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 // ─── GPS Geocoding (chained, 2s between queries) ──────────────────────
