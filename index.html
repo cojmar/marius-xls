@@ -1008,6 +1008,7 @@
   <header class="topbar">
     <div class="topbar-actions">
       <button class="btn primary" id="btnLoad" data-i18n="btnImport">import</button>
+      <button class="btn" id="btnExportExcel" data-i18n="btnExportExcel" data-i18n-title="btnExportExcelTitle" title="Export points with detected coordinates">export</button>
       <button class="btn danger" id="btnClear" data-i18n="btnClearAll">clear</button>
       <button class="btn icon" id="btnAdd" data-i18n-title="btnAddTitle" title="Add point">➕</button>
 
@@ -1156,6 +1157,10 @@
         btnImport: 'import',
         btnClearAll: 'clear',
         btnAddTitle: 'Adaugă punct pe hartă',
+        btnExportExcel: 'export',
+        btnExportExcelTitle: 'Exportă punctele de pe hartă cu coordonatele detectate, în Excel',
+        exportExcelEmpty: 'Nu există puncte pe hartă — nimic de exportat',
+        exportExcelDone: 'Excel exportat: {n} puncte ({m} fără coordonate)',
         toolsMenu: 'INSTRUMENTE',
         btnResetGoogle: '↻ RESETARE GOOGLE',
         btnExportGps: '⭳ EXPORT GPS',
@@ -1286,6 +1291,10 @@
         btnImport: 'import',
         btnClearAll: 'clear',
         btnAddTitle: 'Add point on map',
+        btnExportExcel: 'export',
+        btnExportExcelTitle: 'Export map points with detected coordinates to Excel',
+        exportExcelEmpty: 'No points on the map — nothing to export',
+        exportExcelDone: 'Excel exported: {n} points ({m} without coordinates)',
         toolsMenu: 'TOOLS',
         btnResetGoogle: '↻ RESET GOOGLE SESSION',
         btnExportGps: '⭳ EXPORT GPS',
@@ -1499,6 +1508,8 @@
     const panelResizer = document.getElementById('panelResizer');
 
     let allLocations = [];
+    let rawRows = [];
+    let sourceFileName = '';
     let markers = [];
     let geocoding = false;
     let stopRequested = false;
@@ -1702,12 +1713,22 @@
     // Storage
 
     function saveToStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLocations));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ locations: allLocations, rawRows, fileName: sourceFileName }));
     }
 
     function loadFromStorage() {
       try {
-        allLocations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        if (Array.isArray(stored)) {
+          allLocations = stored;
+        } else if (stored && typeof stored === 'object') {
+          allLocations = Array.isArray(stored.locations) ? stored.locations : [];
+          rawRows = Array.isArray(stored.rawRows) ? stored.rawRows : [];
+          sourceFileName = stored.fileName || '';
+        } else {
+          allLocations = [];
+        }
       } catch (error) {
         console.error('Storage error:', error);
         allLocations = [];
@@ -2013,6 +2034,42 @@
       fileInput.click();
     });
 
+    function exportExcel() {
+      if (!allLocations.length) {
+        setStatus('exportExcelEmpty');
+        return;
+      }
+
+      const rows = allLocations.map((location, index) => {
+        const row = rawRows[index] ? { ...rawRows[index] } : {};
+        row['Companie: Nume complet'] = location.company || '';
+        row['Adresa     1: Adresa'] = location.address || '';
+        row['Adresa     1: Orașul'] = location.city || '';
+
+        if (hasCoordinates(location)) {
+          row['Lat'] = location.lat;
+          row['Lng'] = location.lng;
+        } else {
+          row['Lat'] = '';
+          row['Lng'] = '';
+        }
+
+        return row;
+      });
+
+      const sheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, sheet, 'Sheet1');
+
+      const base = sourceFileName ? sourceFileName.replace(/\.xlsx?$/i, '') : 'marius-locations';
+      XLSX.writeFile(workbook, `${base}_coords.xlsx`);
+
+      const missing = allLocations.filter(location => !hasCoordinates(location)).length;
+      setStatus('exportExcelDone', { n: allLocations.length, m: missing });
+    }
+
+    document.getElementById('btnExportExcel').addEventListener('click', exportExcel);
+
     // Excel processing
 
     function readFile(file) {
@@ -2029,13 +2086,29 @@
           const sheet = workbook.Sheets[workbook.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-          allLocations = rows.map(row => ({
-            company: row['Companie: Nume complet'] || '',
-            address: row['Adresa     1: Adresa'] || '',
-            city: row['Adresa     1: Orașul'] || '',
-            lat: parseCoordinate(row['Lat']),
-            lng: parseCoordinate(row['Lng'])
-          })).filter(location => location.company || location.address);
+          const locations = [];
+          const originalRows = [];
+
+          for (const row of rows) {
+            const company = row['Companie: Nume complet'] || '';
+            const address = row['Adresa     1: Adresa'] || '';
+            const city = row['Adresa     1: Orașul'] || '';
+
+            if (!company && !address) continue;
+
+            locations.push({
+              company,
+              address,
+              city,
+              lat: parseCoordinate(row['Lat']),
+              lng: parseCoordinate(row['Lng'])
+            });
+            originalRows.push(row);
+          }
+
+          allLocations = locations;
+          rawRows = originalRows;
+          sourceFileName = file.name;
 
           allLocations.filter(hasCoordinates).forEach(rememberScannedLocation);
           applyScanCacheToLocations();
@@ -2824,6 +2897,8 @@
       if (!confirm(t('clearAllConfirm'))) return;
 
       allLocations = [];
+      rawRows = [];
+      sourceFileName = '';
       saveToStorage();
       searchBox.value = '';
       showMissingOnly = false;
