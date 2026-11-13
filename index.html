@@ -1065,6 +1065,11 @@
             <button type="button" class="lang-option" data-lang="ro">ro</button>
             <button type="button" class="lang-option" data-lang="en">en</button>
           </div>
+          <div class="lang-switch" id="orientationSwitch" data-i18n-title="orientationTitle" title="Layout orientation">
+            <button type="button" class="lang-option" data-orientation="auto" data-i18n="orientAuto">AUTO</button>
+            <button type="button" class="lang-option" data-orientation="vertical" data-i18n="orientVertical">VERTICAL</button>
+            <button type="button" class="lang-option" data-orientation="horizontal" data-i18n="orientHorizontal">HORIZONTAL</button>
+          </div>
           <input type="file" id="gpsCacheInput" accept=".json,application/json" style="display:none">
         </div>
       </details>
@@ -1197,6 +1202,10 @@
       ro: {
         appTitle: 'Geolocation',
         langSwitchTitle: 'Schimbă limba',
+        orientationTitle: 'Alege orientarea layout-ului: auto, vertical sau orizontal',
+        orientAuto: 'AUTO',
+        orientVertical: 'VERTICAL',
+        orientHorizontal: 'ORIZONTAL',
         btnImport: 'import',
         btnClearAll: 'clear',
         btnAddTitle: 'Adaugă punct pe hartă',
@@ -1333,6 +1342,10 @@
       en: {
         appTitle: 'Geolocation',
         langSwitchTitle: 'Change language',
+        orientationTitle: 'Choose the layout orientation: auto, vertical or horizontal',
+        orientAuto: 'AUTO',
+        orientVertical: 'VERTICAL',
+        orientHorizontal: 'HORIZONTAL',
         btnImport: 'import',
         btnClearAll: 'clear',
         btnAddTitle: 'Add point on map',
@@ -1539,6 +1552,7 @@
     const SCAN_CACHE_KEY = 'marius-xls-scanner-cache';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
     const MAP_WIDTH_KEY = 'marius-xls-map-width';
+    const ORIENTATION_KEY = 'marius-xls-orientation';
 
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -1552,6 +1566,7 @@
     const processingBanner = document.getElementById('processingBanner');
     const missingFilterButton = document.getElementById('btnMissingFilter');
     const editButton = document.getElementById('btnEditMap');
+    const orientationSwitch = document.getElementById('orientationSwitch');
     const workspace = document.getElementById('workspace');
     const mapPanel = document.getElementById('mapPanel');
     const panelResizer = document.getElementById('panelResizer');
@@ -1696,10 +1711,37 @@
       updateFilterButton();
     }
 
+    orientationSwitch.querySelectorAll('.lang-option').forEach(button => {
+      button.addEventListener('click', () => {
+        localStorage.setItem(ORIENTATION_KEY, button.dataset.orientation);
+        applyLayoutMode();
+        applyOrientationButtons();
+      });
+    });
+
+    applyOrientationButtons();
+
     // Resizable map/list panels
 
+    function getOrientationSetting() {
+      const value = localStorage.getItem(ORIENTATION_KEY);
+      return value === 'vertical' || value === 'horizontal' ? value : 'auto';
+    }
+
+    function applyOrientationButtons() {
+      const setting = getOrientationSetting();
+      orientationSwitch.querySelectorAll('.lang-option').forEach(button => {
+        button.classList.toggle('active', button.dataset.orientation === setting);
+      });
+    }
+
     function applyLayoutMode() {
-      const horizontal = window.innerWidth > window.innerHeight;
+      const setting = getOrientationSetting();
+      const horizontal = setting === 'horizontal'
+        ? true
+        : setting === 'vertical'
+          ? false
+          : window.innerWidth > window.innerHeight;
       workspace.classList.toggle('horizontal', horizontal);
 
       const key = horizontal ? MAP_WIDTH_KEY : MAP_HEIGHT_KEY;
