@@ -1517,6 +1517,7 @@
         console.error('Storage error:', error);
         allLocations = [];
       }
+      applyScanCacheToLocations();
       render();
       updateMap();
     }
@@ -1537,8 +1538,19 @@
       localStorage.setItem(SCAN_CACHE_KEY, JSON.stringify(entries));
     }
 
+    function normalizeAddressText(text) {
+      return String(text).toLowerCase()
+        .replace(/[ăâ]/g, 'a')
+        .replace(/[îí]/g, 'i')
+        .replace(/[ș]/g, 's')
+        .replace(/[ț]/g, 't')
+        .replace(/\s+/g, ' ')
+        .replace(/\s*,\s*/g, ', ')
+        .trim();
+    }
+
     function cacheKey(location) {
-      return getAddress(location).toLowerCase().replace(/\s+/g, ' ').trim();
+      return normalizeAddressText(getAddress(location));
     }
 
     function cachedCoordinates(location) {
@@ -1597,7 +1609,7 @@
         if (lat === null || lng === null) continue;
         if (lat < -90 || lat > 90 || lng < -180 || lng > 180) continue;
 
-        const key = String(item.key || item.address || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        const key = normalizeAddressText(item.key || item.address || '');
         if (!key) continue;
 
         const existing = entries.find(entry => entry.key === key);
@@ -1852,6 +1864,7 @@
           })).filter(location => location.company || location.address);
 
           allLocations.filter(hasCoordinates).forEach(rememberScannedLocation);
+          applyScanCacheToLocations();
 
           saveToStorage();
           searchBox.value = '';
