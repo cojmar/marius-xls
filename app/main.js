@@ -7,6 +7,8 @@ const {
     clipboard
 } = require('electron');
 
+let test_mode = false
+
 const path = require('path');
 
 const { session } = require('electron');
@@ -300,7 +302,7 @@ function createWindow() {
     });
 
     win.loadFile(path.join(__dirname, 'index.html'));
-
+    if (test_mode) win.openDevTools()
     return win;
 }
 

@@ -5,9 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none';">
   <title>Geolocation</title>
-  <link rel="stylesheet" href="leaflet.css">
+  <link id="leaflet-fallback-css" rel="stylesheet" href="leaflet.css" style="display:none;">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    onerror="setTimeout(function(){document.getElementById('leaflet-fallback-css').rel='stylesheet'},100)">
 
   <style>
     :root {
@@ -1235,10 +1237,25 @@
     </form>
   </div>
 
-  <script src="leaflet.js"></script>
+  <script id="leaflet-fallback-js" src="leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    onerror="setTimeout(function(){document.getElementById('leaflet-fallback-js').src='leaflet.js'},100)"></script>
   <script src="xlsx.full.min.js"></script>
 
   <script>
+    // CDN marker icons with local fallback
+    const CDN_IMAGES = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
+    const LOCAL_IMAGES = 'images/';
+    (function() {
+      const img = new Image();
+      img.onload = function() {
+        L.Icon.Default.imagePath = CDN_IMAGES;
+      };
+      img.onerror = function() {
+        L.Icon.Default.imagePath = LOCAL_IMAGES;
+      };
+      img.src = CDN_IMAGES + 'marker-icon.png';
+    })();
     const STORAGE_KEY = 'marius-xls-locations';
     const VISIBILITY_KEY = 'marius-xls-google-window-visible';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
