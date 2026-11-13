@@ -1376,7 +1376,6 @@
         queuedResolve: 'Rezolvare GPS în coadă: {company}',
         gpsResolved: 'GPS rezolvat: {company}',
         gpsResolveError: 'Nu s-a putut rezolva GPS-ul: {company}',
-        recalcConfirm: 'Recalculatezi coordonatele GPS pentru {company} folosind adresa curentă?',
         recalculating: 'Se recalculează GPS-ul: {company}',
         gpsRecalculated: 'GPS recalculate: {company}',
         recalcFailed: 'Recalcularea GPS-ului a eșuat: {company}',
@@ -1513,7 +1512,6 @@
         queuedResolve: 'Queued GPS resolution: {company}',
         gpsResolved: 'GPS resolved: {company}',
         gpsResolveError: 'Could not resolve GPS: {company}',
-        recalcConfirm: 'Recalculate GPS coordinates for {company} using its current address?',
         recalculating: 'Recalculating GPS: {company}',
         gpsRecalculated: 'GPS recalculated: {company}',
         recalcFailed: 'GPS recalculation failed: {company}',
@@ -2576,10 +2574,6 @@
       }
 
       if (resolvingLocations.has(location)) return;
-
-      if (!confirm(t('recalcConfirm', { company: location.company || t('thisLocation') }))) {
-        return;
-      }
 
       location.lat = null;
       location.lng = null;
