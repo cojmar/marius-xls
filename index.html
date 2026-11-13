@@ -414,6 +414,42 @@
       user-select: none !important;
     }
 
+    .workspace.horizontal {
+      flex-direction: row;
+    }
+
+    .workspace.horizontal .map-panel {
+      min-height: 0;
+      min-width: 260px;
+    }
+
+    .workspace.horizontal .sidebar {
+      min-height: 0;
+      min-width: 200px;
+    }
+
+    .workspace.horizontal .panel-resizer {
+      cursor: col-resize;
+    }
+
+    .workspace.horizontal .panel-resizer::before {
+      width: 4px;
+      height: 58px;
+    }
+
+    .workspace.horizontal .panel-resizer:hover::before,
+    .workspace.horizontal .panel-resizer.dragging::before {
+      width: 4px;
+      height: 85px;
+      background: var(--accent);
+    }
+
+    body.resizing-panels-horizontal,
+    body.resizing-panels-horizontal * {
+      cursor: col-resize !important;
+      user-select: none !important;
+    }
+
     /* Location list */
 
     .sidebar {
@@ -1502,6 +1538,7 @@
     const STORAGE_KEY = 'marius-xls-locations';
     const SCAN_CACHE_KEY = 'marius-xls-scanner-cache';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
+    const MAP_WIDTH_KEY = 'marius-xls-map-width';
 
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -1661,19 +1698,21 @@
 
     // Resizable map/list panels
 
-    function setMapHeight(percent) {
-      const clamped = Math.max(25, Math.min(80, percent));
-      mapPanel.style.flexBasis = `${clamped}%`;
-      localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+    function applyLayoutMode() {
+      const horizontal = window.innerWidth > window.innerHeight;
+      workspace.classList.toggle('horizontal', horizontal);
 
+      const key = horizontal ? MAP_WIDTH_KEY : MAP_HEIGHT_KEY;
+      const saved = Number(localStorage.getItem(key));
+      const defaultPercent = horizontal ? 55 : 62;
+      const percent = Number.isFinite(saved) && saved >= 25 && saved <= 80 ? saved : defaultPercent;
+
+      mapPanel.style.flexBasis = `${percent}%`;
       requestAnimationFrame(() => map.invalidateSize());
     }
 
     function initializePanelResizer() {
-      const savedHeight = Number(localStorage.getItem(MAP_HEIGHT_KEY));
-      setMapHeight(Number.isFinite(savedHeight) && savedHeight >= 25 && savedHeight <= 80
-        ? savedHeight
-        : 62);
+      applyLayoutMode();
 
       let dragging = false;
 
@@ -1682,7 +1721,7 @@
 
         dragging = true;
         panelResizer.classList.add('dragging');
-        document.body.classList.add('resizing-panels');
+        document.body.classList.add(workspace.classList.contains('horizontal') ? 'resizing-panels-horizontal' : 'resizing-panels');
         panelResizer.setPointerCapture(event.pointerId);
         event.preventDefault();
       });
@@ -1691,21 +1730,35 @@
         if (!dragging) return;
 
         const workspaceRect = workspace.getBoundingClientRect();
-        const usableHeight = workspaceRect.height - 20;
-        const relativeY = event.clientY - workspaceRect.top - 8;
-        const percent = (relativeY / usableHeight) * 100;
 
-        const mapMinimum = 220;
-        const listMinimum = 120;
-        const dividerHeight = panelResizer.offsetHeight;
-        const available = workspace.clientHeight - 20 - dividerHeight;
+        if (workspace.classList.contains('horizontal')) {
+          const dividerWidth = panelResizer.offsetWidth;
+          const available = workspace.clientWidth - 22 - dividerWidth;
+          const percent = ((event.clientX - workspaceRect.left - 8) / available) * 100;
 
-        const minPercent = Math.max(25, (mapMinimum / available) * 100);
-        const maxPercent = Math.min(80, 100 - (listMinimum / available) * 100);
-        const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
+          const minPercent = Math.max(25, (260 / available) * 100);
+          const maxPercent = Math.min(80, 100 - (200 / available) * 100);
+          const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
 
-        mapPanel.style.flexBasis = `${clamped}%`;
-        localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+          mapPanel.style.flexBasis = `${clamped}%`;
+          localStorage.setItem(MAP_WIDTH_KEY, String(clamped));
+        } else {
+          const usableHeight = workspaceRect.height - 20;
+          const relativeY = event.clientY - workspaceRect.top - 8;
+          const percent = (relativeY / usableHeight) * 100;
+
+          const mapMinimum = 220;
+          const listMinimum = 120;
+          const dividerHeight = panelResizer.offsetHeight;
+          const available = workspace.clientHeight - 20 - dividerHeight;
+
+          const minPercent = Math.max(25, (mapMinimum / available) * 100);
+          const maxPercent = Math.min(80, 100 - (listMinimum / available) * 100);
+          const clamped = Math.max(minPercent, Math.min(maxPercent, percent));
+
+          mapPanel.style.flexBasis = `${clamped}%`;
+          localStorage.setItem(MAP_HEIGHT_KEY, String(clamped));
+        }
 
         requestAnimationFrame(() => map.invalidateSize());
       });
@@ -1714,7 +1767,7 @@
         if (!dragging) return;
         dragging = false;
         panelResizer.classList.remove('dragging');
-        document.body.classList.remove('resizing-panels');
+        document.body.classList.remove('resizing-panels', 'resizing-panels-horizontal');
         map.invalidateSize();
       };
 
@@ -2961,6 +3014,7 @@
       applyLang();
 
       window.addEventListener('resize', () => {
+        applyLayoutMode();
         map.invalidateSize();
       });
     }
