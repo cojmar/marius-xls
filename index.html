@@ -905,6 +905,53 @@
       height: 100%;
     }
 
+    /* Language switch */
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #11151d;
+    }
+
+    .lang-option {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: #8b96a8;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .4px;
+    }
+
+    .lang-option:hover {
+      color: var(--text);
+      background: #252c3b;
+    }
+
+    .lang-option.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #101218;
+    }
+
+    @media(max-width:700px) {
+      .lang-switch {
+        padding: 4px;
+      }
+
+      .lang-option {
+        min-height: 26px;
+        padding: 0 7px;
+        font-size: 11px;
+      }
+    }
+
     @media(max-width:1000px) {
       .topbar {
         padding: 0 8px;
@@ -995,16 +1042,20 @@
     </div>
 
     <div class="topbar-actions">
-      <button class="btn primary" id="btnLoad">＋ IMPORTĂ EXCEL</button>
-      <button class="btn danger" id="btnClear">ȘTERGE TOT</button>
+      <button class="btn primary" id="btnLoad" data-i18n="btnImport">＋ IMPORTĂ EXCEL</button>
+      <button class="btn danger" id="btnClear" data-i18n="btnClearAll">ȘTERGE TOT</button>
+      <div class="lang-switch" id="langSwitch" data-i18n-title="langSwitchTitle">
+        <button type="button" class="lang-option" data-lang="ro">Română</button>
+        <button type="button" class="lang-option" data-lang="en">English</button>
+      </div>
 
       <details class="reset-tools" id="toolsMenu">
-        <summary>TOOLS</summary>
+        <summary data-i18n="toolsMenu">TOOLS</summary>
         <div class="reset-content">
-          <button class="btn" id="btnExportGps">⭳ EXPORT GPS</button>
-          <button class="btn" id="btnImportGps">⭱ IMPORT GPS</button>
-          <button class="btn danger" id="btnClearGps">✕ CLEAR GPS DATA</button>
-          <span class="cache-count" id="cacheCount">0 adrese în cacheul scanerului</span>
+          <button class="btn" id="btnExportGps" data-i18n="btnExportGps">⭳ EXPORT GPS</button>
+          <button class="btn" id="btnImportGps" data-i18n="btnImportGps">⭱ IMPORT GPS</button>
+          <button class="btn danger" id="btnClearGps" data-i18n="btnClearGps">✕ CLEAR GPS DATA</button>
+          <span class="cache-count" id="cacheCount" data-i18n="cacheCountInitial">0 adrese în cacheul scanerului</span>
           <input type="file" id="gpsCacheInput" accept=".json,application/json" style="display:none">
         </div>
       </details>
@@ -1014,21 +1065,21 @@
   <div class="statusbar">
     <div class="status-left">
       <span class="status-indicator" id="statusIndicator"></span>
-      <span id="statusText">Gata</span>
+      <span id="statusText" data-i18n="statusReady">Gata</span>
     </div>
-    <span id="gpsStatus">0 coordonate GPS</span>
+    <span id="gpsStatus" data-i18n="gpsStatusInitial">0 coordonate GPS</span>
   </div>
 
   <main class="workspace" id="workspace">
     <section class="map-panel" id="mapPanel">
       <div class="map-toolbar">
         <div>
-          <div class="map-heading">Harta locațiilor</div>
-          <div class="map-subheading" id="mapSubtitle">Prezentare geografică</div>
+          <div class="map-heading" data-i18n="mapHeading">Harta locațiilor</div>
+          <div class="map-subheading" id="mapSubtitle" data-i18n="mapSubtitleInitial">Prezentare geografică</div>
         </div>
         <div class="map-toolbar-actions">
-          <button class="btn small" id="btnFit">ENCADREAZĂ</button>
-          <button class="btn small" id="btnShowMap">⛶ ECRAN INTEGRAL</button>
+          <button class="btn small" id="btnFit" data-i18n="btnFit">ENCADREAZĂ</button>
+          <button class="btn small" id="btnShowMap" data-i18n="btnFullscreen">⛶ ECRAN INTEGRAL</button>
         </div>
       </div>
 
@@ -1036,90 +1087,90 @@
         <div id="map"></div>
         <div class="map-overlay">
           <span class="map-dot"></span>
-          <span id="mapOverlayText">0 locații pe hartă</span>
+          <span id="mapOverlayText" data-i18n="mapOverlayInitial">0 locații pe hartă</span>
         </div>
       </div>
     </section>
 
-    <div class="panel-resizer" id="panelResizer" title="Trage pentru a redimensiona harta și lista"></div>
+    <div class="panel-resizer" id="panelResizer" data-i18n-title="resizerTitle" title="Trage pentru a redimensiona harta și lista"></div>
 
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-title-row">
-          <span class="sidebar-title">Locații importate</span>
+          <span class="sidebar-title" data-i18n="sidebarTitle">Locații importate</span>
           <div class="sidebar-header-actions">
-            <button class="btn primary" id="btnScan" style="display:none;min-height:31px;padding:0 10px;font-size:12px">
+            <button class="btn primary" id="btnScan" data-i18n="btnContinueScan" style="display:none;min-height:31px;padding:0 10px;font-size:12px">
               CONTINUĂ SCANAREA
             </button>
 
-            <button class="filter-button" id="btnMissingFilter">⚠ GPS LIPSĂ (0)</button>
+            <button class="filter-button" id="btnMissingFilter" data-i18n="filterInitial">⚠ GPS LIPSĂ (0)</button>
             <span class="count-badge" id="locationCount">0</span>
           </div>
         </div>
         <div class="search-wrap">
           <span class="search-icon">⌕</span>
-          <input type="text" class="search-box" id="searchBox" placeholder="Caută companie sau adresa...">
+          <input type="text" class="search-box" id="searchBox" data-i18n-placeholder="searchPlaceholder" placeholder="Caută companie sau adresa...">
         </div>
       </div>
 
       <div class="processing-banner" id="processingBanner">
         <span class="processing-spinner"></span>
         <div>
-          <div id="processingTitle">Se procesează coordonatele GPS...</div>
-          <div class="processing-detail" id="processingDetail">Se caută pe OpenStreetMap</div>
+          <div id="processingTitle" data-i18n="processingTitleInitial">Se procesează coordonatele GPS...</div>
+          <div class="processing-detail" id="processingDetail" data-i18n="processingDetailInitial">Se caută pe OpenStreetMap</div>
         </div>
       </div>
 
       <div class="drop-zone" id="dropZone">
-        <p>📁 Deschide un fișier Excel</p>
-        <p class="hint">Trage fișierul aici sau dă click pentru a-l selecta</p>
+        <p data-i18n="dropTitle">📁 Deschide un fișier Excel</p>
+        <p class="hint" data-i18n="dropHint">Trage fișierul aici sau dă click pentru a-l selecta</p>
         <input type="file" id="fileInput" accept=".xlsx,.xls">
       </div>
 
       <div class="location-list" id="results">
         <div class="empty-state">
           <div class="empty-icon">📍</div>
-          <div class="empty-title">Nicio locație deocamdată</div>
-          <div class="empty-description">Importă un fișier Excel pentru a afișa companiile pe hartă.</div>
+          <div class="empty-title" data-i18n="emptyTitle">Nicio locație deocamdată</div>
+          <div class="empty-description" data-i18n="emptyDesc">Importă un fișier Excel pentru a afișa companiile pe hartă.</div>
         </div>
       </div>
 
-      <div class="sidebar-footer" id="sidebarFooter">Importă un fișier .xlsx sau .xls</div>
+      <div class="sidebar-footer" id="sidebarFooter" data-i18n="footerInitial">Importă un fișier .xlsx sau .xls</div>
     </aside>
   </main>
 
   <div class="modal-backdrop" id="editModal">
     <form class="modal" id="editForm">
-      <div class="modal-title">Editează locația</div>
-      <div class="modal-subtitle">Modifică detaliile companiei și coordonatele GPS.</div>
+      <div class="modal-title" data-i18n="modalTitle">Editează locația</div>
+      <div class="modal-subtitle" data-i18n="modalSubtitle">Modifică detaliile companiei și coordonatele GPS.</div>
 
       <div class="form-grid">
         <div class="form-field full">
-          <label for="editCompany">Nume companie</label>
+          <label for="editCompany" data-i18n="labelCompany">Nume companie</label>
           <input id="editCompany" type="text">
         </div>
         <div class="form-field full">
-          <label for="editAddress">Adresa</label>
+          <label for="editAddress" data-i18n="labelAddress">Adresa</label>
           <input id="editAddress" type="text">
         </div>
         <div class="form-field full">
-          <label for="editCity">Oraș</label>
+          <label for="editCity" data-i18n="labelCity">Oraș</label>
           <input id="editCity" type="text">
         </div>
         <div class="form-field">
-          <label for="editLat">Latitudine</label>
+          <label for="editLat" data-i18n="labelLat">Latitudine</label>
           <input id="editLat" type="number" step="any" placeholder="44.4268">
         </div>
         <div class="form-field">
-          <label for="editLng">Longitudine</label>
+          <label for="editLng" data-i18n="labelLng">Longitudine</label>
           <input id="editLng" type="number" step="any" placeholder="26.1025">
         </div>
       </div>
 
       <div class="modal-error" id="editError"></div>
       <div class="modal-actions">
-        <button type="button" class="btn" id="btnCancelEdit">RENUNCE</button>
-        <button type="submit" class="btn primary">SALVEAZĂ</button>
+        <button type="button" class="btn" id="btnCancelEdit" data-i18n="btnCancel">RENUNCE</button>
+        <button type="submit" class="btn primary" data-i18n="btnSave">SALVEAZĂ</button>
       </div>
     </form>
   </div>
@@ -1128,6 +1179,320 @@
   <script src="xlsx.full.min.js"></script>
 
   <script>
+    const LANG_KEY = 'marius-xls-lang';
+
+    const LOCALES = {
+      ro: {
+        appTitle: 'Geolocation',
+        langSwitchTitle: 'Schimbă limba',
+        btnImport: '＋ IMPORTĂ EXCEL',
+        btnClearAll: 'ȘTERGE TOT',
+        toolsMenu: 'INSTRUMENTE',
+        btnResetGoogle: '↻ RESETARE GOOGLE',
+        btnExportGps: '⭳ EXPORT GPS',
+        btnImportGps: '⭱ IMPORT GPS',
+        btnClearGps: '✕ ȘTERGE DATE GPS',
+        cacheCountInitial: '0 adrese în cacheul scanerului',
+        settingsLabel: 'Fereastră Google Maps',
+        settingsTitle: 'Arată sau ascunde fereastra Google Maps de geocoding',
+        statusReady: 'Gata',
+        gpsStatusInitial: '0 coordonate GPS',
+        mapHeading: 'Harta locațiilor',
+        mapSubtitleInitial: 'Prezentare geografică',
+        btnFit: 'ENCADREAZĂ',
+        btnFullscreen: '⛶ ECRAN INTEGRAL',
+        mapOverlayInitial: '0 locații pe hartă',
+        resizerTitle: 'Trage pentru a redimensiona harta și lista',
+        sidebarTitle: 'Locații importate',
+        btnContinueScan: 'CONTINUĂ SCANAREA',
+        btnScanStop: 'OPREȘTE SCANAREA',
+        btnScanStopping: 'SE OPREȘTE...',
+        filterInitial: '⚠ GPS LIPSĂ (0)',
+        searchPlaceholder: 'Caută companie sau adresa...',
+        processingTitleInitial: 'Se procesează coordonatele GPS...',
+        processingDetailInitial: 'Se caută pe OpenStreetMap',
+        dropTitle: '📁 Deschide un fișier Excel',
+        dropHint: 'Trage fișierul aici sau dă click pentru a-l selecta',
+        emptyTitle: 'Nicio locație deocamdată',
+        emptyDesc: 'Importă un fișier Excel pentru a afișa companiile pe hartă.',
+        footerInitial: 'Importă un fișier .xlsx sau .xls',
+        footerSummary: '{shown} afișate · {total} total · {missing} fără GPS',
+        modalTitle: 'Editează locația',
+        modalSubtitle: 'Modifică detaliile companiei și coordonatele GPS.',
+        labelCompany: 'Nume companie',
+        labelAddress: 'Adresa',
+        labelCity: 'Oraș',
+        labelLat: 'Latitudine',
+        labelLng: 'Longitudine',
+        btnCancel: 'RENUNCE',
+        btnSave: 'SALVEAZĂ',
+        windowMinimizeTitle: 'Minimizează',
+        windowMaximizeTitle: 'Maximizează',
+        windowCloseTitle: 'Închide',
+        copied: 'Copiat în clipboard',
+        copyFailed: 'Nu s-a putut copia în clipboard',
+        processingResolving: 'Se rezolvă: {company}',
+        scanStopping: 'Scanarea se oprește...',
+        scanRunning: 'Se scanează coordonatele GPS...',
+        scanNeedGps: '{n} locații încă au nevoie de GPS',
+        cacheCount: '{n} adrese în cacheul scanerului',
+        cacheEmptyExport: 'Cacheul scanerului este gol — nimic de exportat',
+        cacheExported: 'Cache GPS exportat: {n} adrese',
+        cacheNoRecords: 'Nu s-a găsit niciun record GPS în acest fișier.',
+        cacheImported: 'Cache GPS importat: {added} adăugate, {updated} actualizate, {filled} locații completate din cache',
+        cacheInvalidFile: 'Fișier de cache GPS invalid: ',
+        cacheAlreadyEmpty: 'Cacheul scanerului este deja gol',
+        cacheClearConfirm: 'Ștergi {n} adrese cu GPS din cache? Scanările viitoare vor cere din nou GPS-ul pentru fiecare adresă.',
+        cacheCleared: 'Cache GPS șters',
+        busyImportGps: 'Așteaptă până se termină procesarea GPS înainte să imporți date GPS.',
+        busyClearGps: 'Așteaptă până se termină procesarea GPS înainte să ștergi datele GPS.',
+        busyImportFile: 'Așteaptă până se termină procesarea GPS înainte să imporți alt fișier.',
+        busyDeleteLocations: 'Oprește procesarea GPS înainte să ștergi locațiile.',
+        busyResetGoogle: 'Așteaptă până se termină procesarea GPS înainte să resetezi Google.',
+        excelReadFailed: 'Nu s-a putut citi fișierul Excel: ',
+        gpsFromCache: 'GPS din cache: {company}',
+        scanStopAfterCurrent: 'Scanarea se oprește după adresa curentă...',
+        gpsCoordsResolved: 'Coordonate GPS rezolvate',
+        gpsResolveFailed: 'Rezolvarea GPS a eșuat',
+        scanWillStop: 'Scanarea se va opri după adresa curentă...',
+        allHaveGps: 'Toate locațiile au coordonate GPS',
+        scanStarted: 'Scanare GPS pornită: {n} adrese',
+        scanProgress: 'Scanare GPS: {attempted} / {total}',
+        scanStopped: 'Scanare oprită: {completed} găsite în această sesiune, {missing} rămase',
+        scanFinished: 'Scanare terminată: {completed} găsite, {missing} fără GPS',
+        scanAllDone: 'Gata: toate locațiile au coordonate GPS',
+        queuedResolve: 'Rezolvare GPS în coadă: {company}',
+        gpsResolved: 'GPS rezolvat: {company}',
+        gpsResolveError: 'Nu s-a putut rezolva GPS-ul: {company}',
+        recalcConfirm: 'Recalculatezi coordonatele GPS pentru {company} folosind adresa curentă?',
+        recalculating: 'Se recalculează GPS-ul: {company}',
+        gpsRecalculated: 'GPS recalculate: {company}',
+        recalcFailed: 'Recalcularea GPS-ului a eșuat: {company}',
+        editBadNumbers: 'Coordonatele trebuie să fie numere valide.',
+        editBothOrNone: 'Completează ambele coordonate GPS sau lasă-le pe ambele goale.',
+        editOutOfRange: 'Latitudinea trebuie să fie între -90 și 90, longitudinea între -180 și 180.',
+        editAddressUpdated: 'Adresa a fost actualizată. GPS-ul trebuie rezolvat.',
+        locationUpdated: 'Locație actualizată',
+        locationDeleted: 'Locație ștersă',
+        filterMissing: '⚠ GPS LIPSĂ ({n})',
+        filterMissingActive: '✓ GPS LIPSĂ ({n})',
+        gpsStatusCount: '{n} / {total} coordonate GPS',
+        mapSubtitleCount: '{n} locații cu poziție GPS',
+        mapOverlayCount: '{n} locații pe hartă',
+        emptyAllResolved: 'Toate locațiile au GPS',
+        emptyNoResults: 'Niciun rezultat',
+        emptyNothingMissing: 'Nu există locații fără coordonate GPS.',
+        emptyTryOther: 'Încearcă alt termen de căutare.',
+        companyFallback: 'Companie fără nume',
+        locationFallback: 'Locație',
+        thisLocation: 'această locație',
+        gpsUnresolved: 'GPS: Nerezolvat',
+        gpsAvailableBadge: '● GPS DISPONIBIL',
+        gpsMissingBadge: '⚠ GPS LIPSĂ',
+        btnResolving: '⟳ SE REZOLVĂ...',
+        btnMaps: 'MAPS',
+        btnRecalculate: '↻ RECALCULEAZĂ GPS',
+        btnCopyGps: 'COPIAZĂ GPS',
+        btnResolveGps: '⌖ REZOLVĂ GPS',
+        btnCopyAddress: 'COPIAZĂ ADRESA',
+        btnEdit: 'EDITEAZĂ',
+        btnDelete: 'ȘTERGE',
+        clearAllConfirm: 'Sigur vrei să ștergi toate locațiile?',
+        allLocationsDeleted: 'Toate locațiile au fost șterse',
+        googleVisibilityFailed: 'Nu s-a putut schimba vizibilitatea ferestrei Google',
+        googleResetConfirm: 'Ștergi sesiunea Google salvată? Google Maps poate cere din nou consimțământul sau autentificarea.',
+        googleResetting: 'Se resetează sesiunea Google...',
+        googleResetDone: 'Sesiunea Google a fost resetată',
+        googleResetDeleted: 'Sesiunea Google a fost ștersă. Google Maps poate cere din nou consimțământul la următoarea scanare.',
+        googleResetFailed: 'Resetarea sesiunii Google a eșuat',
+        googleResetError: 'Nu s-a putut reseta sesiunea Google: ',
+        apiUnavailable: 'API-ul Electron pentru geocoding nu este disponibil. Verifică preload.js.'
+      },
+
+      en: {
+        appTitle: 'Geolocation',
+        langSwitchTitle: 'Change language',
+        btnImport: '＋ IMPORT EXCEL',
+        btnClearAll: 'CLEAR ALL',
+        toolsMenu: 'TOOLS',
+        btnResetGoogle: '↻ RESET GOOGLE SESSION',
+        btnExportGps: '⭳ EXPORT GPS',
+        btnImportGps: '⭱ IMPORT GPS',
+        btnClearGps: '✕ CLEAR GPS DATA',
+        cacheCountInitial: '0 addresses in scanner cache',
+        settingsLabel: 'Google Maps window',
+        settingsTitle: 'Show or hide the Google Maps geocoding window',
+        statusReady: 'Ready',
+        gpsStatusInitial: '0 GPS coordinates',
+        mapHeading: 'Location map',
+        mapSubtitleInitial: 'Geographic overview',
+        btnFit: 'FIT LOCATIONS',
+        btnFullscreen: '⛶ FULLSCREEN',
+        mapOverlayInitial: '0 locations on map',
+        resizerTitle: 'Drag to resize map and locations',
+        sidebarTitle: 'Imported locations',
+        btnContinueScan: 'CONTINUE SCANNING',
+        btnScanStop: 'STOP SCANNING',
+        btnScanStopping: 'STOPPING...',
+        filterInitial: '⚠ GPS MISSING (0)',
+        searchPlaceholder: 'Search company or address...',
+        processingTitleInitial: 'Processing GPS coordinates...',
+        processingDetailInitial: 'Se caută pe OpenStreetMap',
+        dropTitle: '📁 Open an Excel file',
+        dropHint: 'Drop your file here or click to select',
+        emptyTitle: 'No locations yet',
+        emptyDesc: 'Import an Excel file to display companies on the map.',
+        footerInitial: 'Import an .xlsx or .xls file',
+        footerSummary: '{shown} shown · {total} total · {missing} without GPS',
+        modalTitle: 'Edit location',
+        modalSubtitle: 'Change company details and GPS coordinates.',
+        labelCompany: 'Company name',
+        labelAddress: 'Address',
+        labelCity: 'City',
+        labelLat: 'Latitude',
+        labelLng: 'Longitude',
+        btnCancel: 'CANCEL',
+        btnSave: 'SAVE',
+        windowMinimizeTitle: 'Minimize',
+        windowMaximizeTitle: 'Maximize',
+        windowCloseTitle: 'Close',
+        copied: 'Copied to clipboard',
+        copyFailed: 'Could not copy to clipboard',
+        processingResolving: 'Resolving: {company}',
+        scanStopping: 'Stopping scan...',
+        scanRunning: 'Scanning GPS coordinates...',
+        scanNeedGps: '{n} locations still need GPS',
+        cacheCount: '{n} addresses in scanner cache',
+        cacheEmptyExport: 'Scanner cache is empty — nothing to export',
+        cacheExported: 'GPS cache exported: {n} addresses',
+        cacheNoRecords: 'No GPS records found in this file.',
+        cacheImported: 'GPS cache imported: {added} added, {updated} updated, {filled} locations filled from cache',
+        cacheInvalidFile: 'Invalid GPS cache file: ',
+        cacheAlreadyEmpty: 'Scanner cache is already empty',
+        cacheClearConfirm: 'Delete {n} cached GPS addresses? Future scans will ask GPS again for every address.',
+        cacheCleared: 'GPS cache cleared',
+        busyImportGps: 'Wait until GPS processing has finished before importing GPS data.',
+        busyClearGps: 'Wait until GPS processing has finished before clearing GPS data.',
+        busyImportFile: 'Wait until GPS processing has finished before importing another file.',
+        busyDeleteLocations: 'Stop GPS processing before deleting locations.',
+        busyResetGoogle: 'Wait until GPS processing has finished before resetting Google.',
+        excelReadFailed: 'Could not read Excel file: ',
+        gpsFromCache: 'GPS from cache: {company}',
+        scanStopAfterCurrent: 'Stopping after current address...',
+        gpsCoordsResolved: 'GPS coordinates resolved',
+        gpsResolveFailed: 'GPS resolution failed',
+        scanWillStop: 'Scan will stop after the current address...',
+        allHaveGps: 'All locations have GPS coordinates',
+        scanStarted: 'Starting GPS scan: {n} addresses',
+        scanProgress: 'Scanning GPS: {attempted} / {total}',
+        scanStopped: 'Scan stopped: {completed} found in this session, {missing} remaining',
+        scanFinished: 'Scan finished: {completed} found, {missing} without GPS',
+        scanAllDone: 'Complete: all locations have GPS coordinates',
+        queuedResolve: 'Queued GPS resolution: {company}',
+        gpsResolved: 'GPS resolved: {company}',
+        gpsResolveError: 'Could not resolve GPS: {company}',
+        recalcConfirm: 'Recalculate GPS coordinates for {company} using its current address?',
+        recalculating: 'Recalculating GPS: {company}',
+        gpsRecalculated: 'GPS recalculated: {company}',
+        recalcFailed: 'GPS recalculation failed: {company}',
+        editBadNumbers: 'Coordinates must be valid numbers.',
+        editBothOrNone: 'Enter both GPS coordinates or leave both empty.',
+        editOutOfRange: 'Latitude must be between -90 and 90, longitude between -180 and 180.',
+        editAddressUpdated: 'Address updated. GPS needs to be resolved.',
+        locationUpdated: 'Location updated',
+        locationDeleted: 'Location deleted',
+        filterMissing: '⚠ GPS MISSING ({n})',
+        filterMissingActive: '✓ GPS MISSING ({n})',
+        gpsStatusCount: '{n} / {total} GPS coordinates',
+        mapSubtitleCount: '{n} locations with GPS position',
+        mapOverlayCount: '{n} locations on map',
+        emptyAllResolved: 'All locations have GPS',
+        emptyNoResults: 'No results',
+        emptyNothingMissing: 'There are no locations missing GPS coordinates.',
+        emptyTryOther: 'Try another search term.',
+        companyFallback: 'Company without name',
+        locationFallback: 'Location',
+        thisLocation: 'this location',
+        gpsUnresolved: 'GPS: Not resolved',
+        gpsAvailableBadge: '● GPS AVAILABLE',
+        gpsMissingBadge: '⚠ GPS MISSING',
+        btnResolving: '⟳ RESOLVING...',
+        btnMaps: 'MAPS',
+        btnRecalculate: '↻ RECALCULATE GPS',
+        btnCopyGps: 'COPY GPS',
+        btnResolveGps: '⌖ RESOLVE GPS',
+        btnCopyAddress: 'COPY ADDRESS',
+        btnEdit: 'EDIT',
+        btnDelete: 'DELETE',
+        clearAllConfirm: 'Are you sure you want to delete all locations?',
+        allLocationsDeleted: 'All locations deleted',
+        googleVisibilityFailed: 'Could not change Google window visibility',
+        googleResetConfirm: 'Delete the saved Google session? Google Maps may request consent or sign-in again.',
+        googleResetting: 'Resetting Google session...',
+        googleResetDone: 'Google session has been reset',
+        googleResetDeleted: 'Google session deleted. Google Maps may request consent again during the next scan.',
+        googleResetFailed: 'Google session reset failed',
+        googleResetError: 'Could not reset Google session: ',
+        apiUnavailable: 'Electron geocoding API is unavailable. Check preload.js.'
+      }
+    };
+
+    let currentLang = localStorage.getItem(LANG_KEY);
+
+    if (!LOCALES[currentLang]) currentLang = 'ro';
+
+    let lastStatus = null;
+
+    function t(key, params) {
+      const active = LOCALES[currentLang] || LOCALES.en;
+      const text = active[key] || LOCALES.en[key] || key;
+
+      if (!params) return text;
+
+      return text.replace(/\{(\w+)\}/g, (match, name) =>
+        Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : match);
+    }
+
+    function applyLang() {
+      document.documentElement.lang = currentLang;
+      document.title = t('appTitle');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = t(el.dataset.i18nTitle);
+      });
+
+      document.querySelectorAll('.lang-option').forEach(button => {
+        button.classList.toggle('active', button.dataset.lang === currentLang);
+      });
+
+      render();
+      updateMap();
+      updateCacheCount();
+      updateScanButton();
+      updateProcessingUI();
+
+      if (lastStatus) setStatus(lastStatus.key, lastStatus.params, lastStatus.busy);
+    }
+
+    function setLang(lang) {
+      if (!LOCALES[lang] || lang === currentLang) return;
+
+      currentLang = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      applyLang();
+    }
+
+    document.querySelectorAll('.lang-option').forEach(button => {
+      button.addEventListener('click', () => setLang(button.dataset.lang));
+    });
     const STORAGE_KEY = 'marius-xls-locations';
     const SCAN_CACHE_KEY = 'marius-xls-scanner-cache';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
@@ -1206,10 +1571,10 @@
     async function copyText(text) {
       try {
         await navigator.clipboard.writeText(String(text));
-        setStatus('Copiat în clipboard');
+        setStatus('copied');
       } catch (error) {
         console.error('Clipboard error:', error);
-        setStatus('Nu s-a putut copia în clipboard');
+        setStatus('copyFailed');
       }
     }
 
@@ -1217,8 +1582,9 @@
       window.open(getGoogleMapsUrl(location), '_blank');
     }
 
-    function setStatus(message, busy = false) {
-      statusText.textContent = message;
+    function setStatus(key, params = {}, busy = false) {
+      lastStatus = { key, params, busy };
+      statusText.textContent = t(key, params);
       statusIndicator.classList.toggle('busy', busy);
     }
 
@@ -1252,14 +1618,14 @@
 
       if (activeLocation) {
         document.getElementById('processingTitle').textContent =
-          `Se rezolvă: ${activeLocation.company || 'Companie fără nume'}`;
+          t('processingResolving', { company: activeLocation.company || t('companyFallback') });
         document.getElementById('processingDetail').textContent =
           getAddress(activeLocation);
       } else if (geocoding) {
         document.getElementById('processingTitle').textContent =
-          stopRequested ? 'Scanarea se oprește...' : 'Se scanează coordonatele GPS...';
+          stopRequested ? t('scanStopping') : t('scanRunning');
         document.getElementById('processingDetail').textContent =
-          `${getMissingLocations().length} locații încă au nevoie de GPS`;
+          t('scanNeedGps', { n: getMissingLocations().length });
       }
     }
 
@@ -1268,16 +1634,16 @@
       scanButton.style.display = missing > 0 ? 'inline-flex' : 'none';
 
       if (geocoding) {
-        scanButton.textContent = stopRequested ? 'SE OPREȘTE...' : 'OPREȘTE SCANAREA';
+        scanButton.textContent = stopRequested ? t('btnScanStopping') : t('btnScanStop');
         scanButton.disabled = stopRequested;
       } else {
-        scanButton.textContent = 'CONTINUĂ SCANAREA';
+        scanButton.textContent = t('btnContinueScan');
         scanButton.disabled = false;
       }
 
       const shown = getVisibleLocations().length;
       document.getElementById('sidebarFooter').textContent =
-        `${shown} afișate · ${allLocations.length} total · ${missing} fără GPS`;
+        t('footerSummary', { shown, total: allLocations.length, missing });
 
       updateFilterButton();
     }
@@ -1505,7 +1871,7 @@
     function updateCacheCount() {
       const countElement = document.getElementById('cacheCount');
       if (countElement) {
-        countElement.textContent = `${loadScanCache().length} adrese în cacheul scanerului`;
+        countElement.textContent = t('cacheCount', { n: loadScanCache().length });
       }
     }
 
@@ -1513,7 +1879,7 @@
       const entries = loadScanCache();
 
       if (!entries.length) {
-        setStatus('Cacheul scanerului este gol — nimic de exportat');
+        setStatus('cacheEmptyExport');
         return;
       }
 
@@ -1534,7 +1900,7 @@
       anchor.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      setStatus(`Cache GPS exportat: ${entries.length} adrese`);
+      setStatus('cacheExported', { n: entries.length });
     }
 
     async function importScanCache(file) {
@@ -1543,7 +1909,7 @@
         const incoming = Array.isArray(data) ? data : Array.isArray(data.entries) ? data.entries : [];
 
         if (!incoming.length) {
-          alert('Nu s-a găsit niciun record GPS în acest fișier.');
+          alert(t('cacheNoRecords'));
           return;
         }
 
@@ -1551,10 +1917,10 @@
         const filled = applyScanCacheToLocations();
 
         updateCacheCount();
-        setStatus(`Cache GPS importat: ${added} adăugate, ${updated} actualizate, ${filled} locații completate din cache`);
+        setStatus('cacheImported', { added, updated, filled });
       } catch (error) {
         console.error('GPS cache import error:', error);
-        alert('Fișier de cache GPS invalid: ' + error.message);
+        alert(t('cacheInvalidFile') + error.message);
       }
     }
 
@@ -1562,24 +1928,24 @@
       const entries = loadScanCache();
 
       if (!entries.length) {
-        setStatus('Cacheul scanerului este deja gol');
+        setStatus('cacheAlreadyEmpty');
         return;
       }
 
-      if (!confirm(`Ștergi ${entries.length} adrese cu GPS din cache? Scanările viitoare vor cere din nou GPS-ul pentru fiecare adresă.`)) {
+      if (!confirm(t('cacheClearConfirm', { n: entries.length }))) {
         return;
       }
 
       localStorage.removeItem(SCAN_CACHE_KEY);
       updateCacheCount();
-      setStatus('Cache GPS șters');
+      setStatus('cacheCleared');
     }
 
     document.getElementById('btnExportGps').addEventListener('click', exportScanCache);
 
     document.getElementById('btnImportGps').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Așteaptă până se termină procesarea GPS înainte să imporți date GPS.');
+        alert(t('busyImportGps'));
         return;
       }
       document.getElementById('gpsCacheInput').click();
@@ -1593,7 +1959,7 @@
 
     document.getElementById('btnClearGps').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Așteaptă până se termină procesarea GPS înainte să ștergi datele GPS.');
+        alert(t('busyClearGps'));
         return;
       }
       clearScanCache();
@@ -1630,7 +1996,7 @@
 
     document.getElementById('btnLoad').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Așteaptă până se termină procesarea GPS înainte să imporți alt fișier.');
+        alert(t('busyImportFile'));
         return;
       }
       fileInput.click();
@@ -1640,7 +2006,7 @@
 
     function readFile(file) {
       if (geocoding || requestRunning) {
-        alert('Așteaptă până se termină procesarea GPS înainte să imporți alt fișier.');
+        alert(t('busyImportFile'));
         return;
       }
 
@@ -1672,7 +2038,7 @@
           await geocodeAll();
         } catch (error) {
           console.error('Excel processing error:', error);
-          alert('Nu s-a putut citi fișierul Excel: ' + error.message);
+          alert(t('excelReadFailed') + error.message);
         }
       };
 
@@ -1779,7 +2145,7 @@
             saveToStorage();
             success = true;
             updateMap(true);
-            setStatus(`GPS din cache: ${location.company || 'Locație'}`);
+            setStatus('gpsFromCache', { company: location.company || t('locationFallback') });
           }
         } else {
           const elapsed = Date.now() - lastRequestAt;
@@ -1821,11 +2187,11 @@
 
         if (geocoding) {
           setStatus(
-            stopRequested ? 'Scanarea se oprește după adresa curentă...' : 'Se scanează coordonatele GPS...',
+            stopRequested ? t('scanStopAfterCurrent') : t('scanRunning'),
             true
           );
         } else if (!requestQueue.length) {
-          setStatus(success ? 'Coordonate GPS rezolvate' : 'Rezolvarea GPS a eșuat');
+          setStatus(success ? 'gpsCoordsResolved' : 'gpsResolveFailed');
         }
 
         processGeocodeQueue();
@@ -1839,7 +2205,7 @@
         stopRequested = true;
         updateScanButton();
         updateProcessingUI();
-        setStatus('Scanarea se va opri după adresa curentă...', true);
+        setStatus('scanWillStop', {}, true);
         return;
       }
 
@@ -1852,7 +2218,7 @@
       const pending = getMissingLocations();
 
       if (!pending.length) {
-        setStatus('Toate locațiile au coordonate GPS');
+        setStatus('allHaveGps');
         render();
         return;
       }
@@ -1865,7 +2231,7 @@
 
       updateScanButton();
       updateProcessingUI();
-      setStatus(`Scanare GPS pornită: ${pending.length} adrese`, true);
+      setStatus('scanStarted', { n: pending.length }, true);
 
       let completed = 0;
       let attempted = 0;
@@ -1883,7 +2249,7 @@
           }
 
           attempted++;
-          setStatus(`Scanare GPS: ${attempted} / ${pending.length}`, true);
+          setStatus('scanProgress', { attempted, total: pending.length }, true);
 
           const success = await enqueueGeocode(location, false);
           if (success) completed++;
@@ -1908,11 +2274,11 @@
         const missing = getMissingLocations().length;
 
         if (stopped) {
-          setStatus(`Scanare oprită: ${completed} găsite în această sesiune, ${missing} rămase`);
+          setStatus('scanStopped', { completed, missing });
         } else if (missing) {
-          setStatus(`Scanare terminată: ${completed} găsite, ${missing} fără GPS`);
+          setStatus('scanFinished', { completed, missing });
         } else {
-          setStatus('Gata: toate locațiile au coordonate GPS');
+        setStatus('scanAllDone');
         }
       }
     }
@@ -1925,14 +2291,14 @@
 
       if (resolvingLocations.has(location)) return;
 
-      setStatus(`Rezolvare GPS în coadă: ${location.company || 'Locație'}`, true);
+      setStatus('queuedResolve', { company: location.company || t('locationFallback') }, true);
 
       const success = await enqueueGeocode(location, true);
 
       if (success) {
-        setStatus(`GPS rezolvat: ${location.company || 'Locație'}`);
+        setStatus('gpsResolved', { company: location.company || t('locationFallback') });
       } else if (allLocations.includes(location) && !hasCoordinates(location)) {
-        setStatus(`Nu s-a putut rezolva GPS-ul: ${location.company || 'Locație'}`);
+        setStatus('gpsResolveError', { company: location.company || t('locationFallback') });
       }
 
       render();
@@ -1947,7 +2313,7 @@
 
       if (resolvingLocations.has(location)) return;
 
-      if (!confirm(`Recalculatezi coordonatele GPS pentru ${location.company || 'această locație'} folosind adresa curentă?`)) {
+      if (!confirm(t('recalcConfirm', { company: location.company || t('thisLocation') }))) {
         return;
       }
 
@@ -1958,7 +2324,7 @@
       render();
       updateMap();
 
-      setStatus(`Se recalculează GPS-ul: ${location.company || 'Locație'}`, true);
+      setStatus('recalculating', { company: location.company || t('locationFallback') }, true);
 
       const success = await enqueueGeocode(location, true);
 
@@ -1966,9 +2332,9 @@
       updateMap();
 
       if (success) {
-        setStatus(`GPS recalculate: ${location.company || 'Locație'}`);
+        setStatus('gpsRecalculated', { company: location.company || t('locationFallback') });
       } else if (allLocations.includes(location) && !hasCoordinates(location)) {
-        setStatus(`Recalcularea GPS-ului a eșuat: ${location.company || 'Locație'}`);
+        setStatus('recalcFailed', { company: location.company || t('locationFallback') });
       }
     }
 
@@ -2025,19 +2391,19 @@
       const errorElement = document.getElementById('editError');
 
       if ((latText !== '' && lat === null) || (lngText !== '' && lng === null)) {
-        errorElement.textContent = 'Coordonatele trebuie să fie numere valide.';
+        errorElement.textContent = t('editBadNumbers');
         errorElement.classList.add('show');
         return;
       }
 
       if ((lat === null) !== (lng === null)) {
-        errorElement.textContent = 'Completează ambele coordonate GPS sau lasă-le pe ambele goale.';
+        errorElement.textContent = t('editBothOrNone');
         errorElement.classList.add('show');
         return;
       }
 
       if (lat !== null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
-        errorElement.textContent = 'Latitudinea trebuie să fie între -90 și 90, longitudinea între -180 și 180.';
+        errorElement.textContent = t('editOutOfRange');
         errorElement.classList.add('show');
         return;
       }
@@ -2081,9 +2447,9 @@
       updateMap(true);
 
       if (needsGps && !resolvedFromCache) {
-        setStatus('Adresa a fost actualizată. GPS-ul trebuie rezolvat.');
+        setStatus('editAddressUpdated');
       } else {
-        setStatus('Locație actualizată');
+        setStatus('locationUpdated');
       }
     });
 
@@ -2106,7 +2472,7 @@
       saveToStorage();
       render();
       updateMap();
-      setStatus('Locație ștersă');
+      setStatus('locationDeleted');
     }
 
     // Missing GPS filter with live count
@@ -2122,7 +2488,7 @@
       missingFilterButton.style.display = missing > 0 ? 'inline-flex' : 'none';
       missingFilterButton.classList.toggle('active', showMissingOnly);
       missingFilterButton.textContent =
-        `${showMissingOnly ? '✓' : '⚠'} GPS LIPSĂ (${missing})`;
+        t(showMissingOnly ? 'filterMissingActive' : 'filterMissing', { n: missing });
     }
 
     missingFilterButton.addEventListener('click', () => {
@@ -2141,13 +2507,13 @@
         showMissingOnly ? locations.length : allLocations.length;
 
       document.getElementById('gpsStatus').textContent =
-        `${gpsCount} / ${allLocations.length} coordonate GPS`;
+        t('gpsStatusCount', { n: gpsCount, total: allLocations.length });
 
       document.getElementById('mapSubtitle').textContent =
-        `${gpsCount} locații cu poziție GPS`;
+        t('mapSubtitleCount', { n: gpsCount });
 
       document.getElementById('mapOverlayText').textContent =
-        `${gpsCount} locații pe hartă`;
+        t('mapOverlayCount', { n: gpsCount });
 
       updateFilterButton();
 
@@ -2155,8 +2521,8 @@
         results.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">📍</div>
-        <div class="empty-title">Nicio locație deocamdată</div>
-        <div class="empty-description">Importă un fișier Excel pentru a afișa companiile pe hartă.</div>
+        <div class="empty-title">${t('emptyTitle')}</div>
+        <div class="empty-description">${t('emptyDesc')}</div>
       </div>`;
         dropZone.style.display = 'block';
         updateScanButton();
@@ -2169,10 +2535,10 @@
         results.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">${showMissingOnly ? '✓' : '⌕'}</div>
-        <div class="empty-title">${showMissingOnly ? 'Toate locațiile au GPS' : 'Niciun rezultat'}</div>
+        <div class="empty-title">${showMissingOnly ? t('emptyAllResolved') : t('emptyNoResults')}</div>
         <div class="empty-description">${showMissingOnly
-            ? 'Nu există locații fără coordonate GPS.'
-            : 'Încearcă alt termen de căutare.'}</div>
+            ? t('emptyNothingMissing')
+            : t('emptyTryOther')}</div>
       </div>`;
         updateScanButton();
         updateProcessingUI();
@@ -2186,34 +2552,34 @@
 
         return `
       <div class="location-card" data-card-idx="${index}">
-        <div class="location-company">${esc(location.company || 'Companie fără nume')}</div>
+        <div class="location-company">${esc(location.company || t('companyFallback'))}</div>
         <div class="location-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
 
         <div class="location-coordinates ${gps ? '' : 'missing'}">
           ${gps
             ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
-            : 'GPS: Nerezolvat'}
+            : t('gpsUnresolved')}
         </div>
 
         <div class="location-footer">
           <span class="location-status ${gps ? '' : 'missing'}">
-            ${gps ? '● GPS DISPONIBIL' : '⚠ GPS LIPSĂ'}
+            ${gps ? t('gpsAvailableBadge') : t('gpsMissingBadge')}
           </span>
         <div class="location-actions">
           ${processing ? `
             <button class="btn small primary resolve-button processing" disabled>
-              ⟳ SE REZOLVĂ...
+              ${t('btnResolving')}
             </button>` : gps ? `
-            <button class="btn small primary" data-action="maps" data-idx="${index}">MAPS</button>
-            <button class="btn small" data-action="recalculate" data-idx="${index}">↻ RECALCULEAZĂ GPS</button>
-            <button class="btn small" data-action="copy-gps" data-idx="${index}">COPIAZĂ GPS</button>` : `
+            <button class="btn small primary" data-action="maps" data-idx="${index}">${t('btnMaps')}</button>
+            <button class="btn small" data-action="recalculate" data-idx="${index}">${t('btnRecalculate')}</button>
+            <button class="btn small" data-action="copy-gps" data-idx="${index}">${t('btnCopyGps')}</button>` : `
             <button class="btn small primary resolve-button" data-action="resolve" data-idx="${index}">
-              ⌖ REZOLVĂ GPS
+              ${t('btnResolveGps')}
             </button>`}
-          <button class="btn small" data-action="copy-address" data-idx="${index}">COPIAZĂ ADRESA</button>
-          ${gps ? '' : `<button class="btn small" data-action="maps" data-idx="${index}">MAPS</button>`}
-          <button class="btn small" data-action="edit" data-idx="${index}">EDITEAZĂ</button>
-          <button class="btn small danger" data-action="delete" data-idx="${index}">ȘTERGE</button>
+          <button class="btn small" data-action="copy-address" data-idx="${index}">${t('btnCopyAddress')}</button>
+          ${gps ? '' : `<button class="btn small" data-action="maps" data-idx="${index}">${t('btnMaps')}</button>`}
+          <button class="btn small" data-action="edit" data-idx="${index}">${t('btnEdit')}</button>
+          <button class="btn small danger" data-action="delete" data-idx="${index}">${t('btnDelete')}</button>
         </div>
           
         </div>
@@ -2282,28 +2648,28 @@
       const processing = resolvingLocations.has(location);
 
       return `
-    <div class="popup-company">${esc(location.company || 'Companie fără nume')}</div>
+    <div class="popup-company">${esc(location.company || t('companyFallback'))}</div>
     <div class="popup-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
 
     <div class="popup-coordinates ${gps ? '' : 'missing'}">
       ${gps
           ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
-          : 'GPS: Nerezolvat'}
+          : t('gpsUnresolved')}
     </div>
 
     <div class="popup-actions">
     ${processing ? `
-      <button class="btn small primary" disabled>⟳ SE REZOLVĂ...</button>` : gps ? `
-      <button class="btn small primary" data-map-action="maps" data-idx="${index}">MAPS</button>
-      <button class="btn small" data-map-action="recalculate" data-idx="${index}">↻ RECALCULEAZĂ GPS</button>
-      <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPIAZĂ GPS</button>` : `
+      <button class="btn small primary" disabled>${t('btnResolving')}</button>` : gps ? `
+      <button class="btn small primary" data-map-action="maps" data-idx="${index}">${t('btnMaps')}</button>
+      <button class="btn small" data-map-action="recalculate" data-idx="${index}">${t('btnRecalculate')}</button>
+      <button class="btn small" data-map-action="copy-gps" data-idx="${index}">${t('btnCopyGps')}</button>` : `
       <button class="btn small primary" data-map-action="resolve" data-idx="${index}">
-        ⌖ REZOLVĂ GPS
+        ${t('btnResolveGps')}
       </button>`}
-    <button class="btn small" data-map-action="copy-address" data-idx="${index}">COPIAZĂ ADRESA</button>
-    ${gps ? '' : `<button class="btn small" data-map-action="maps" data-idx="${index}">MAPS</button>`}
-    <button class="btn small" data-map-action="edit" data-idx="${index}">EDITEAZĂ</button>
-    <button class="btn small danger" data-map-action="delete" data-idx="${index}">ȘTERGE</button>
+    <button class="btn small" data-map-action="copy-address" data-idx="${index}">${t('btnCopyAddress')}</button>
+    ${gps ? '' : `<button class="btn small" data-map-action="maps" data-idx="${index}">${t('btnMaps')}</button>`}
+    <button class="btn small" data-map-action="edit" data-idx="${index}">${t('btnEdit')}</button>
+    <button class="btn small danger" data-map-action="delete" data-idx="${index}">${t('btnDelete')}</button>
   </div>`;
     }
 
@@ -2403,12 +2769,12 @@
 
     document.getElementById('btnClear').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Oprește procesarea GPS înainte să ștergi locațiile.');
+        alert(t('busyDeleteLocations'));
         return;
       }
 
       if (!allLocations.length) return;
-      if (!confirm('Sigur vrei să ștergi toate locațiile?')) return;
+      if (!confirm(t('clearAllConfirm'))) return;
 
       allLocations = [];
       saveToStorage();
@@ -2417,7 +2783,7 @@
       updateFilterButton();
       render();
       updateMap();
-      setStatus('Toate locațiile au fost șterse');
+      setStatus('allLocationsDeleted');
     });
 
     // Init
@@ -2428,6 +2794,7 @@
       updateFilterButton();
       updateScanButton();
       updateProcessingUI();
+      applyLang();
 
       window.addEventListener('resize', () => {
         map.invalidateSize();

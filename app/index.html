@@ -1006,6 +1006,53 @@
       height: 100%;
     }
 
+    /* Language switch */
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #11151d;
+    }
+
+    .lang-option {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: #8b96a8;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .4px;
+    }
+
+    .lang-option:hover {
+      color: var(--text);
+      background: #252c3b;
+    }
+
+    .lang-option.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #101218;
+    }
+
+    @media(max-width:700px) {
+      .lang-switch {
+        padding: 4px;
+      }
+
+      .lang-option {
+        min-height: 26px;
+        padding: 0 7px;
+        font-size: 11px;
+      }
+    }
+
     @media(max-width:1000px) {
       .topbar {
         padding: 0 8px;
@@ -1109,13 +1156,17 @@
     </div>
 
     <div class="topbar-actions">
-      <button class="btn primary" id="btnLoad">＋ IMPORT EXCEL</button>
-      <button class="btn danger" id="btnClear">CLEAR ALL</button>
+      <button class="btn primary" id="btnLoad" data-i18n="btnImport">＋ IMPORT EXCEL</button>
+      <button class="btn danger" id="btnClear" data-i18n="btnClearAll">CLEAR ALL</button>
 
       <div class="action-separator"></div>
 
-      <div class="settings" title="Show or hide the Google Maps geocoding window">
-        <span class="settings-label">Google Maps window</span>
+      <div class="lang-switch" id="langSwitch" data-i18n-title="langSwitchTitle">
+        <button type="button" class="lang-option" data-lang="ro">Română</button>
+        <button type="button" class="lang-option" data-lang="en">English</button>
+      </div>
+      <div class="settings" data-i18n-title="settingsTitle" title="Show or hide the Google Maps geocoding window">
+        <span class="settings-label" data-i18n="settingsLabel">Google Maps window</span>
         <label class="switch">
           <input type="checkbox" id="visibilitySwitch">
           <span class="slider"></span>
@@ -1123,13 +1174,13 @@
       </div>
 
       <details class="reset-tools" id="toolsMenu">
-        <summary>TOOLS</summary>
+        <summary data-i18n="toolsMenu">TOOLS</summary>
         <div class="reset-content">
-          <button class="btn danger" id="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
-          <button class="btn" id="btnExportGps">⭳ EXPORT GPS</button>
-          <button class="btn" id="btnImportGps">⭱ IMPORT GPS</button>
-          <button class="btn danger" id="btnClearGps">✕ CLEAR GPS DATA</button>
-          <span class="cache-count" id="cacheCount">0 addresses in scanner cache</span>
+          <button class="btn danger" id="btnResetGoogle" data-i18n="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
+          <button class="btn" id="btnExportGps" data-i18n="btnExportGps">⭳ EXPORT GPS</button>
+          <button class="btn" id="btnImportGps" data-i18n="btnImportGps">⭱ IMPORT GPS</button>
+          <button class="btn danger" id="btnClearGps" data-i18n="btnClearGps">✕ CLEAR GPS DATA</button>
+          <span class="cache-count" id="cacheCount" data-i18n="cacheCountInitial">0 addresses in scanner cache</span>
           <input type="file" id="gpsCacheInput" accept=".json,application/json" style="display:none">
         </div>
       </details>
@@ -1137,9 +1188,9 @@
       <div class="action-separator"></div>
 
       <div class="window-controls">
-        <button class="window-control" id="btnMinimize" title="Minimize">−</button>
-        <button class="window-control" id="btnMaximize" title="Maximize">□</button>
-        <button class="window-control close" id="btnClose" title="Close">×</button>
+        <button class="window-control" id="btnMinimize" data-i18n-title="windowMinimizeTitle" title="Minimize">−</button>
+        <button class="window-control" id="btnMaximize" data-i18n-title="windowMaximizeTitle" title="Maximize">□</button>
+        <button class="window-control close" id="btnClose" data-i18n-title="windowCloseTitle" title="Close">×</button>
       </div>
     </div>
   </header>
@@ -1147,21 +1198,21 @@
   <div class="statusbar">
     <div class="status-left">
       <span class="status-indicator" id="statusIndicator"></span>
-      <span id="statusText">Ready</span>
+      <span id="statusText" data-i18n="statusReady">Ready</span>
     </div>
-    <span id="gpsStatus">0 GPS coordinates</span>
+    <span id="gpsStatus" data-i18n="gpsStatusInitial">0 GPS coordinates</span>
   </div>
 
   <main class="workspace" id="workspace">
     <section class="map-panel" id="mapPanel">
       <div class="map-toolbar">
         <div>
-          <div class="map-heading">Location map</div>
-          <div class="map-subheading" id="mapSubtitle">Geographic overview</div>
+          <div class="map-heading" data-i18n="mapHeading">Location map</div>
+          <div class="map-subheading" id="mapSubtitle" data-i18n="mapSubtitleInitial">Geographic overview</div>
         </div>
         <div class="map-toolbar-actions">
-          <button class="btn small" id="btnFit">FIT LOCATIONS</button>
-          <button class="btn small" id="btnShowMap">⛶ FULLSCREEN</button>
+          <button class="btn small" id="btnFit" data-i18n="btnFit">FIT LOCATIONS</button>
+          <button class="btn small" id="btnShowMap" data-i18n="btnFullscreen">⛶ FULLSCREEN</button>
         </div>
       </div>
 
@@ -1169,90 +1220,90 @@
         <div id="map"></div>
         <div class="map-overlay">
           <span class="map-dot"></span>
-          <span id="mapOverlayText">0 locations on map</span>
+          <span id="mapOverlayText" data-i18n="mapOverlayInitial">0 locations on map</span>
         </div>
       </div>
     </section>
 
-    <div class="panel-resizer" id="panelResizer" title="Drag to resize map and locations"></div>
+    <div class="panel-resizer" id="panelResizer" data-i18n-title="resizerTitle" title="Drag to resize map and locations"></div>
 
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-title-row">
-          <span class="sidebar-title">Imported locations</span>
+          <span class="sidebar-title" data-i18n="sidebarTitle">Imported locations</span>
           <div class="sidebar-header-actions">
-            <button class="btn primary" id="btnScan" style="display:none;min-height:31px;padding:0 10px;font-size:12px">
+            <button class="btn primary" id="btnScan" data-i18n="btnContinueScan" style="display:none;min-height:31px;padding:0 10px;font-size:12px">
               CONTINUE SCANNING
             </button>
 
-            <button class="filter-button" id="btnMissingFilter">⚠ GPS MISSING (0)</button>
+            <button class="filter-button" id="btnMissingFilter" data-i18n="filterInitial">⚠ GPS MISSING (0)</button>
             <span class="count-badge" id="locationCount">0</span>
           </div>
         </div>
         <div class="search-wrap">
           <span class="search-icon">⌕</span>
-          <input type="text" class="search-box" id="searchBox" placeholder="Search company or address...">
+          <input type="text" class="search-box" id="searchBox" data-i18n-placeholder="searchPlaceholder" placeholder="Search company or address...">
         </div>
       </div>
 
       <div class="processing-banner" id="processingBanner">
         <span class="processing-spinner"></span>
         <div>
-          <div id="processingTitle">Processing GPS coordinates...</div>
-          <div class="processing-detail" id="processingDetail">Preparing Google Maps</div>
+          <div id="processingTitle" data-i18n="processingTitleInitial">Processing GPS coordinates...</div>
+          <div class="processing-detail" id="processingDetail" data-i18n="processingDetailInitial">Preparing Google Maps</div>
         </div>
       </div>
 
       <div class="drop-zone" id="dropZone">
-        <p>📁 Open an Excel file</p>
-        <p class="hint">Drop your file here or click to select</p>
+        <p data-i18n="dropTitle">📁 Open an Excel file</p>
+        <p class="hint" data-i18n="dropHint">Drop your file here or click to select</p>
         <input type="file" id="fileInput" accept=".xlsx,.xls">
       </div>
 
       <div class="location-list" id="results">
         <div class="empty-state">
           <div class="empty-icon">📍</div>
-          <div class="empty-title">No locations yet</div>
-          <div class="empty-description">Import an Excel file to display companies on the map.</div>
+          <div class="empty-title" data-i18n="emptyTitle">No locations yet</div>
+          <div class="empty-description" data-i18n="emptyDesc">Import an Excel file to display companies on the map.</div>
         </div>
       </div>
 
-      <div class="sidebar-footer" id="sidebarFooter">Import an .xlsx or .xls file</div>
+      <div class="sidebar-footer" id="sidebarFooter" data-i18n="footerInitial">Import an .xlsx or .xls file</div>
     </aside>
   </main>
 
   <div class="modal-backdrop" id="editModal">
     <form class="modal" id="editForm">
-      <div class="modal-title">Edit location</div>
-      <div class="modal-subtitle">Change company details and GPS coordinates.</div>
+      <div class="modal-title" data-i18n="modalTitle">Edit location</div>
+      <div class="modal-subtitle" data-i18n="modalSubtitle">Change company details and GPS coordinates.</div>
 
       <div class="form-grid">
         <div class="form-field full">
-          <label for="editCompany">Company name</label>
+          <label for="editCompany" data-i18n="labelCompany">Company name</label>
           <input id="editCompany" type="text">
         </div>
         <div class="form-field full">
-          <label for="editAddress">Address</label>
+          <label for="editAddress" data-i18n="labelAddress">Address</label>
           <input id="editAddress" type="text">
         </div>
         <div class="form-field full">
-          <label for="editCity">City</label>
+          <label for="editCity" data-i18n="labelCity">City</label>
           <input id="editCity" type="text">
         </div>
         <div class="form-field">
-          <label for="editLat">Latitude</label>
+          <label for="editLat" data-i18n="labelLat">Latitude</label>
           <input id="editLat" type="number" step="any" placeholder="44.4268">
         </div>
         <div class="form-field">
-          <label for="editLng">Longitude</label>
+          <label for="editLng" data-i18n="labelLng">Longitude</label>
           <input id="editLng" type="number" step="any" placeholder="26.1025">
         </div>
       </div>
 
       <div class="modal-error" id="editError"></div>
       <div class="modal-actions">
-        <button type="button" class="btn" id="btnCancelEdit">CANCEL</button>
-        <button type="submit" class="btn primary">SAVE</button>
+        <button type="button" class="btn" id="btnCancelEdit" data-i18n="btnCancel">CANCEL</button>
+        <button type="submit" class="btn primary" data-i18n="btnSave">SAVE</button>
       </div>
     </form>
   </div>
@@ -1263,6 +1314,320 @@
   <script src="xlsx.full.min.js"></script>
 
   <script>
+    const LANG_KEY = 'marius-xls-lang';
+
+    const LOCALES = {
+      ro: {
+        appTitle: 'Geolocation',
+        langSwitchTitle: 'Schimbă limba',
+        btnImport: '＋ IMPORTĂ EXCEL',
+        btnClearAll: 'ȘTERGE TOT',
+        toolsMenu: 'INSTRUMENTE',
+        btnResetGoogle: '↻ RESETARE GOOGLE',
+        btnExportGps: '⭳ EXPORT GPS',
+        btnImportGps: '⭱ IMPORT GPS',
+        btnClearGps: '✕ ȘTERGE DATE GPS',
+        cacheCountInitial: '0 adrese în cacheul scanerului',
+        settingsLabel: 'Fereastră Google Maps',
+        settingsTitle: 'Arată sau ascunde fereastra Google Maps de geocoding',
+        statusReady: 'Gata',
+        gpsStatusInitial: '0 coordonate GPS',
+        mapHeading: 'Harta locațiilor',
+        mapSubtitleInitial: 'Prezentare geografică',
+        btnFit: 'ENCADREAZĂ',
+        btnFullscreen: '⛶ ECRAN INTEGRAL',
+        mapOverlayInitial: '0 locații pe hartă',
+        resizerTitle: 'Trage pentru a redimensiona harta și lista',
+        sidebarTitle: 'Locații importate',
+        btnContinueScan: 'CONTINUĂ SCANAREA',
+        btnScanStop: 'OPREȘTE SCANAREA',
+        btnScanStopping: 'SE OPREȘTE...',
+        filterInitial: '⚠ GPS LIPSĂ (0)',
+        searchPlaceholder: 'Caută companie sau adresa...',
+        processingTitleInitial: 'Se procesează coordonatele GPS...',
+        processingDetailInitial: 'Se pregătește Google Maps',
+        dropTitle: '📁 Deschide un fișier Excel',
+        dropHint: 'Trage fișierul aici sau dă click pentru a-l selecta',
+        emptyTitle: 'Nicio locație deocamdată',
+        emptyDesc: 'Importă un fișier Excel pentru a afișa companiile pe hartă.',
+        footerInitial: 'Importă un fișier .xlsx sau .xls',
+        footerSummary: '{shown} afișate · {total} total · {missing} fără GPS',
+        modalTitle: 'Editează locația',
+        modalSubtitle: 'Modifică detaliile companiei și coordonatele GPS.',
+        labelCompany: 'Nume companie',
+        labelAddress: 'Adresa',
+        labelCity: 'Oraș',
+        labelLat: 'Latitudine',
+        labelLng: 'Longitudine',
+        btnCancel: 'RENUNCE',
+        btnSave: 'SALVEAZĂ',
+        windowMinimizeTitle: 'Minimizează',
+        windowMaximizeTitle: 'Maximizează',
+        windowCloseTitle: 'Închide',
+        copied: 'Copiat în clipboard',
+        copyFailed: 'Nu s-a putut copia în clipboard',
+        processingResolving: 'Se rezolvă: {company}',
+        scanStopping: 'Scanarea se oprește...',
+        scanRunning: 'Se scanează coordonatele GPS...',
+        scanNeedGps: '{n} locații încă au nevoie de GPS',
+        cacheCount: '{n} adrese în cacheul scanerului',
+        cacheEmptyExport: 'Cacheul scanerului este gol — nimic de exportat',
+        cacheExported: 'Cache GPS exportat: {n} adrese',
+        cacheNoRecords: 'Nu s-a găsit niciun record GPS în acest fișier.',
+        cacheImported: 'Cache GPS importat: {added} adăugate, {updated} actualizate, {filled} locații completate din cache',
+        cacheInvalidFile: 'Fișier de cache GPS invalid: ',
+        cacheAlreadyEmpty: 'Cacheul scanerului este deja gol',
+        cacheClearConfirm: 'Ștergi {n} adrese cu GPS din cache? Scanările viitoare vor cere din nou GPS-ul pentru fiecare adresă.',
+        cacheCleared: 'Cache GPS șters',
+        busyImportGps: 'Așteaptă până se termină procesarea GPS înainte să imporți date GPS.',
+        busyClearGps: 'Așteaptă până se termină procesarea GPS înainte să ștergi datele GPS.',
+        busyImportFile: 'Așteaptă până se termină procesarea GPS înainte să imporți alt fișier.',
+        busyDeleteLocations: 'Oprește procesarea GPS înainte să ștergi locațiile.',
+        busyResetGoogle: 'Așteaptă până se termină procesarea GPS înainte să resetezi Google.',
+        excelReadFailed: 'Nu s-a putut citi fișierul Excel: ',
+        gpsFromCache: 'GPS din cache: {company}',
+        scanStopAfterCurrent: 'Scanarea se oprește după adresa curentă...',
+        gpsCoordsResolved: 'Coordonate GPS rezolvate',
+        gpsResolveFailed: 'Rezolvarea GPS a eșuat',
+        scanWillStop: 'Scanarea se va opri după adresa curentă...',
+        allHaveGps: 'Toate locațiile au coordonate GPS',
+        scanStarted: 'Scanare GPS pornită: {n} adrese',
+        scanProgress: 'Scanare GPS: {attempted} / {total}',
+        scanStopped: 'Scanare oprită: {completed} găsite în această sesiune, {missing} rămase',
+        scanFinished: 'Scanare terminată: {completed} găsite, {missing} fără GPS',
+        scanAllDone: 'Gata: toate locațiile au coordonate GPS',
+        queuedResolve: 'Rezolvare GPS în coadă: {company}',
+        gpsResolved: 'GPS rezolvat: {company}',
+        gpsResolveError: 'Nu s-a putut rezolva GPS-ul: {company}',
+        recalcConfirm: 'Recalculatezi coordonatele GPS pentru {company} folosind adresa curentă?',
+        recalculating: 'Se recalculează GPS-ul: {company}',
+        gpsRecalculated: 'GPS recalculate: {company}',
+        recalcFailed: 'Recalcularea GPS-ului a eșuat: {company}',
+        editBadNumbers: 'Coordonatele trebuie să fie numere valide.',
+        editBothOrNone: 'Completează ambele coordonate GPS sau lasă-le pe ambele goale.',
+        editOutOfRange: 'Latitudinea trebuie să fie între -90 și 90, longitudinea între -180 și 180.',
+        editAddressUpdated: 'Adresa a fost actualizată. GPS-ul trebuie rezolvat.',
+        locationUpdated: 'Locație actualizată',
+        locationDeleted: 'Locație ștersă',
+        filterMissing: '⚠ GPS LIPSĂ ({n})',
+        filterMissingActive: '✓ GPS LIPSĂ ({n})',
+        gpsStatusCount: '{n} / {total} coordonate GPS',
+        mapSubtitleCount: '{n} locații cu poziție GPS',
+        mapOverlayCount: '{n} locații pe hartă',
+        emptyAllResolved: 'Toate locațiile au GPS',
+        emptyNoResults: 'Niciun rezultat',
+        emptyNothingMissing: 'Nu există locații fără coordonate GPS.',
+        emptyTryOther: 'Încearcă alt termen de căutare.',
+        companyFallback: 'Companie fără nume',
+        locationFallback: 'Locație',
+        thisLocation: 'această locație',
+        gpsUnresolved: 'GPS: Nerezolvat',
+        gpsAvailableBadge: '● GPS DISPONIBIL',
+        gpsMissingBadge: '⚠ GPS LIPSĂ',
+        btnResolving: '⟳ SE REZOLVĂ...',
+        btnMaps: 'MAPS',
+        btnRecalculate: '↻ RECALCULEAZĂ GPS',
+        btnCopyGps: 'COPIAZĂ GPS',
+        btnResolveGps: '⌖ REZOLVĂ GPS',
+        btnCopyAddress: 'COPIAZĂ ADRESA',
+        btnEdit: 'EDITEAZĂ',
+        btnDelete: 'ȘTERGE',
+        clearAllConfirm: 'Sigur vrei să ștergi toate locațiile?',
+        allLocationsDeleted: 'Toate locațiile au fost șterse',
+        googleVisibilityFailed: 'Nu s-a putut schimba vizibilitatea ferestrei Google',
+        googleResetConfirm: 'Ștergi sesiunea Google salvată? Google Maps poate cere din nou consimțământul sau autentificarea.',
+        googleResetting: 'Se resetează sesiunea Google...',
+        googleResetDone: 'Sesiunea Google a fost resetată',
+        googleResetDeleted: 'Sesiunea Google a fost ștersă. Google Maps poate cere din nou consimțământul la următoarea scanare.',
+        googleResetFailed: 'Resetarea sesiunii Google a eșuat',
+        googleResetError: 'Nu s-a putut reseta sesiunea Google: ',
+        apiUnavailable: 'API-ul Electron pentru geocoding nu este disponibil. Verifică preload.js.'
+      },
+
+      en: {
+        appTitle: 'Geolocation',
+        langSwitchTitle: 'Change language',
+        btnImport: '＋ IMPORT EXCEL',
+        btnClearAll: 'CLEAR ALL',
+        toolsMenu: 'TOOLS',
+        btnResetGoogle: '↻ RESET GOOGLE SESSION',
+        btnExportGps: '⭳ EXPORT GPS',
+        btnImportGps: '⭱ IMPORT GPS',
+        btnClearGps: '✕ CLEAR GPS DATA',
+        cacheCountInitial: '0 addresses in scanner cache',
+        settingsLabel: 'Google Maps window',
+        settingsTitle: 'Show or hide the Google Maps geocoding window',
+        statusReady: 'Ready',
+        gpsStatusInitial: '0 GPS coordinates',
+        mapHeading: 'Location map',
+        mapSubtitleInitial: 'Geographic overview',
+        btnFit: 'FIT LOCATIONS',
+        btnFullscreen: '⛶ FULLSCREEN',
+        mapOverlayInitial: '0 locations on map',
+        resizerTitle: 'Drag to resize map and locations',
+        sidebarTitle: 'Imported locations',
+        btnContinueScan: 'CONTINUE SCANNING',
+        btnScanStop: 'STOP SCANNING',
+        btnScanStopping: 'STOPPING...',
+        filterInitial: '⚠ GPS MISSING (0)',
+        searchPlaceholder: 'Search company or address...',
+        processingTitleInitial: 'Processing GPS coordinates...',
+        processingDetailInitial: 'Se pregătește Google Maps',
+        dropTitle: '📁 Open an Excel file',
+        dropHint: 'Drop your file here or click to select',
+        emptyTitle: 'No locations yet',
+        emptyDesc: 'Import an Excel file to display companies on the map.',
+        footerInitial: 'Import an .xlsx or .xls file',
+        footerSummary: '{shown} shown · {total} total · {missing} without GPS',
+        modalTitle: 'Edit location',
+        modalSubtitle: 'Change company details and GPS coordinates.',
+        labelCompany: 'Company name',
+        labelAddress: 'Address',
+        labelCity: 'City',
+        labelLat: 'Latitude',
+        labelLng: 'Longitude',
+        btnCancel: 'CANCEL',
+        btnSave: 'SAVE',
+        windowMinimizeTitle: 'Minimize',
+        windowMaximizeTitle: 'Maximize',
+        windowCloseTitle: 'Close',
+        copied: 'Copied to clipboard',
+        copyFailed: 'Could not copy to clipboard',
+        processingResolving: 'Resolving: {company}',
+        scanStopping: 'Stopping scan...',
+        scanRunning: 'Scanning GPS coordinates...',
+        scanNeedGps: '{n} locations still need GPS',
+        cacheCount: '{n} addresses in scanner cache',
+        cacheEmptyExport: 'Scanner cache is empty — nothing to export',
+        cacheExported: 'GPS cache exported: {n} addresses',
+        cacheNoRecords: 'No GPS records found in this file.',
+        cacheImported: 'GPS cache imported: {added} added, {updated} updated, {filled} locations filled from cache',
+        cacheInvalidFile: 'Invalid GPS cache file: ',
+        cacheAlreadyEmpty: 'Scanner cache is already empty',
+        cacheClearConfirm: 'Delete {n} cached GPS addresses? Future scans will ask GPS again for every address.',
+        cacheCleared: 'GPS cache cleared',
+        busyImportGps: 'Wait until GPS processing has finished before importing GPS data.',
+        busyClearGps: 'Wait until GPS processing has finished before clearing GPS data.',
+        busyImportFile: 'Wait until GPS processing has finished before importing another file.',
+        busyDeleteLocations: 'Stop GPS processing before deleting locations.',
+        busyResetGoogle: 'Wait until GPS processing has finished before resetting Google.',
+        excelReadFailed: 'Could not read Excel file: ',
+        gpsFromCache: 'GPS from cache: {company}',
+        scanStopAfterCurrent: 'Stopping after current address...',
+        gpsCoordsResolved: 'GPS coordinates resolved',
+        gpsResolveFailed: 'GPS resolution failed',
+        scanWillStop: 'Scan will stop after the current address...',
+        allHaveGps: 'All locations have GPS coordinates',
+        scanStarted: 'Starting GPS scan: {n} addresses',
+        scanProgress: 'Scanning GPS: {attempted} / {total}',
+        scanStopped: 'Scan stopped: {completed} found in this session, {missing} remaining',
+        scanFinished: 'Scan finished: {completed} found, {missing} without GPS',
+        scanAllDone: 'Complete: all locations have GPS coordinates',
+        queuedResolve: 'Queued GPS resolution: {company}',
+        gpsResolved: 'GPS resolved: {company}',
+        gpsResolveError: 'Could not resolve GPS: {company}',
+        recalcConfirm: 'Recalculate GPS coordinates for {company} using its current address?',
+        recalculating: 'Recalculating GPS: {company}',
+        gpsRecalculated: 'GPS recalculated: {company}',
+        recalcFailed: 'GPS recalculation failed: {company}',
+        editBadNumbers: 'Coordinates must be valid numbers.',
+        editBothOrNone: 'Enter both GPS coordinates or leave both empty.',
+        editOutOfRange: 'Latitude must be between -90 and 90, longitude between -180 and 180.',
+        editAddressUpdated: 'Address updated. GPS needs to be resolved.',
+        locationUpdated: 'Location updated',
+        locationDeleted: 'Location deleted',
+        filterMissing: '⚠ GPS MISSING ({n})',
+        filterMissingActive: '✓ GPS MISSING ({n})',
+        gpsStatusCount: '{n} / {total} GPS coordinates',
+        mapSubtitleCount: '{n} locations with GPS position',
+        mapOverlayCount: '{n} locations on map',
+        emptyAllResolved: 'All locations have GPS',
+        emptyNoResults: 'No results',
+        emptyNothingMissing: 'There are no locations missing GPS coordinates.',
+        emptyTryOther: 'Try another search term.',
+        companyFallback: 'Company without name',
+        locationFallback: 'Location',
+        thisLocation: 'this location',
+        gpsUnresolved: 'GPS: Not resolved',
+        gpsAvailableBadge: '● GPS AVAILABLE',
+        gpsMissingBadge: '⚠ GPS MISSING',
+        btnResolving: '⟳ RESOLVING...',
+        btnMaps: 'MAPS',
+        btnRecalculate: '↻ RECALCULATE GPS',
+        btnCopyGps: 'COPY GPS',
+        btnResolveGps: '⌖ RESOLVE GPS',
+        btnCopyAddress: 'COPY ADDRESS',
+        btnEdit: 'EDIT',
+        btnDelete: 'DELETE',
+        clearAllConfirm: 'Are you sure you want to delete all locations?',
+        allLocationsDeleted: 'All locations deleted',
+        googleVisibilityFailed: 'Could not change Google window visibility',
+        googleResetConfirm: 'Delete the saved Google session? Google Maps may request consent or sign-in again.',
+        googleResetting: 'Resetting Google session...',
+        googleResetDone: 'Google session has been reset',
+        googleResetDeleted: 'Google session deleted. Google Maps may request consent again during the next scan.',
+        googleResetFailed: 'Google session reset failed',
+        googleResetError: 'Could not reset Google session: ',
+        apiUnavailable: 'Electron geocoding API is unavailable. Check preload.js.'
+      }
+    };
+
+    let currentLang = localStorage.getItem(LANG_KEY);
+
+    if (!LOCALES[currentLang]) currentLang = 'en';
+
+    let lastStatus = null;
+
+    function t(key, params) {
+      const active = LOCALES[currentLang] || LOCALES.en;
+      const text = active[key] || LOCALES.en[key] || key;
+
+      if (!params) return text;
+
+      return text.replace(/\{(\w+)\}/g, (match, name) =>
+        Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : match);
+    }
+
+    function applyLang() {
+      document.documentElement.lang = currentLang;
+      document.title = t('appTitle');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = t(el.dataset.i18nTitle);
+      });
+
+      document.querySelectorAll('.lang-option').forEach(button => {
+        button.classList.toggle('active', button.dataset.lang === currentLang);
+      });
+
+      render();
+      updateMap();
+      updateCacheCount();
+      updateScanButton();
+      updateProcessingUI();
+
+      if (lastStatus) setStatus(lastStatus.key, lastStatus.params, lastStatus.busy);
+    }
+
+    function setLang(lang) {
+      if (!LOCALES[lang] || lang === currentLang) return;
+
+      currentLang = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      applyLang();
+    }
+
+    document.querySelectorAll('.lang-option').forEach(button => {
+      button.addEventListener('click', () => setLang(button.dataset.lang));
+    });
     // CDN marker icons with local fallback
     const CDN_IMAGES = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
     const LOCAL_IMAGES = 'images/';
@@ -1359,10 +1724,10 @@
         } else {
           await navigator.clipboard.writeText(String(text));
         }
-        setStatus('Copied to clipboard');
+        setStatus('copied');
       } catch (error) {
         console.error('Clipboard error:', error);
-        setStatus('Could not copy to clipboard');
+        setStatus('copyFailed');
       }
     }
 
@@ -1375,8 +1740,9 @@
       }
     }
 
-    function setStatus(message, busy = false) {
-      statusText.textContent = message;
+    function setStatus(key, params = {}, busy = false) {
+      lastStatus = { key, params, busy };
+      statusText.textContent = t(key, params);
       statusIndicator.classList.toggle('busy', busy);
     }
 
@@ -1410,14 +1776,14 @@
 
       if (activeLocation) {
         document.getElementById('processingTitle').textContent =
-          `Resolving: ${activeLocation.company || 'Company without name'}`;
+          t('processingResolving', { company: activeLocation.company || t('companyFallback') });
         document.getElementById('processingDetail').textContent =
           getAddress(activeLocation);
       } else if (geocoding) {
         document.getElementById('processingTitle').textContent =
-          stopRequested ? 'Stopping scan...' : 'Scanning GPS coordinates...';
+          stopRequested ? t('scanStopping') : t('scanRunning');
         document.getElementById('processingDetail').textContent =
-          `${getMissingLocations().length} locations still need GPS`;
+          t('scanNeedGps', { n: getMissingLocations().length });
       }
     }
 
@@ -1426,16 +1792,16 @@
       scanButton.style.display = missing > 0 ? 'inline-flex' : 'none';
 
       if (geocoding) {
-        scanButton.textContent = stopRequested ? 'STOPPING...' : 'STOP SCANNING';
+        scanButton.textContent = stopRequested ? t('btnScanStopping') : t('btnScanStop');
         scanButton.disabled = stopRequested;
       } else {
-        scanButton.textContent = 'CONTINUE SCANNING';
+        scanButton.textContent = t('btnContinueScan');
         scanButton.disabled = false;
       }
 
       const shown = getVisibleLocations().length;
       document.getElementById('sidebarFooter').textContent =
-        `${shown} shown · ${allLocations.length} total · ${missing} without GPS`;
+        t('footerSummary', { shown, total: allLocations.length, missing });
 
       updateFilterButton();
     }
@@ -1663,7 +2029,7 @@
     function updateCacheCount() {
       const countElement = document.getElementById('cacheCount');
       if (countElement) {
-        countElement.textContent = `${loadScanCache().length} addresses in scanner cache`;
+        countElement.textContent = t('cacheCount', { n: loadScanCache().length });
       }
     }
 
@@ -1671,7 +2037,7 @@
       const entries = loadScanCache();
 
       if (!entries.length) {
-        setStatus('Scanner cache is empty — nothing to export');
+        setStatus('cacheEmptyExport');
         return;
       }
 
@@ -1692,7 +2058,7 @@
       anchor.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      setStatus(`GPS cache exported: ${entries.length} addresses`);
+      setStatus('cacheExported', { n: entries.length });
     }
 
     async function importScanCache(file) {
@@ -1701,7 +2067,7 @@
         const incoming = Array.isArray(data) ? data : Array.isArray(data.entries) ? data.entries : [];
 
         if (!incoming.length) {
-          alert('No GPS records found in this file.');
+          alert(t('cacheNoRecords'));
           return;
         }
 
@@ -1709,10 +2075,10 @@
         const filled = applyScanCacheToLocations();
 
         updateCacheCount();
-        setStatus(`GPS cache imported: ${added} added, ${updated} updated, ${filled} locations filled from cache`);
+        setStatus('cacheImported', { added, updated, filled });
       } catch (error) {
         console.error('GPS cache import error:', error);
-        alert('Invalid GPS cache file: ' + error.message);
+        alert(t('cacheInvalidFile') + error.message);
       }
     }
 
@@ -1720,24 +2086,24 @@
       const entries = loadScanCache();
 
       if (!entries.length) {
-        setStatus('Scanner cache is already empty');
+        setStatus('cacheAlreadyEmpty');
         return;
       }
 
-      if (!confirm(`Delete ${entries.length} cached GPS addresses? Future scans will ask GPS again for every address.`)) {
+      if (!confirm(t('cacheClearConfirm', { n: entries.length }))) {
         return;
       }
 
       localStorage.removeItem(SCAN_CACHE_KEY);
       updateCacheCount();
-      setStatus('GPS cache cleared');
+      setStatus('cacheCleared');
     }
 
     document.getElementById('btnExportGps').addEventListener('click', exportScanCache);
 
     document.getElementById('btnImportGps').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Wait until GPS processing has finished before importing GPS data.');
+        alert(t('busyImportGps'));
         return;
       }
       document.getElementById('gpsCacheInput').click();
@@ -1751,7 +2117,7 @@
 
     document.getElementById('btnClearGps').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Wait until GPS processing has finished before clearing GPS data.');
+        alert(t('busyClearGps'));
         return;
       }
       clearScanCache();
@@ -1772,7 +2138,7 @@
         }
       } catch (error) {
         console.error(error);
-        setStatus('Could not change Google window visibility');
+        setStatus('googleVisibilityFailed');
       }
     }
 
@@ -1784,24 +2150,24 @@
 
     document.getElementById('btnResetGoogle').addEventListener('click', async () => {
       if (requestRunning || geocoding) {
-        alert('Wait until GPS processing has finished before resetting Google.');
+        alert(t('busyResetGoogle'));
         return;
       }
 
-      if (!confirm('Delete the saved Google session? Google Maps may request consent or sign-in again.')) {
+      if (!confirm(t('googleResetConfirm'))) {
         return;
       }
 
       try {
-        setStatus('Resetting Google session...', true);
+        setStatus('googleResetting', {}, true);
         await window.electronAPI.resetGoogleSession();
-        setStatus('Google session has been reset');
+        setStatus('googleResetDone');
         document.querySelector('.reset-tools').open = false;
-        alert('Google session deleted. Google Maps may request consent again during the next scan.');
+        alert(t('googleResetDeleted'));
       } catch (error) {
         console.error(error);
-        setStatus('Google session reset failed');
-        alert('Could not reset Google session: ' + error.message);
+        setStatus('googleResetFailed');
+        alert(t('googleResetError') + error.message);
       }
     });
 
@@ -1833,7 +2199,7 @@
 
     document.getElementById('btnLoad').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Wait until GPS processing has finished before importing another file.');
+        alert(t('busyImportFile'));
         return;
       }
       fileInput.click();
@@ -1843,7 +2209,7 @@
 
     function readFile(file) {
       if (geocoding || requestRunning) {
-        alert('Wait until GPS processing has finished before importing another file.');
+        alert(t('busyImportFile'));
         return;
       }
 
@@ -1875,7 +2241,7 @@
           await geocodeAll();
         } catch (error) {
           console.error('Excel processing error:', error);
-          alert('Could not read Excel file: ' + error.message);
+          alert(t('excelReadFailed') + error.message);
         }
       };
 
@@ -1944,7 +2310,7 @@
             saveToStorage();
             success = true;
             updateMap(true);
-            setStatus(`GPS from cache: ${location.company || 'Location'}`);
+            setStatus('gpsFromCache', { company: location.company || t('locationFallback') });
           }
         } else {
           const coordinates = await window.electronAPI.geocode(getAddress(location));
@@ -1980,11 +2346,11 @@
 
         if (geocoding) {
           setStatus(
-            stopRequested ? 'Stopping after current address...' : 'Scanning GPS coordinates...',
+            stopRequested ? t('scanStopAfterCurrent') : t('scanRunning'),
             true
           );
         } else if (!requestQueue.length) {
-          setStatus(success ? 'GPS coordinates resolved' : 'GPS resolution failed');
+          setStatus(success ? 'gpsCoordsResolved' : 'gpsResolveFailed');
         }
 
         processGeocodeQueue();
@@ -1998,7 +2364,7 @@
         stopRequested = true;
         updateScanButton();
         updateProcessingUI();
-        setStatus('Scan will stop after the current address...', true);
+        setStatus('scanWillStop', {}, true);
         return;
       }
 
@@ -2009,14 +2375,14 @@
       if (geocoding) return;
 
       if (!window.electronAPI?.geocode) {
-        alert('Electron geocoding API is unavailable. Check preload.js.');
+        alert(t('apiUnavailable'));
         return;
       }
 
       const pending = getMissingLocations();
 
       if (!pending.length) {
-        setStatus('All locations have GPS coordinates');
+        setStatus('allHaveGps');
         render();
         return;
       }
@@ -2029,7 +2395,7 @@
 
       updateScanButton();
       updateProcessingUI();
-      setStatus(`Starting GPS scan: ${pending.length} addresses`, true);
+      setStatus('scanStarted', { n: pending.length }, true);
 
       let completed = 0;
       let attempted = 0;
@@ -2047,7 +2413,7 @@
           }
 
           attempted++;
-          setStatus(`Scanning GPS: ${attempted} / ${pending.length}`, true);
+          setStatus('scanProgress', { attempted, total: pending.length }, true);
 
           const success = await enqueueGeocode(location, false);
           if (success) completed++;
@@ -2072,11 +2438,11 @@
         const missing = getMissingLocations().length;
 
         if (stopped) {
-          setStatus(`Scan stopped: ${completed} found in this session, ${missing} remaining`);
+          setStatus('scanStopped', { completed, missing });
         } else if (missing) {
-          setStatus(`Scan finished: ${completed} found, ${missing} without GPS`);
+          setStatus('scanFinished', { completed, missing });
         } else {
-          setStatus('Complete: all locations have GPS coordinates');
+        setStatus('scanAllDone');
         }
       }
     }
@@ -2088,20 +2454,20 @@
       if (!location || hasCoordinates(location)) return;
 
       if (!window.electronAPI?.geocode) {
-        alert('Electron geocoding API is unavailable. Check preload.js.');
+        alert(t('apiUnavailable'));
         return;
       }
 
       if (resolvingLocations.has(location)) return;
 
-      setStatus(`Queued GPS resolution: ${location.company || 'Location'}`, true);
+      setStatus('queuedResolve', { company: location.company || t('locationFallback') }, true);
 
       const success = await enqueueGeocode(location, true);
 
       if (success) {
-        setStatus(`GPS resolved: ${location.company || 'Location'}`);
+        setStatus('gpsResolved', { company: location.company || t('locationFallback') });
       } else if (allLocations.includes(location) && !hasCoordinates(location)) {
-        setStatus(`Could not resolve GPS: ${location.company || 'Location'}`);
+        setStatus('gpsResolveError', { company: location.company || t('locationFallback') });
       }
 
       render();
@@ -2115,13 +2481,13 @@
       if (!location || !hasCoordinates(location)) return;
 
       if (!window.electronAPI?.geocode) {
-        alert('Electron geocoding API is unavailable. Check preload.js.');
+        alert(t('apiUnavailable'));
         return;
       }
 
       if (resolvingLocations.has(location)) return;
 
-      if (!confirm(`Recalculate GPS coordinates for ${location.company || 'this location'} using its current address?`)) {
+      if (!confirm(t('recalcConfirm', { company: location.company || t('thisLocation') }))) {
         return;
       }
 
@@ -2132,7 +2498,7 @@
       render();
       updateMap();
 
-      setStatus(`Recalculating GPS: ${location.company || 'Location'}`, true);
+      setStatus('recalculating', { company: location.company || t('locationFallback') }, true);
 
       const success = await enqueueGeocode(location, true);
 
@@ -2140,9 +2506,9 @@
       updateMap();
 
       if (success) {
-        setStatus(`GPS recalculated: ${location.company || 'Location'}`);
+        setStatus('gpsRecalculated', { company: location.company || t('locationFallback') });
       } else if (allLocations.includes(location) && !hasCoordinates(location)) {
-        setStatus(`GPS recalculation failed: ${location.company || 'Location'}`);
+        setStatus('recalcFailed', { company: location.company || t('locationFallback') });
       }
     }
 
@@ -2199,19 +2565,19 @@
       const errorElement = document.getElementById('editError');
 
       if ((latText !== '' && lat === null) || (lngText !== '' && lng === null)) {
-        errorElement.textContent = 'Coordinates must be valid numbers.';
+        errorElement.textContent = t('editBadNumbers');
         errorElement.classList.add('show');
         return;
       }
 
       if ((lat === null) !== (lng === null)) {
-        errorElement.textContent = 'Enter both GPS coordinates or leave both empty.';
+        errorElement.textContent = t('editBothOrNone');
         errorElement.classList.add('show');
         return;
       }
 
       if (lat !== null && (lat < -90 || lat > 90 || lng < -180 || lng > 180)) {
-        errorElement.textContent = 'Latitude must be between -90 and 90, longitude between -180 and 180.';
+        errorElement.textContent = t('editOutOfRange');
         errorElement.classList.add('show');
         return;
       }
@@ -2255,9 +2621,9 @@
       updateMap(true);
 
       if (needsGps && !resolvedFromCache) {
-        setStatus('Address updated. GPS needs to be resolved.');
+        setStatus('editAddressUpdated');
       } else {
-        setStatus('Location updated');
+        setStatus('locationUpdated');
       }
     });
 
@@ -2280,7 +2646,7 @@
       saveToStorage();
       render();
       updateMap();
-      setStatus('Location deleted');
+      setStatus('locationDeleted');
     }
 
     // Missing GPS filter with live count
@@ -2296,7 +2662,7 @@
       missingFilterButton.style.display = missing > 0 ? 'inline-flex' : 'none';
       missingFilterButton.classList.toggle('active', showMissingOnly);
       missingFilterButton.textContent =
-        `${showMissingOnly ? '✓' : '⚠'} GPS MISSING (${missing})`;
+        t(showMissingOnly ? 'filterMissingActive' : 'filterMissing', { n: missing });
     }
 
     missingFilterButton.addEventListener('click', () => {
@@ -2316,13 +2682,13 @@
         showMissingOnly ? locations.length : allLocations.length;
 
       document.getElementById('gpsStatus').textContent =
-        `${gpsCount} / ${allLocations.length} GPS coordinates`;
+        t('gpsStatusCount', { n: gpsCount, total: allLocations.length });
 
       document.getElementById('mapSubtitle').textContent =
-        `${gpsCount} locations with GPS position`;
+        t('mapSubtitleCount', { n: gpsCount });
 
       document.getElementById('mapOverlayText').textContent =
-        `${gpsCount} locations on map`;
+        t('mapOverlayCount', { n: gpsCount });
 
       updateFilterButton();
 
@@ -2330,8 +2696,8 @@
         results.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">📍</div>
-        <div class="empty-title">No locations yet</div>
-        <div class="empty-description">Import an Excel file to display companies on the map.</div>
+        <div class="empty-title">${t('emptyTitle')}</div>
+        <div class="empty-description">${t('emptyDesc')}</div>
       </div>`;
         dropZone.style.display = 'block';
         updateScanButton();
@@ -2344,10 +2710,10 @@
         results.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">${showMissingOnly ? '✓' : '⌕'}</div>
-        <div class="empty-title">${showMissingOnly ? 'All locations have GPS' : 'No results'}</div>
+        <div class="empty-title">${showMissingOnly ? t('emptyAllResolved') : t('emptyNoResults')}</div>
         <div class="empty-description">${showMissingOnly
-            ? 'There are no locations missing GPS coordinates.'
-            : 'Try another search term.'}</div>
+            ? t('emptyNothingMissing')
+            : t('emptyTryOther')}</div>
       </div>`;
         updateScanButton();
         updateProcessingUI();
@@ -2361,34 +2727,34 @@
 
         return `
       <div class="location-card" data-card-idx="${index}">
-        <div class="location-company">${esc(location.company || 'Company without name')}</div>
+        <div class="location-company">${esc(location.company || t('companyFallback'))}</div>
         <div class="location-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
 
         <div class="location-coordinates ${gps ? '' : 'missing'}">
           ${gps
             ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
-            : 'GPS: Not resolved'}
+            : t('gpsUnresolved')}
         </div>
 
         <div class="location-footer">
           <span class="location-status ${gps ? '' : 'missing'}">
-            ${gps ? '● GPS AVAILABLE' : '⚠ GPS MISSING'}
+            ${gps ? t('gpsAvailableBadge') : t('gpsMissingBadge')}
           </span>
         <div class="location-actions">
           ${processing ? `
             <button class="btn small primary resolve-button processing" disabled>
-              ⟳ RESOLVING...
+              ${t('btnResolving')}
             </button>` : gps ? `
-            <button class="btn small primary" data-action="maps" data-idx="${index}">MAPS</button>
-            <button class="btn small" data-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
-            <button class="btn small" data-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
+            <button class="btn small primary" data-action="maps" data-idx="${index}">${t('btnMaps')}</button>
+            <button class="btn small" data-action="recalculate" data-idx="${index}">${t('btnRecalculate')}</button>
+            <button class="btn small" data-action="copy-gps" data-idx="${index}">${t('btnCopyGps')}</button>` : `
             <button class="btn small primary resolve-button" data-action="resolve" data-idx="${index}">
-              ⌖ RESOLVE GPS
+              ${t('btnResolveGps')}
             </button>`}
-          <button class="btn small" data-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
-          ${gps ? '' : `<button class="btn small" data-action="maps" data-idx="${index}">MAPS</button>`}
-          <button class="btn small" data-action="edit" data-idx="${index}">EDIT</button>
-          <button class="btn small danger" data-action="delete" data-idx="${index}">DELETE</button>
+          <button class="btn small" data-action="copy-address" data-idx="${index}">${t('btnCopyAddress')}</button>
+          ${gps ? '' : `<button class="btn small" data-action="maps" data-idx="${index}">${t('btnMaps')}</button>`}
+          <button class="btn small" data-action="edit" data-idx="${index}">${t('btnEdit')}</button>
+          <button class="btn small danger" data-action="delete" data-idx="${index}">${t('btnDelete')}</button>
         </div>
           
         </div>
@@ -2457,28 +2823,28 @@
       const processing = resolvingLocations.has(location);
 
       return `
-    <div class="popup-company">${esc(location.company || 'Company without name')}</div>
+    <div class="popup-company">${esc(location.company || t('companyFallback'))}</div>
     <div class="popup-address">${esc(location.address)}${location.city ? ', ' + esc(location.city) : ''}</div>
 
     <div class="popup-coordinates ${gps ? '' : 'missing'}">
       ${gps
           ? `GPS: ${esc(location.lat)}, ${esc(location.lng)}`
-          : 'GPS: Not resolved'}
+          : t('gpsUnresolved')}
     </div>
 
     <div class="popup-actions">
     ${processing ? `
-      <button class="btn small primary" disabled>⟳ RESOLVING...</button>` : gps ? `
-      <button class="btn small primary" data-map-action="maps" data-idx="${index}">MAPS</button>
-      <button class="btn small" data-map-action="recalculate" data-idx="${index}">↻ RECALCULATE GPS</button>
-      <button class="btn small" data-map-action="copy-gps" data-idx="${index}">COPY GPS</button>` : `
+      <button class="btn small primary" disabled>${t('btnResolving')}</button>` : gps ? `
+      <button class="btn small primary" data-map-action="maps" data-idx="${index}">${t('btnMaps')}</button>
+      <button class="btn small" data-map-action="recalculate" data-idx="${index}">${t('btnRecalculate')}</button>
+      <button class="btn small" data-map-action="copy-gps" data-idx="${index}">${t('btnCopyGps')}</button>` : `
       <button class="btn small primary" data-map-action="resolve" data-idx="${index}">
-        ⌖ RESOLVE GPS
+        ${t('btnResolveGps')}
       </button>`}
-    <button class="btn small" data-map-action="copy-address" data-idx="${index}">COPY ADDRESS</button>
-    ${gps ? '' : `<button class="btn small" data-map-action="maps" data-idx="${index}">MAPS</button>`}
-    <button class="btn small" data-map-action="edit" data-idx="${index}">EDIT</button>
-    <button class="btn small danger" data-map-action="delete" data-idx="${index}">DELETE</button>
+    <button class="btn small" data-map-action="copy-address" data-idx="${index}">${t('btnCopyAddress')}</button>
+    ${gps ? '' : `<button class="btn small" data-map-action="maps" data-idx="${index}">${t('btnMaps')}</button>`}
+    <button class="btn small" data-map-action="edit" data-idx="${index}">${t('btnEdit')}</button>
+    <button class="btn small danger" data-map-action="delete" data-idx="${index}">${t('btnDelete')}</button>
   </div>`;
     }
 
@@ -2578,12 +2944,12 @@
 
     document.getElementById('btnClear').addEventListener('click', () => {
       if (geocoding || requestRunning) {
-        alert('Stop GPS processing before deleting locations.');
+        alert(t('busyDeleteLocations'));
         return;
       }
 
       if (!allLocations.length) return;
-      if (!confirm('Are you sure you want to delete all locations?')) return;
+      if (!confirm(t('clearAllConfirm'))) return;
 
       allLocations = [];
       saveToStorage();
@@ -2592,7 +2958,7 @@
       updateFilterButton();
       render();
       updateMap();
-      setStatus('All locations deleted');
+      setStatus('allLocationsDeleted');
     });
 
     // Window controls
@@ -2621,6 +2987,7 @@
       updateFilterButton();
       updateScanButton();
       updateProcessingUI();
+      applyLang();
 
       window.addEventListener('resize', () => {
         map.invalidateSize();
