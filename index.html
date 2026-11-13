@@ -936,6 +936,17 @@
     <div class="topbar-actions">
       <button class="btn primary" id="btnLoad">＋ IMPORTĂ EXCEL</button>
       <button class="btn danger" id="btnClear">ȘTERGE TOT</button>
+
+      <div class="action-separator"></div>
+
+      <details class="reset-tools">
+        <summary>UNELTE TEST</summary>
+        <div class="reset-content">
+          <button class="btn" id="btnExportCache" title="Export cache to .xlsx">⬇ EXPORT CACHE</button>
+          <button class="btn" id="btnImportCache" title="Import cache from .xlsx">⬆ IMPORT CACHE</button>
+          <button class="btn danger" id="btnDeleteCache" title="Delete cached GPS coordinates">🗑 ȘTERGE CACHE</button>
+        </div>
+      </details>
     </div>
   </header>
 
@@ -1057,6 +1068,7 @@
 
   <script>
     const STORAGE_KEY = 'marius-xls-locations';
+    const CACHE_KEY = 'marius-xls-gps-cache';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
 
     const dropZone = document.getElementById('dropZone');
@@ -1087,6 +1099,7 @@
     let activeLocation = null;
     let resolvingLocations = new Set();
     let lastRequestAt = 0;
+    let cache = {};
 
     const map = L.map('map').setView([44.4268, 26.1025], 7);
 
@@ -1290,6 +1303,131 @@
       updateMap();
     }
 
+    // Cache storage
+
+    function getCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return {};
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
+    }
+
+    function saveCache(cache) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+    }
+
+    function getCacheEntry(location) {
+      const key = `${location.company}||${location.address}||${location.city}`;
+      return cache[key];
+    }
+
+    function setCacheEntry(location, lat, lng) {
+      const key = `${location.company}||${location.address}||${location.city}`;
+      cache[key] = { lat, lng };
+      saveCache(cache);
+    }
+
+    function clearCache() {
+      localStorage.removeItem(CACHE_KEY);
+      cache = {};
+    }
+
+    // Export cache to .xlsx
+
+    async function exportCache() {
+      const cache = getCache();
+      const rows = Object.entries(cache).map(([key, entry]) => {
+        const parts = key.split('||');
+        return {
+          'Companie: Nume complet': parts[0] || '',
+          'Adresa     1: Adresa': parts[1] || '',
+          'Adresa     1: Orașul': parts[2] || '',
+          Lat: entry.lat,
+          Lng: entry.lng
+        };
+      });
+
+      const workbook = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, ws, 'GPS Cache');
+
+      const blob = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gps-cache-${new Date().toISOString().slice(0,10)}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      setStatus('Cache exported');
+    }
+
+    // Import cache from .xlsx
+
+    async function importCache(file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          const newCache = {};
+          rows.forEach(row => {
+            const key = `${row['Companie: Nume complet'] || ''}||${row['Adresa     1: Adresa'] || ''}||${row['Adresa     1: Orașul'] || ''}`;
+            newCache[key] = {
+              lat: parseCoordinate(row['Lat']),
+              lng: parseCoordinate(row['Lng'])
+            };
+          });
+
+          const existingCache = getCache();
+          Object.assign(existingCache, newCache);
+          saveCache(existingCache);
+          setStatus(`Cache imported: ${Object.keys(newCache).length} entries`);
+        } catch (error) {
+          console.error('Cache import error:', error);
+          alert('Nu s-a putut citi fișierul cache: ' + error.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Cache buttons
+
+    document.getElementById('btnExportCache').addEventListener('click', () => {
+      if (Object.keys(getCache()).length === 0) {
+        alert('Cache-ul este gol. Scanează locații mai întâi.');
+        return;
+      }
+      exportCache();
+    });
+
+    document.getElementById('btnImportCache').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.xlsx,.xls';
+      input.onchange = (e) => {
+        if (e.target.files.length) importCache(e.target.files[0]);
+        input.value = '';
+      };
+      input.click();
+    });
+
+    document.getElementById('btnDeleteCache').addEventListener('click', () => {
+      if (Object.keys(getCache()).length === 0) {
+        alert('Cache-ul este deja gol.');
+        return;
+      }
+      if (!confirm('Sigur vrei să ștergi toate coordonatele GPS din cache? Aceasta nu poate fi anulată.')) return;
+      clearCache();
+      setStatus('Cache șters');
+    });
+
     // File upload
 
     dropZone.addEventListener('click', () => fileInput.click());
@@ -1473,6 +1611,7 @@
           if (allLocations.includes(location)) {
             location.lat = coordinates.lat;
             location.lng = coordinates.lng;
+            setCacheEntry(location, coordinates.lat, coordinates.lng);
             saveToStorage();
             success = true;
             updateMap(true);
@@ -1526,6 +1665,26 @@
         setStatus('Toate locațiile au coordonate GPS');
         render();
         return;
+      }
+
+      // Check cache first for locations without coordinates
+      const cache = getCache();
+      let cachedCount = 0;
+
+      for (let i = 0; i < pending.length; i++) {
+        const entry = getCacheEntry(pending[i]);
+        if (entry && entry.lat && entry.lng) {
+          pending[i].lat = entry.lat;
+          pending[i].lng = entry.lng;
+          cachedCount++;
+        }
+      }
+
+      if (cachedCount > 0) {
+        saveToStorage();
+        render();
+        updateMap(true);
+        setStatus(`Încărcate ${cachedCount} locații din cache`);
       }
 
       geocoding = true;
