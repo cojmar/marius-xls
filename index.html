@@ -200,6 +200,11 @@
       font-size: 11px;
     }
 
+    .btn.icon {
+      padding: 0 11px;
+      font-size: 18px;
+    }
+
     /* Status bar */
 
     .statusbar {
@@ -962,6 +967,10 @@
         padding: 0 7px;
       }
 
+      .topbar-actions .btn.icon {
+        font-size: 15px;
+      }
+
       .workspace {
         padding: 6px;
       }
@@ -1000,6 +1009,7 @@
     <div class="topbar-actions">
       <button class="btn primary" id="btnLoad" data-i18n="btnImport">import</button>
       <button class="btn danger" id="btnClear" data-i18n="btnClearAll">clear</button>
+      <button class="btn icon" id="btnAdd" data-i18n-title="btnAddTitle" title="Add point">➕</button>
 
       <details class="reset-tools" id="toolsMenu">
         <summary data-i18n-title="toolsMenu" title="TOOLS">⚙</summary>
@@ -1145,6 +1155,7 @@
         langSwitchTitle: 'Schimbă limba',
         btnImport: 'import',
         btnClearAll: 'clear',
+        btnAddTitle: 'Adaugă punct pe hartă',
         toolsMenu: 'INSTRUMENTE',
         btnResetGoogle: '↻ RESETARE GOOGLE',
         btnExportGps: '⭳ EXPORT GPS',
@@ -1229,7 +1240,9 @@
         editBadNumbers: 'Coordonatele trebuie să fie numere valide.',
         editBothOrNone: 'Completează ambele coordonate GPS sau lasă-le pe ambele goale.',
         editOutOfRange: 'Latitudinea trebuie să fie între -90 și 90, longitudinea între -180 și 180.',
+        addNeedInfo: 'Completează numele, adresa sau coordonatele GPS pentru a crea locația.',
         editAddressUpdated: 'Adresa a fost actualizată. GPS-ul trebuie rezolvat.',
+        locationAdded: 'Locație nouă adăugată',
         locationUpdated: 'Locație actualizată',
         locationDeleted: 'Locație ștersă',
         filterMissing: '⚠ GPS LIPSĂ ({n})',
@@ -1272,6 +1285,7 @@
         langSwitchTitle: 'Change language',
         btnImport: 'import',
         btnClearAll: 'clear',
+        btnAddTitle: 'Add point on map',
         toolsMenu: 'TOOLS',
         btnResetGoogle: '↻ RESET GOOGLE SESSION',
         btnExportGps: '⭳ EXPORT GPS',
@@ -1356,7 +1370,9 @@
         editBadNumbers: 'Coordinates must be valid numbers.',
         editBothOrNone: 'Enter both GPS coordinates or leave both empty.',
         editOutOfRange: 'Latitude must be between -90 and 90, longitude between -180 and 180.',
+        addNeedInfo: 'Enter a company name, an address or GPS coordinates to create the location.',
         editAddressUpdated: 'Address updated. GPS needs to be resolved.',
+        locationAdded: 'New location added',
         locationUpdated: 'Location updated',
         locationDeleted: 'Location deleted',
         filterMissing: '⚠ GPS MISSING ({n})',
@@ -1488,6 +1504,7 @@
     let stopRequested = false;
     let editingIndex = null;
     let editingOriginal = null;
+    let creatingNew = false;
     let showMissingOnly = false;
 
     let requestQueue = [];
@@ -2360,10 +2377,27 @@
     function closeEditModal() {
       editingIndex = null;
       editingOriginal = null;
+      creatingNew = false;
       editModal.classList.remove('open');
     }
 
     document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+
+    function openNewLocation() {
+      creatingNew = true;
+      editingIndex = null;
+      editingOriginal = { address: '', city: '', lat: null, lng: null };
+      document.getElementById('editCompany').value = '';
+      document.getElementById('editAddress').value = '';
+      document.getElementById('editCity').value = '';
+      document.getElementById('editLat').value = '';
+      document.getElementById('editLng').value = '';
+      document.getElementById('editError').classList.remove('show');
+      editModal.classList.add('open');
+      document.getElementById('editCompany').focus();
+    }
+
+    document.getElementById('btnAdd').addEventListener('click', openNewLocation);
 
     editModal.addEventListener('click', event => {
       if (event.target === editModal) closeEditModal();
@@ -2376,7 +2410,7 @@
     editForm.addEventListener('submit', event => {
       event.preventDefault();
 
-      if (editingIndex === null || !allLocations[editingIndex]) return;
+      if (editingIndex === null && !creatingNew) return;
 
       const latText = document.getElementById('editLat').value.trim();
       const lngText = document.getElementById('editLng').value.trim();
@@ -2400,6 +2434,20 @@
         errorElement.textContent = t('editOutOfRange');
         errorElement.classList.add('show');
         return;
+      }
+
+      if (creatingNew) {
+        const newCompany = document.getElementById('editCompany').value.trim();
+        const newAddress = document.getElementById('editAddress').value.trim();
+
+        if (!newCompany && !newAddress && lat === null) {
+          errorElement.textContent = t('addNeedInfo');
+          errorElement.classList.add('show');
+          return;
+        }
+
+        allLocations.push({ company: '', address: '', city: '', lat: null, lng: null });
+        editingIndex = allLocations.length - 1;
       }
 
       const location = allLocations[editingIndex];
@@ -2434,13 +2482,18 @@
       applyScanCacheToLocations();
 
       const resolvedFromCache = hasCoordinates(location);
+      const wasCreating = creatingNew;
 
       saveToStorage();
       closeEditModal();
       render();
       updateMap(true);
 
-      if (needsGps && !resolvedFromCache) {
+      if (wasCreating) {
+        setStatus('locationAdded');
+
+        if (needsGps && !resolvedFromCache) enqueueGeocode(location, true);
+      } else if (needsGps && !resolvedFromCache) {
         setStatus('editAddressUpdated');
       } else {
         setStatus('locationUpdated');
