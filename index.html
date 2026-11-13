@@ -2073,12 +2073,14 @@
 
       applyScanCacheToLocations();
 
+      const resolvedFromCache = hasCoordinates(location);
+
       saveToStorage();
       closeEditModal();
       render();
       updateMap(true);
 
-      if (needsGps) {
+      if (needsGps && !resolvedFromCache) {
         setStatus('Adresa a fost actualizată. GPS-ul trebuie rezolvat.');
       } else {
         setStatus('Locație actualizată');

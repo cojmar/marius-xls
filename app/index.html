@@ -2245,12 +2245,16 @@
 
       if (!needsGps) rememberScannedLocation(location);
 
+      applyScanCacheToLocations();
+
+      const resolvedFromCache = hasCoordinates(location);
+
       saveToStorage();
       closeEditModal();
       render();
       updateMap(true);
 
-      if (needsGps) {
+      if (needsGps && !resolvedFromCache) {
         setStatus('Address updated. GPS needs to be resolved.');
       } else {
         setStatus('Location updated');
