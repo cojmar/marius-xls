@@ -278,23 +278,6 @@
     .reset-tools .btn {
       min-height: 34px;
       font-size: 12px;
-      width: 100%;
-    }
-
-    .cache-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 6px;
-    }
-
-    .cache-buttons .btn {
-      flex: 1 1 calc(50% - 3px);
-      min-width: 0;
-      width: auto;
-      justify-content: center;
-      font-size: 11px;
-      padding: 0 6px;
     }
 
     .window-controls {
@@ -1125,21 +1108,9 @@
       </div>
 
       <details class="reset-tools">
-        <summary>TOOLS</summary>
+        <summary>TEST TOOLS</summary>
         <div class="reset-content">
           <button class="btn danger" id="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
-
-          <div class="action-separator"></div>
-
-          <button class="btn" id="btnExportCache" title="Export GPS cache to .xlsx">⬇ EXPORT GPS CACHE</button>
-          <button class="btn" id="btnImportCache" title="Import GPS cache from .xlsx">⬆ IMPORT GPS CACHE</button>
-          <button class="btn danger" id="btnDeleteCache" title="Delete cached GPS coordinates">🗑 DELETE GPS CACHE</button>
-
-          <div class="action-separator"></div>
-
-          <button class="btn" id="btnExportScannerCache" title="Export scanner cache to .xlsx">⬇ EXPORT SCANNER CACHE</button>
-          <button class="btn" id="btnImportScannerCache" title="Import scanner cache from .xlsx">⬆ IMPORT SCANNER CACHE</button>
-          <button class="btn danger" id="btnDeleteScannerCache" title="Delete all scanner cache entries">🗑 DELETE SCANNER CACHE</button>
         </div>
       </details>
 
@@ -1286,8 +1257,6 @@
       img.src = CDN_IMAGES + 'marker-icon.png';
     })();
     const STORAGE_KEY = 'marius-xls-locations';
-    const CACHE_KEY = 'marius-xls-gps-cache';
-    const SCANNER_CACHE_KEY = 'marius-xls-scanner-cache';
     const VISIBILITY_KEY = 'marius-xls-google-window-visible';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
 
@@ -1319,7 +1288,6 @@
     let requestRunning = false;
     let activeLocation = null;
     let resolvingLocations = new Set();
-    let cache = {};
 
     const map = L.map('map').setView([44.4268, 26.1025], 7);
 
@@ -1532,261 +1500,6 @@
       updateMap();
     }
 
-    // Cache storage
-
-    function getCache() {
-      try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (!raw) return {};
-        return JSON.parse(raw);
-      } catch {
-        return {};
-      }
-    }
-
-    function saveCache(cache) {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-    }
-
-    function getCacheEntry(location) {
-      const key = `${location.company}||${location.address}||${location.city}`;
-      return cache[key];
-    }
-
-    function setCacheEntry(location, lat, lng) {
-      const key = `${location.company}||${location.address}||${location.city}`;
-      cache[key] = { lat, lng };
-      saveCache(cache);
-    }
-
-    function clearCache() {
-      localStorage.removeItem(CACHE_KEY);
-      cache = {};
-    }
-
-    // Scanner cache: stores all scanned locations (company, address, city, lat, lng).
-    // Used to skip re-scanning locations that were already scanned in previous sessions.
-
-    function getScannerCache() {
-      try {
-        const raw = localStorage.getItem(SCANNER_CACHE_KEY);
-        if (!raw) return {};
-        return JSON.parse(raw);
-      } catch {
-        return {};
-      }
-    }
-
-    function saveScannerCache(scannerCache) {
-      localStorage.setItem(SCANNER_CACHE_KEY, JSON.stringify(scannerCache));
-    }
-
-    function getScannerCacheEntry(location) {
-      const key = `${location.company}||${location.address}||${location.city}`;
-      return scannerCache[key];
-    }
-
-    function setScannerCacheEntry(location, lat, lng) {
-      const key = `${location.company}||${location.address}||${location.city}`;
-      scannerCache[key] = {
-        company: location.company,
-        address: location.address,
-        city: location.city,
-        lat,
-        lng
-      };
-      saveScannerCache(scannerCache);
-    }
-
-    function clearScannerCache() {
-      localStorage.removeItem(SCANNER_CACHE_KEY);
-      scannerCache = {};
-    }
-
-    let scannerCache = {};
-
-    // Export cache to .xlsx
-
-    async function exportCache() {
-      const cache = getCache();
-      const rows = Object.entries(cache).map(([key, entry]) => {
-        const parts = key.split('||');
-        return {
-          'Companie: Nume complet': parts[0] || '',
-          'Adresa     1: Adresa': parts[1] || '',
-          'Adresa     1: Orașul': parts[2] || '',
-          Lat: entry.lat,
-          Lng: entry.lng
-        };
-      });
-
-      const workbook = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(rows);
-      XLSX.utils.book_append_sheet(workbook, ws, 'GPS Cache');
-
-      const blob = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `gps-cache-${new Date().toISOString().slice(0,10)}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      setStatus('Cache exported');
-    }
-
-    // Import cache from .xlsx
-
-    async function importCache(file) {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-          const newCache = {};
-          rows.forEach(row => {
-            const key = `${row['Companie: Nume complet'] || ''}||${row['Adresa     1: Adresa'] || ''}||${row['Adresa     1: Orașul'] || ''}`;
-            newCache[key] = {
-              lat: parseCoordinate(row['Lat']),
-              lng: parseCoordinate(row['Lng'])
-            };
-          });
-
-          const cache = getCache();
-          Object.assign(cache, newCache);
-          saveCache(cache);
-          setStatus(`Cache imported: ${Object.keys(newCache).length} entries`);
-        } catch (error) {
-          console.error('Cache import error:', error);
-          alert('Could not read cache file: ' + error.message);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    // Cache buttons
-
-    document.getElementById('btnExportCache').addEventListener('click', () => {
-      if (Object.keys(getCache()).length === 0) {
-        alert('Cache is empty. Scan locations first.');
-        return;
-      }
-      exportCache();
-    });
-
-    document.getElementById('btnImportCache').addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.xlsx,.xls';
-      input.onchange = (e) => {
-        if (e.target.files.length) importCache(e.target.files[0]);
-        input.value = '';
-      };
-      input.click();
-    });
-
-    document.getElementById('btnDeleteCache').addEventListener('click', () => {
-      if (Object.keys(getCache()).length === 0) {
-        alert('Cache is already empty.');
-        return;
-      }
-      if (!confirm('Delete all cached GPS coordinates? This cannot be undone.')) return;
-      clearCache();
-      setStatus('Cache deleted');
-    });
-
-    // Scanner cache buttons
-
-    async function exportScannerCache() {
-      const scannerCache = getScannerCache();
-      const rows = Object.entries(scannerCache).map(([key, entry]) => ({
-        'Companie: Nume complet': entry.company || '',
-        'Adresa     1: Adresa': entry.address || '',
-        'Adresa     1: Orașul': entry.city || '',
-        Lat: entry.lat,
-        Lng: entry.lng
-      }));
-
-      const workbook = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(rows);
-      XLSX.utils.book_append_sheet(workbook, ws, 'Scanner Cache');
-
-      const blob = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `scanner-cache-${new Date().toISOString().slice(0,10)}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      setStatus('Scanner cache exported');
-    }
-
-    async function importScannerCache(file) {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-          const newCache = {};
-          rows.forEach(row => {
-            const key = `${row['Companie: Nume complet'] || ''}||${row['Adresa     1: Adresa'] || ''}||${row['Adresa     1: Orașul'] || ''}`;
-            newCache[key] = {
-              company: row['Companie: Nume complet'] || '',
-              address: row['Adresa     1: Adresa'] || '',
-              city: row['Adresa     1: Orașul'] || '',
-              lat: parseCoordinate(row['Lat']),
-              lng: parseCoordinate(row['Lng'])
-            };
-          });
-
-          const existingCache = getScannerCache();
-          Object.assign(existingCache, newCache);
-          saveScannerCache(existingCache);
-          setStatus(`Scanner cache imported: ${Object.keys(newCache).length} entries`);
-        } catch (error) {
-          console.error('Scanner cache import error:', error);
-          alert('Could not read scanner cache file: ' + error.message);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    document.getElementById('btnExportScannerCache').addEventListener('click', () => {
-      if (Object.keys(getScannerCache()).length === 0) {
-        alert('Scanner cache is empty. Scan locations first.');
-        return;
-      }
-      exportScannerCache();
-    });
-
-    document.getElementById('btnImportScannerCache').addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.xlsx,.xls';
-      input.onchange = (e) => {
-        if (e.target.files.length) importScannerCache(e.target.files[0]);
-        input.value = '';
-      };
-      input.click();
-    });
-
-    document.getElementById('btnDeleteScannerCache').addEventListener('click', () => {
-      if (Object.keys(getScannerCache()).length === 0) {
-        alert('Scanner cache is already empty.');
-        return;
-      }
-      if (!confirm('Delete all scanner cache entries? This cannot be undone.')) return;
-      clearScannerCache();
-      setStatus('Scanner cache deleted');
-    });
-
     // Google window visibility
 
     async function applyVisibilitySetting(visible) {
@@ -1971,8 +1684,6 @@
           if (allLocations.includes(location)) {
             location.lat = coordinates.lat;
             location.lng = coordinates.lng;
-            setCacheEntry(location, coordinates.lat, coordinates.lng);
-            setScannerCacheEntry(location, coordinates.lat, coordinates.lng);
             saveToStorage();
             success = true;
             updateMap(true);
@@ -2031,41 +1742,6 @@
         setStatus('All locations have GPS coordinates');
         render();
         return;
-      }
-
-      // Check cache first for locations without coordinates
-      const cache = getCache();
-      let cachedCount = 0;
-
-      for (let i = 0; i < pending.length; i++) {
-        const entry = getCacheEntry(pending[i]);
-        if (entry && entry.lat && entry.lng) {
-          pending[i].lat = entry.lat;
-          pending[i].lng = entry.lng;
-          cachedCount++;
-        }
-      }
-
-      if (cachedCount > 0) {
-        saveToStorage();
-        render();
-        updateMap(true);
-        setStatus(`Loaded ${cachedCount} locations from cache`);
-      }
-
-      // Check scanner cache: skip locations already scanned
-      const scannerCache = getScannerCache();
-      let skippedCount = 0;
-      for (let i = pending.length - 1; i >= 0; i--) {
-        const entry = getScannerCacheEntry(pending[i]);
-        if (entry) {
-          pending.splice(i, 1);
-          skippedCount++;
-        }
-      }
-
-      if (skippedCount > 0) {
-        setStatus(`Skipped ${skippedCount} locations already in scanner cache`);
       }
 
       geocoding = true;
@@ -2291,18 +1967,6 @@
       const needsGps = !hasCoordinates(location);
 
       saveToStorage();
-
-      // Update scanner cache with edited location data
-      if (lat !== null && lng !== null) {
-        setScannerCacheEntry(location, lat, lng);
-      } else {
-        // Remove old entry from scanner cache if coordinates were cleared
-        const key = `${location.company}||${location.address}||${location.city}`;
-        const scannerCache = getScannerCache();
-        delete scannerCache[key];
-        saveScannerCache(scannerCache);
-      }
-
       closeEditModal();
       render();
       updateMap(true);
