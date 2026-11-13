@@ -2026,6 +2026,30 @@
       return filled;
     }
 
+    const REMOTE_CACHE_URL = 'https://raw.githubusercontent.com/cojmar/marius-xls/refs/heads/main/app/marius-gps-cache.json';
+
+    async function syncRemoteCache() {
+      try {
+        const response = await fetch(REMOTE_CACHE_URL);
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const incoming = Array.isArray(data) ? data : Array.isArray(data.entries) ? data.entries : [];
+        if (!incoming.length) return;
+
+        const { added, updated } = mergeScanCache(incoming);
+        const filled = applyScanCacheToLocations();
+
+        updateCacheCount();
+
+        if (added || updated || filled) {
+          setStatus('cacheImported', { added, updated, filled });
+        }
+      } catch (error) {
+        console.warn('Remote GPS cache sync failed:', error);
+      }
+    }
+
     function updateCacheCount() {
       const countElement = document.getElementById('cacheCount');
       if (countElement) {
@@ -2984,6 +3008,7 @@
       await applyVisibilitySetting(visible);
 
       loadFromStorage();
+      await syncRemoteCache();
       updateFilterButton();
       updateScanButton();
       updateProcessingUI();
