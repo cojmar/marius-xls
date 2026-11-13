@@ -1,0 +1,1279 @@
+{
+  "type": "marius-xls-scanner-cache",
+  "app": "app",
+  "exportedAt": "2026-11-13T11:49:52.766Z",
+  "entries": [
+    {
+      "key": "str. 1 decembrie nr.1, tunari, romania",
+      "address": "Str. 1 Decembrie nr.1",
+      "city": "Tunari",
+      "lat": 44.550364,
+      "lng": 26.12146,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "str. gheorghe titeica nr.212-214, parter, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Gheorghe Titeica nr.212-214, Parter, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.472381,
+      "lng": 26.105821,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "strada aurel vlaicu, nr. 30-32, bucuresti, romania",
+      "address": "strada Aurel Vlaicu, nr. 30-32",
+      "city": "Bucuresti",
+      "lat": 44.445887,
+      "lng": 26.106833,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "strada europa, nr 9 bis, cosmopolis, stefanesti, romania",
+      "address": "strada Europa, nr 9 bis, COSMOPOLIS",
+      "city": "Stefanesti",
+      "lat": 44.536982,
+      "lng": 26.167009,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "strada dragos voda, nr. 25, bucuresti, romania",
+      "address": "strada Dragos Voda, nr. 25",
+      "city": "Bucuresti",
+      "lat": 44.446777,
+      "lng": 26.117896,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "str. fantanica nr. 36, sector 2, bucuresti, romania",
+      "address": "Str. Fantanica nr. 36, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.446162,
+      "lng": 26.148506,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "strada lipscani, nr. 19, bucuresti, sector 3, bucuresti, romania",
+      "address": "strada Lipscani, nr. 19, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.432879,
+      "lng": 26.09788,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "b-dul pipera, nr. 1 d-6, voluntari, romania",
+      "address": "B-dul Pipera, nr. 1 D-6",
+      "city": "Voluntari",
+      "lat": 44.494688,
+      "lng": 26.123869,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "str. agricultori nr. 8d, pasarea, romania",
+      "address": "Str. Agricultori nr. 8D",
+      "city": "Pasarea",
+      "lat": 44.475413,
+      "lng": 26.322105,
+      "savedAt": 1794560523648
+    },
+    {
+      "key": "strada magnetului, nr. 1, bucuresti, romania",
+      "address": "strada Magnetului, nr. 1",
+      "city": "Bucuresti",
+      "lat": 44.433041,
+      "lng": 26.194033,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "b-dul pipera, nr. 1b, voluntari, romania",
+      "address": "b-dul Pipera, nr. 1B",
+      "city": "Voluntari",
+      "lat": 44.493192,
+      "lng": 26.125874,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "b-dul corneliu coposu, nr. 3-5, bucuresti, romania",
+      "address": "b-dul Corneliu Coposu, nr. 3-5",
+      "city": "Bucuresti",
+      "lat": 44.430097,
+      "lng": 26.106042,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. alexandru moruzzi voievod nr.4a, sector 3, bucuresti, bucuresti, romania",
+      "address": "Str. Alexandru Moruzzi Voievod nr.4A, Sector 3, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.421058,
+      "lng": 26.117994,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. constantin mille nr.4, bucuresti, bucuresti, romania",
+      "address": "Str. Constantin Mille nr.4, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.435602,
+      "lng": 26.097017,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "b-dul voluntari nr. 90-94, parter si demisol, supraf.182 mp, voluntari, jud. ilfov, voluntari, romania",
+      "address": "B-dul Voluntari nr. 90-94, Parter si Demisol, Supraf.182 mp, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.492937,
+      "lng": 26.19275,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. eugen jebeleanu nr.1, voluntari, jud. ilfov, voluntari, romania",
+      "address": "Str. Eugen Jebeleanu nr.1, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.501258,
+      "lng": 26.127958,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "strada catanoaia, nr. 33, bucuresti, romania",
+      "address": "strada Catanoaia, nr. 33",
+      "city": "Bucuresti",
+      "lat": 44.421118,
+      "lng": 26.211875,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. 1 decembrie nr.7a, tunari, jud. ilfov, tunari, romania",
+      "address": "Str. 1 Decembrie nr.7A, Tunari, Jud. Ilfov",
+      "city": "Tunari",
+      "lat": 44.549662,
+      "lng": 26.139701,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. mihai eminescu, nr. 24 d, tunari, jud. ilfov., tunari, romania",
+      "address": "Str. Mihai Eminescu, nr. 24 D, Tunari, Jud. Ilfov.",
+      "city": "Tunari",
+      "lat": 44.557428,
+      "lng": 26.147445,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. mihai eminescu nr.24, bl.1p, tunari, jud. ilfov, tunari, romania",
+      "address": "Str. Mihai Eminescu nr.24, Bl.1P, Tunari, Jud. Ilfov",
+      "city": "Tunari",
+      "lat": 44.556827,
+      "lng": 26.14365,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "b-dul unirii nr. 14, bucuresti, bucuresti, romania",
+      "address": "B-dul Unirii nr. 14, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.426541,
+      "lng": 26.097376,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. tunari-balotesti nr.51, sat dimieni, com. tunari, jud. ilfov, tunari, romania",
+      "address": "Str. Tunari-Balotesti nr.51, Sat Dimieni, Com. Tunari, Jud. Ilfov",
+      "city": "Tunari",
+      "lat": 44.591222,
+      "lng": 26.136565,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "sos. bucuresti nord nr.10, cladirea o2, parter, oras voluntari, jud. ilfov, voluntari, romania",
+      "address": "Sos. Bucuresti Nord nr.10, Cladirea O2, Parter, Oras Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.489602,
+      "lng": 26.127016,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. erou iancu nicolae nr.126c, voluntari, romania",
+      "address": "Str. Erou Iancu Nicolae nr.126C",
+      "city": "Voluntari",
+      "lat": 44.516007,
+      "lng": 26.116052,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "strada banul costache, nr. 2, bucuresti, romania",
+      "address": "strada Banul Costache, nr. 2",
+      "city": "Bucuresti",
+      "lat": 44.460689,
+      "lng": 26.116308,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "strada fantanica, nr 36, bucuresti, romania",
+      "address": "strada Fantanica, nr 36",
+      "city": "Bucuresti",
+      "lat": 44.446162,
+      "lng": 26.148506,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. san marco nr. 1-5, spatiul 5, tunari, jud. ilfov, tunari, romania",
+      "address": "Str. San Marco nr. 1-5, spatiul 5, Tunari, Jud. Ilfov",
+      "city": "Tunari",
+      "lat": 44.454907,
+      "lng": 26.160242,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "str. dragos voda nr. 2a, voluntari, jud. ilfov, voluntari, romania",
+      "address": "Str. Dragos Voda nr. 2A, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.511187,
+      "lng": 26.110598,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "calea bucuresti, nr. 6, dascalu, romania",
+      "address": "calea Bucuresti, nr. 6",
+      "city": "Dascalu",
+      "lat": 44.571335,
+      "lng": 26.152221,
+      "savedAt": 1794560523649
+    },
+    {
+      "key": "b-dul. pipera, 196, parter, voluntari, jud. ilfov, voluntari, romania",
+      "address": "B-dul. PIPERA, 196, PARTER, VOLUNTARI, JUD. ILFOV",
+      "city": "Voluntari",
+      "lat": 44.527637,
+      "lng": 26.145959,
+      "savedAt": 1794560523650
+    },
+    {
+      "key": "str. iancu de hunedoara nr. 30a, voluntari, jud. ilfov, voluntari, romania",
+      "address": "Str. Iancu de Hunedoara nr. 30A, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.518123,
+      "lng": 26.133403,
+      "savedAt": 1794560523650
+    },
+    {
+      "key": "str. sinaia, nr.9, stefanesti, romania",
+      "address": "Str. Sinaia, nr.9",
+      "city": "Stefanesti",
+      "lat": 44.525716,
+      "lng": 26.193848,
+      "savedAt": 1794560523650
+    },
+    {
+      "key": "b-dul. dacia nr.137, bucuresti, romania",
+      "address": "B-dul. Dacia Nr.137",
+      "city": "Bucuresti",
+      "lat": 44.444902,
+      "lng": 26.115304,
+      "savedAt": 1794560599492
+    },
+    {
+      "key": "sos. fundeni, nr. 159, sector 2, bucuresti, bucuresti, romania",
+      "address": "Sos. Fundeni, nr. 159, sector 2, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.44784,
+      "lng": 26.16534,
+      "savedAt": 1794568567183
+    },
+    {
+      "key": "sos. pipera nr. 46 f, bucuresti, sector 2, bucuresti, romania",
+      "address": "Sos. Pipera nr. 46 F, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.482781,
+      "lng": 26.10836,
+      "savedAt": 1794568575110
+    },
+    {
+      "key": "str. fantanica nr. 36, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Fantanica nr. 36, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.446162,
+      "lng": 26.148506,
+      "savedAt": 1794568583302
+    },
+    {
+      "key": "str. vasile lascar nr. 134, bucuresti, bucuresti, romania",
+      "address": "Str. Vasile Lascar nr. 134, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.446643,
+      "lng": 26.111419,
+      "savedAt": 1794568591659
+    },
+    {
+      "key": "sos. pipera nr. 46f, bucuresti, sector 2, bucuresti, romania",
+      "address": "Sos. Pipera nr. 46F, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.482781,
+      "lng": 26.10836,
+      "savedAt": 1794568599562
+    },
+    {
+      "key": "str. mihai eminescu nr. 190, bucuresti, bucuresti, romania",
+      "address": "Str. Mihai Eminescu nr. 190, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.446621,
+      "lng": 26.113904,
+      "savedAt": 1794568608015
+    },
+    {
+      "key": "strada ion maiorescu, nr. 2b, bucuresti, romania",
+      "address": "strada Ion Maiorescu, nr. 2B",
+      "city": "Bucuresti",
+      "lat": 44.444644,
+      "lng": 26.121638,
+      "savedAt": 1794568616766
+    },
+    {
+      "key": "str. bratului, nr. 7, bucuresti, romania",
+      "address": "str. Bratului, nr. 7",
+      "city": "Bucuresti",
+      "lat": 44.450909,
+      "lng": 26.109866,
+      "savedAt": 1794568625516
+    },
+    {
+      "key": "b-dul basarabia nr. 256, bucuresti, sector 3, bucuresti, romania",
+      "address": "B-dul Basarabia nr. 256, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.431934,
+      "lng": 26.19088,
+      "savedAt": 1794568634327
+    },
+    {
+      "key": "str. dristorului nr. 91-95, bloc a, parter, sector 3, bucuresti, bucuresti, romania",
+      "address": "Str. Dristorului nr. 91-95, Bloc A, Parter, Sector 3, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.423331,
+      "lng": 26.139482,
+      "savedAt": 1794568643308
+    },
+    {
+      "key": "str. penes curcanul nr. 14, sector 3, bucuresti, romania",
+      "address": "Str. Penes Curcanul nr. 14, sector 3",
+      "city": "Bucuresti",
+      "lat": 44.413225,
+      "lng": 26.126012,
+      "savedAt": 1794568652275
+    },
+    {
+      "key": "str. energeticienilor nr. 3, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Energeticienilor nr. 3, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.409219,
+      "lng": 26.14196,
+      "savedAt": 1794568661463
+    },
+    {
+      "key": "str. nicolae grigorescu nr.1, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Nicolae Grigorescu nr.1, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.434855,
+      "lng": 26.159834,
+      "savedAt": 1794568670791
+    },
+    {
+      "key": "b-dul basarabia, nr. 250, bucuresti, romania",
+      "address": "B-dul Basarabia, nr. 250",
+      "city": "Bucuresti",
+      "lat": 44.435826,
+      "lng": 26.174007,
+      "savedAt": 1794568680279
+    },
+    {
+      "key": "aleea barajul dunarii nr. 10a, sector 3, bucuresti, romania",
+      "address": "Aleea Barajul Dunarii nr. 10A, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.427703,
+      "lng": 26.170699,
+      "savedAt": 1794568689878
+    },
+    {
+      "key": "strada pictor stefan luchian, nr. 20, bucuresti, romania",
+      "address": "strada pictor Stefan Luchian, nr. 20",
+      "city": "Bucuresti",
+      "lat": 44.435927,
+      "lng": 26.113186,
+      "savedAt": 1794568699548
+    },
+    {
+      "key": "aleea lunca bradului, nr. 1a, bucuresti, romania",
+      "address": "Aleea Lunca Bradului, nr. 1A",
+      "city": "Bucuresti",
+      "lat": 44.423533,
+      "lng": 26.161899,
+      "savedAt": 1794568709559
+    },
+    {
+      "key": "b-dul nicolae grigorescu, nr. 3-5, bucuresti, romania",
+      "address": "b-dul Nicolae Grigorescu, nr. 3-5",
+      "city": "Bucuresti",
+      "lat": 44.433089,
+      "lng": 26.1601,
+      "savedAt": 1794568719696
+    },
+    {
+      "key": "str. trapezului, nr. 3a, sector 3, bucuresti, romania",
+      "address": "Str. Trapezului, nr. 3A, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.410263,
+      "lng": 26.172789,
+      "savedAt": 1794568731884
+    },
+    {
+      "key": "aleea barajul dunarii nr. 12 a, sector 3, bucuresti, bucuresti, romania",
+      "address": "Aleea Barajul Dunarii nr. 12 A, Sector 3, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.428862,
+      "lng": 26.167667,
+      "savedAt": 1794568742226
+    },
+    {
+      "key": "str. drumul gura putnei, nr. 52-54, sector 3, bucuresti., bucuresti, romania",
+      "address": "Str. Drumul Gura Putnei, nr. 52-54, sector 3, Bucuresti.",
+      "city": "Bucuresti",
+      "lat": 44.4155,
+      "lng": 26.193356,
+      "savedAt": 1794568752629
+    },
+    {
+      "key": "bd. basarabia nr. 64, bucuresti, romania",
+      "address": "Bd. Basarabia nr. 64",
+      "city": "Bucuresti",
+      "lat": 44.432661,
+      "lng": 26.146289,
+      "savedAt": 1794568763367
+    },
+    {
+      "key": "b-dul decebal nr. 19, bucuresti, romania",
+      "address": "B-dul Decebal nr. 19",
+      "city": "Bucuresti",
+      "lat": 44.431108,
+      "lng": 26.136219,
+      "savedAt": 1794568774150
+    },
+    {
+      "key": "str. silvia nr. 11, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Silvia nr. 11, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.458172,
+      "lng": 26.132027,
+      "savedAt": 1794568785152
+    },
+    {
+      "key": "str. alexandru moruzzi voievod nr. 78, et.1, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Alexandru Moruzzi Voievod nr. 78, Et.1, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.421222,
+      "lng": 26.121735,
+      "savedAt": 1794568796301
+    },
+    {
+      "key": "intr. manolitului, nr. 23-31, bucuresti, sect. 3., bucuresti, romania",
+      "address": "Intr. Manolitului, nr. 23-31, Bucuresti, sect. 3.",
+      "city": "București",
+      "lat": 44.451075,
+      "lng": 26.161275,
+      "savedAt": 1794568807629
+    },
+    {
+      "key": "splaiul unirii, nr. 165, sect. 3, bucuresti., bucuresti, romania",
+      "address": "Splaiul Unirii, nr. 165, sect. 3, Bucuresti.",
+      "city": "Bucuresti",
+      "lat": 44.416788,
+      "lng": 26.114573,
+      "savedAt": 1794568817767
+    },
+    {
+      "key": "str. hornului nr.1 bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Hornului nr.1 Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.422681,
+      "lng": 26.124564,
+      "savedAt": 1794568829367
+    },
+    {
+      "key": "calea dudesti nr. 198a, parter, bucuresti, sector 3, bucuresti, romania",
+      "address": "Calea Dudesti nr. 198A, Parter, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.420544,
+      "lng": 26.134556,
+      "savedAt": 1794568841164
+    },
+    {
+      "key": "intr. sabitei nr. 34, et. 2, ap. 4, bucuresti, sector 3, bucuresti, romania",
+      "address": "Intr. Sabitei nr. 34, Et. 2, Ap. 4, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.429354,
+      "lng": 26.15019,
+      "savedAt": 1794568853208
+    },
+    {
+      "key": "strada nerva traian, nr. 27-33, bucuresti, romania",
+      "address": "strada Nerva Traian, nr. 27-33",
+      "city": "Bucuresti",
+      "lat": 44.420052,
+      "lng": 26.115864,
+      "savedAt": 1794568865301
+    },
+    {
+      "key": "b-dul energeticienilor, nr. 126, bucuresti, romania",
+      "address": "b-dul Energeticienilor, nr. 126",
+      "city": "Bucuresti",
+      "lat": 44.406214,
+      "lng": 26.147529,
+      "savedAt": 1794568877606
+    },
+    {
+      "key": "strada ion tuculescu, nr 37a, bucuresti, romania",
+      "address": "strada Ion Tuculescu, nr 37A",
+      "city": "Bucuresti",
+      "lat": 44.429231,
+      "lng": 26.142974,
+      "savedAt": 1794568889938
+    },
+    {
+      "key": "soseaua stefan cel mare, nr. 15a, bucuresti, romania",
+      "address": "soseaua Stefan cel Mare, nr. 15A",
+      "city": "Bucuresti",
+      "lat": 44.453351,
+      "lng": 26.109035,
+      "savedAt": 1794568902463
+    },
+    {
+      "key": "strada mantuleasa, nr, 22, bucuresti, romania",
+      "address": "strada Mantuleasa, nr, 22",
+      "city": "Bucuresti",
+      "lat": 44.435948,
+      "lng": 26.113584,
+      "savedAt": 1794568915214
+    },
+    {
+      "key": "strada morilor, nr. 43, bucuresti, romania",
+      "address": "strada Morilor, nr. 43",
+      "city": "Bucuresti",
+      "lat": 44.416868,
+      "lng": 26.118388,
+      "savedAt": 1794568927972
+    },
+    {
+      "key": "str. racari nr.5, corp 51b, parter, camera 1, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Racari nr.5, Corp 51B, Parter, Camera 1, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.415864,
+      "lng": 26.1333,
+      "savedAt": 1794568941181
+    },
+    {
+      "key": "bd-ul chisinau, nr. 1, sector 2, bucuresti., bucuresti, romania",
+      "address": "Bd-ul Chisinau, nr. 1, Sector 2, Bucuresti.",
+      "city": "Bucuresti",
+      "lat": 44.440941,
+      "lng": 26.158015,
+      "savedAt": 1794568954563
+    },
+    {
+      "key": "b-dul ferdinand i nr. 118, sector 2, bucuresti, bucuresti, romania",
+      "address": "B-dul Ferdinand I nr. 118, Sector 2, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.444048,
+      "lng": 26.130638,
+      "savedAt": 1794568967866
+    },
+    {
+      "key": "str. victor brauner nr. 29, sector 3, bucuresti, bucuresti, romania",
+      "address": "Str. Victor Brauner nr. 29, Sector 3, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.411765,
+      "lng": 26.197061,
+      "savedAt": 1794568981511
+    },
+    {
+      "key": "str. victor brauner nr. 42b, parter, sector 3, bucuresti, romania",
+      "address": "Str. Victor Brauner nr. 42B, parter, sector 3",
+      "city": "Bucuresti",
+      "lat": 44.411338,
+      "lng": 26.202176,
+      "savedAt": 1794568995264
+    },
+    {
+      "key": "b-dul pierre de coubertin nr.3-5, bucuresti, romania",
+      "address": "B-dul Pierre de Coubertin nr.3-5",
+      "city": "Bucuresti",
+      "lat": 44.443045,
+      "lng": 26.150219,
+      "savedAt": 1794569009108
+    },
+    {
+      "key": "sos. mihai bravu nr. 213, bucuresti, sector 2, bucuresti, romania",
+      "address": "Sos. Mihai Bravu nr. 213, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.433307,
+      "lng": 26.138514,
+      "savedAt": 1794569023122
+    },
+    {
+      "key": "str. postavarului nr. 92, sector 3, bucuresti, bucuresti, romania",
+      "address": "Str. Postavarului nr. 92, Sector 3, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.41714,
+      "lng": 26.173128,
+      "savedAt": 1794569037518
+    },
+    {
+      "key": "b-dul basarabia, nr. 94, bucuresti, romania",
+      "address": "b-dul Basarabia, nr. 94",
+      "city": "Bucuresti",
+      "lat": 44.433101,
+      "lng": 26.151916,
+      "savedAt": 1794569051918
+    },
+    {
+      "key": "soseaua andronache, nr. 11, bucuresti, romania",
+      "address": "soseaua Andronache, nr. 11",
+      "city": "Bucuresti",
+      "lat": 44.470147,
+      "lng": 26.14454,
+      "savedAt": 1794569066418
+    },
+    {
+      "key": "strada ziduri intre vii, nr. 19, bucuresti, romania",
+      "address": "strada Ziduri intre Vii, nr. 19",
+      "city": "Bucuresti",
+      "lat": 44.45189,
+      "lng": 26.144994,
+      "savedAt": 1794569081083
+    },
+    {
+      "key": "strada popa nan, nr 16, bucuresti, romania",
+      "address": "strada Popa Nan, nr 16",
+      "city": "Bucuresti",
+      "lat": 44.43815,
+      "lng": 26.123254,
+      "savedAt": 1794569096076
+    },
+    {
+      "key": "b-dul camil ressu nr.4, bl.5, parter, bucuresti, sector 3, bucuresti, romania",
+      "address": "B-dul Camil Ressu nr.4, Bl.5, Parter, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.419309,
+      "lng": 26.139246,
+      "savedAt": 1794569110951
+    },
+    {
+      "key": "str. b.vacarescu nr. 154-158, sector 2, bucuresti, bucuresti, romania",
+      "address": "Str. B.Vacarescu nr. 154-158, Sector 2, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.464566,
+      "lng": 26.109844,
+      "savedAt": 1794569126098
+    },
+    {
+      "key": "str. teiul doamnei nr. 14, bucuresti, bucuresti, romania",
+      "address": "Str. Teiul Doamnei nr. 14, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.460416,
+      "lng": 26.127072,
+      "savedAt": 1794569141566
+    },
+    {
+      "key": "piata rosetti, nr. 3, sector 2, bucuresti, romania",
+      "address": "Piața Rosetti, nr. 3, sector 2",
+      "city": "Bucuresti",
+      "lat": 44.43687,
+      "lng": 26.106526,
+      "savedAt": 1794569157081
+    },
+    {
+      "key": "b-dul vrancei nr. 74, voluntari, jud. ilfov, voluntari, romania",
+      "address": "B-dul Vrancei nr. 74, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.495199,
+      "lng": 26.186,
+      "savedAt": 1794569173069
+    },
+    {
+      "key": "calea vitan nr.199, bl.52, bucuresti, sector 3, bucuresti, romania",
+      "address": "Calea Vitan nr.199, Bl.52, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.414927,
+      "lng": 26.133245,
+      "savedAt": 1794569189370
+    },
+    {
+      "key": "sos. colentina nr. 429a, bucuresti, sector 2, bucuresti, romania",
+      "address": "Sos. Colentina nr. 429A, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.475761,
+      "lng": 26.158174,
+      "savedAt": 1794569205485
+    },
+    {
+      "key": "sos. fabrica de glucoza nr. 9b, sector 2, bucuresti, romania",
+      "address": "Sos. Fabrica de Glucoza nr. 9B, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.478988,
+      "lng": 26.116014,
+      "savedAt": 1794569218777
+    },
+    {
+      "key": "str. scolii, nr. 5, voluntari, jud. ilfov, voluntari, romania",
+      "address": "Str. Scolii, nr. 5, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.494171,
+      "lng": 26.19632,
+      "savedAt": 1794569235003
+    },
+    {
+      "key": "str. ropotului, nr. 25, bucuresti, romania",
+      "address": "Str. Ropotului, nr. 25",
+      "city": "Bucuresti",
+      "lat": 44.475727,
+      "lng": 26.149173,
+      "savedAt": 1794569251560
+    },
+    {
+      "key": "aleea campul mosilor nr. 5, halele centrale obor, spatiul comercial nr. 29, bucuresti, sector 2, bucuresti, romania",
+      "address": "Aleea Campul Mosilor nr. 5, Halele Centrale Obor, Spatiul Comercial nr. 29, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.450021,
+      "lng": 26.128259,
+      "savedAt": 1794569268140
+    },
+    {
+      "key": "str. heliade intre vii nr. 47, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Heliade Intre VII nr. 47, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.457228,
+      "lng": 26.144249,
+      "savedAt": 1794569285153
+    },
+    {
+      "key": "strada zorilor, nr 27a, stefanestii de sus, romania",
+      "address": "Strada Zorilor, nr 27A",
+      "city": "Stefanestii de sus",
+      "lat": 44.53686,
+      "lng": 26.196254,
+      "savedAt": 1794569323544
+    },
+    {
+      "key": "bd.-ul dimitrie pompei nr. 9-9a, bucuresti, bucuresti, romania",
+      "address": "Bd.-ul Dimitrie Pompei nr. 9-9A, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.483215,
+      "lng": 26.119605,
+      "savedAt": 1794569562843
+    },
+    {
+      "key": "str. ing. george constantinescu nr 4b si str.george constantinescu nr 2-4, cladirea b ( cladirea de birouri ), parter, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Ing. George Constantinescu nr 4B si Str.George Constantinescu nr 2-4 , Cladirea B ( Cladirea de birouri ) , Parter,Bucuresti,sector 2",
+      "city": "Bucuresti",
+      "lat": 44.451075,
+      "lng": 26.161275,
+      "savedAt": 1794569570836
+    },
+    {
+      "key": "str. gara herastrau nr. 4c, sector 2, bucuresti, bucuresti, romania",
+      "address": "Str. Gara Herastrau nr. 4C, sector 2, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.479676,
+      "lng": 26.105293,
+      "savedAt": 1794569578798
+    },
+    {
+      "key": "str. lipscani nr. 78, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Lipscani nr. 78, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.431903,
+      "lng": 26.102076,
+      "savedAt": 1794569587100
+    },
+    {
+      "key": "sos. colentina, nr. 267, sector 2, bucuresti., bucuresti, romania",
+      "address": "Sos. Colentina, nr. 267, sector 2, Bucuresti.",
+      "city": "Bucuresti",
+      "lat": 44.470044,
+      "lng": 26.145438,
+      "savedAt": 1794569595573
+    },
+    {
+      "key": "b-dul unirii nr. 47c, bucuresti, sector 3, bucuresti, romania",
+      "address": "B-dul Unirii nr. 47C, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.427002,
+      "lng": 26.115788,
+      "savedAt": 1794569603514
+    },
+    {
+      "key": "str. tudor arghezi nr. 4, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Tudor Arghezi nr. 4, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.437224,
+      "lng": 26.105542,
+      "savedAt": 1794569612092
+    },
+    {
+      "key": "str. smardan nr.30, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Smardan nr.30, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.430489,
+      "lng": 26.10005,
+      "savedAt": 1794569620800
+    },
+    {
+      "key": "str. lipscani nr. 41, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Lipscani nr. 41, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.432195,
+      "lng": 26.100716,
+      "savedAt": 1794569629688
+    },
+    {
+      "key": "bdul. basarabia, nr. 18, bucuresti, romania",
+      "address": "Bdul. Basarabia, nr. 18",
+      "city": "Bucuresti",
+      "lat": 44.432447,
+      "lng": 26.141927,
+      "savedAt": 1794569638695
+    },
+    {
+      "key": "b-dul carol 1 nr. 25, bucuresti, bucuresti, romania",
+      "address": "B-dul Carol 1 nr. 25, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.436756,
+      "lng": 26.107525,
+      "savedAt": 1794569647859
+    },
+    {
+      "key": "b-dul regina elisabeta nr. 38, hotel cismigiu, bucuresti, sector 3, bucuresti, romania",
+      "address": "B-dul Regina Elisabeta nr. 38, Hotel Cismigiu, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.435017,
+      "lng": 26.094849,
+      "savedAt": 1794569657241
+    },
+    {
+      "key": "str. baia de fier nr. 6, bucuresti, bucuresti, romania",
+      "address": "Str. Baia de Fier nr. 6, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.430554,
+      "lng": 26.105799,
+      "savedAt": 1794569666733
+    },
+    {
+      "key": "str. agricultori nr.104b, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Agricultori nr.104B, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.433174,
+      "lng": 26.132248,
+      "savedAt": 1794569676348
+    },
+    {
+      "key": "str. selari, nr. 16, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Selari, nr. 16, Bucuresti, sector 3",
+      "city": "Bucuresti",
+      "lat": 44.430991,
+      "lng": 26.100439,
+      "savedAt": 1794569686329
+    },
+    {
+      "key": "str. toma caragiu nr. 3, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Toma Caragiu nr. 3, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.434502,
+      "lng": 26.101644,
+      "savedAt": 1794569696397
+    },
+    {
+      "key": "str. eugeniu carada nr. 5-7, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Eugeniu Carada nr. 5-7, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.433097,
+      "lng": 26.098711,
+      "savedAt": 1794569706451
+    },
+    {
+      "key": "sos. iancului, nr. 31, bucuresti, romania",
+      "address": "sos. Iancului, nr. 31",
+      "city": "Bucuresti",
+      "lat": 44.442547,
+      "lng": 26.141972,
+      "savedAt": 1794569716658
+    },
+    {
+      "key": "str.imasului, nr.2 corp 2-hala afumaţi., afumati, romania",
+      "address": "Str.Imasului, nr.2  Corp 2-Hala  Afumaţi.",
+      "city": "Afumati",
+      "lat": 44.523487,
+      "lng": 26.249691,
+      "savedAt": 1794569727146
+    },
+    {
+      "key": "b-dul 1 decembrie 1918, nr. 33a, bucuresti, romania",
+      "address": "b-dul 1 Decembrie 1918, nr. 33A",
+      "city": "Bucuresti",
+      "lat": 44.42037,
+      "lng": 26.176037,
+      "savedAt": 1794569737593
+    },
+    {
+      "key": "str. europa nr.9bis, tarla 44, parcela 337, cosmopolis plaza, corp h, sat stefanestii de jos, com. stefanestii de jos, jud. ilfov, stefanestii de jos, romania",
+      "address": "Str. Europa nr.9Bis, Tarla 44, Parcela 337, Cosmopolis Plaza, Corp H, Sat Stefanestii de Jos, Com. Stefanestii de Jos, Jud. Ilfov",
+      "city": "Ștefăneștii de Jos",
+      "lat": 44.537177,
+      "lng": 26.170217,
+      "savedAt": 1794569748224
+    },
+    {
+      "key": "str. europa nr.9bis, com. stefanestii de jos, jud. ilfov, stefanestii de jos, romania",
+      "address": "Str. Europa nr.9Bis, Com. Stefanestii de Jos, Jud. Ilfov",
+      "city": "Ștefăneștii de Jos",
+      "lat": 44.454907,
+      "lng": 26.160242,
+      "savedAt": 1794569759030
+    },
+    {
+      "key": "sat stefanestii de jos, com. stefanestii de jos, str. europa, nr. 9bis, jud. ilfov, stefanestii de jos, romania",
+      "address": "Sat Stefanestii de Jos, com. Stefanestii de Jos, Str. Europa, nr. 9bis, jud. Ilfov",
+      "city": "Ștefăneștii de Jos",
+      "lat": 44.454907,
+      "lng": 26.160242,
+      "savedAt": 1794569769956
+    },
+    {
+      "key": "str. erou iancu nicolae, nr. 6, voluntari, jud. ilfov., voluntari, romania",
+      "address": "Str. EROU IANCU NICOLAE, nr. 6, Voluntari, Jud. Ilfov.",
+      "city": "Voluntari",
+      "lat": 44.513691,
+      "lng": 26.139191,
+      "savedAt": 1794569781104
+    },
+    {
+      "key": "intrarea scolii nr.7, tunari, jud. ilfov, tunari, romania",
+      "address": "Intrarea Scolii nr.7, Tunari, Jud. Ilfov",
+      "city": "Tunari",
+      "lat": 44.55181,
+      "lng": 26.140048,
+      "savedAt": 1794569792416
+    },
+    {
+      "key": "soseaua bucuresti urziceni, nr. 17, voluntari, romania",
+      "address": "soseaua Bucuresti Urziceni, nr. 17",
+      "city": "Voluntari",
+      "lat": 44.485738,
+      "lng": 26.1776,
+      "savedAt": 1794569803775
+    },
+    {
+      "key": "strada 1 decembrie, nr. 144-148, tunari, romania",
+      "address": "strada 1 Decembrie, nr. 144-148",
+      "city": "Tunari",
+      "lat": 44.550786,
+      "lng": 26.119919,
+      "savedAt": 1794569815393
+    },
+    {
+      "key": "aleea barajul dunarii nr. 2, bucuresti, sector 3, bucuresti, romania",
+      "address": "Aleea Barajul Dunarii nr. 2, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.425909,
+      "lng": 26.171577,
+      "savedAt": 1794569827167
+    },
+    {
+      "key": "str. tudor arghezi, nr. 4, bucuresti, romania",
+      "address": "str. Tudor Arghezi, nr. 4",
+      "city": "Bucuresti",
+      "lat": 44.437224,
+      "lng": 26.105542,
+      "savedAt": 1794569839066
+    },
+    {
+      "key": "str. drumul fermei, nr. 7d, dobroesti, jud. ilfov, dobreni, romania",
+      "address": "Str. DRUMUL FERMEI, nr. 7D, Dobroesti, Jud. Ilfov",
+      "city": "Dobreni",
+      "lat": 45.701092,
+      "lng": 26.281608,
+      "savedAt": 1794569851022
+    },
+    {
+      "key": "sos. stefanesti, nr. 55, jud. ilfov., branesti, romania",
+      "address": "Sos. Stefanesti, nr. 55, Jud. Ilfov.",
+      "city": "Branesti",
+      "lat": 44.527233,
+      "lng": 26.198274,
+      "savedAt": 1794569863238
+    },
+    {
+      "key": "str. europa nr.9 bis complex rezidential cosmopolis corp 2d, spatiul nr.1d incinta complex comercial cosmopolis plaza, stefanestii de jos, ilfov, stefanestii de jos, romania",
+      "address": "Str. Europa nr.9 Bis Complex Rezidential Cosmopolis Corp 2D, Spatiul nr.1D incinta Complex Comercial Cosmopolis Plaza, Stefanestii de Jos, Ilfov",
+      "city": "Stefanestii de Jos",
+      "lat": 44.537172,
+      "lng": 26.167009,
+      "savedAt": 1794569875696
+    },
+    {
+      "key": "str. europa nr.9 bis, stefanestii de jos, romania",
+      "address": "Str. Europa nr.9 Bis",
+      "city": "Stefanestii de Jos",
+      "lat": 44.535583,
+      "lng": 26.170048,
+      "savedAt": 1794569888271
+    },
+    {
+      "key": "drumul gura calitei, nr. 173, bucuresti, romania",
+      "address": "Drumul Gura Calitei, nr. 173",
+      "city": "Bucuresti",
+      "lat": 44.419939,
+      "lng": 26.199843,
+      "savedAt": 1794569900891
+    },
+    {
+      "key": "str. migdalilor nr. 40, pantelimon, romania",
+      "address": "Str. Migdalilor nr. 40",
+      "city": "Pantelimon",
+      "lat": 44.462146,
+      "lng": 26.197618,
+      "savedAt": 1794569913760
+    },
+    {
+      "key": "sos. colentina nr.26, bucuresti, bucuresti, romania",
+      "address": "Sos. Colentina nr.26, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.461833,
+      "lng": 26.134097,
+      "savedAt": 1794569926410
+    },
+    {
+      "key": "b-dul basarabia nr.162, bucuresti, bucuresti, romania",
+      "address": "B-dul Basarabia nr.162, Bucuresti",
+      "city": "Bucuresti",
+      "lat": 44.434809,
+      "lng": 26.159644,
+      "savedAt": 1794569939269
+    },
+    {
+      "key": "str. barajul rovinari nr. 10, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Barajul Rovinari nr. 10, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.426407,
+      "lng": 26.170444,
+      "savedAt": 1794569952486
+    },
+    {
+      "key": "str. smardan nr.43, et.2, ap.10, cam.2, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Smardan nr.43, Et.2, Ap.10, Cam.2, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.430557,
+      "lng": 26.100334,
+      "savedAt": 1794569965903
+    },
+    {
+      "key": "str. calimachii nr. 17, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Calimachii nr. 17, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.455187,
+      "lng": 26.130392,
+      "savedAt": 1794569979341
+    },
+    {
+      "key": "str. george constantinescu nr. 4 b, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. George Constantinescu nr. 4 B, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.480372,
+      "lng": 26.115918,
+      "savedAt": 1794569993146
+    },
+    {
+      "key": "str. brandusilor, nr. 37, bucuresti, sect 3, bucuresti, romania",
+      "address": "Str. Brandusilor, nr. 37, Bucuresti, sect 3",
+      "city": "Bucuresti",
+      "lat": 44.417248,
+      "lng": 26.124985,
+      "savedAt": 1794570006819
+    },
+    {
+      "key": "b-dul pipera nr. 17, voluntari, jud. ilfov, voluntari, romania",
+      "address": "B-dul Pipera nr. 17, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.500518,
+      "lng": 26.134436,
+      "savedAt": 1794570020661
+    },
+    {
+      "key": "str. raspantiilor, nr. 7, bucureşt, sect 2, bucuresti, romania",
+      "address": "Str. RĂSPÂNTIILOR, nr. 7, Bucureşt, sect 2",
+      "city": "Bucuresti",
+      "lat": 44.450637,
+      "lng": 26.106888,
+      "savedAt": 1794570034907
+    },
+    {
+      "key": "str. nicolae iorga nr.1a, tunari, romania",
+      "address": "Str. Nicolae Iorga nr.1A",
+      "city": "Tunari",
+      "lat": 44.540906,
+      "lng": 26.141756,
+      "savedAt": 1794570049053
+    },
+    {
+      "key": "calea bucuresti, nr. 31, tunari, romania",
+      "address": "calea Bucuresti, nr. 31",
+      "city": "Tunari",
+      "lat": 44.545975,
+      "lng": 26.141973,
+      "savedAt": 1794570063582
+    },
+    {
+      "key": "str. viitorului nr.8, bucuresti, sector 2, bucuresti, romania",
+      "address": "Str. Viitorului nr.8, Bucuresti, Sector 2",
+      "city": "Bucuresti",
+      "lat": 44.44384,
+      "lng": 26.109216,
+      "savedAt": 1794570075775
+    },
+    {
+      "key": "vgp park, bucuresti, romania",
+      "address": "VGP Park",
+      "city": "Bucuresti",
+      "lat": 44.528498,
+      "lng": 26.173791,
+      "savedAt": 1794570088027
+    },
+    {
+      "key": "strada nicolae apostol, nr. 4, bucuresti, romania",
+      "address": "strada Nicolae Apostol, nr. 4",
+      "city": "Bucuresti",
+      "lat": 44.476815,
+      "lng": 26.165875,
+      "savedAt": 1794570103045
+    },
+    {
+      "key": "aleea barajul uzului, nr. 9, bucuresti, romania",
+      "address": "Aleea Barajul Uzului, nr. 9",
+      "city": "Bucuresti",
+      "lat": 44.429962,
+      "lng": 26.171051,
+      "savedAt": 1794570118099
+    },
+    {
+      "key": "b-dul 1 decembrie 1918, nr. 12-14, bucuresti, romania",
+      "address": "b-dul 1 Decembrie 1918, nr. 12-14",
+      "city": "Bucuresti",
+      "lat": 44.429763,
+      "lng": 26.171445,
+      "savedAt": 1794570133373
+    },
+    {
+      "key": "strada olteni, nr. 9a, bucuresti, romania",
+      "address": "strada Olteni, nr. 9A",
+      "city": "Bucuresti",
+      "lat": 44.429103,
+      "lng": 26.11032,
+      "savedAt": 1794570148830
+    },
+    {
+      "key": "b-dul dimitrie pompeiu nr.9-9a, bucuresti, romania",
+      "address": "B-dul Dimitrie Pompeiu nr.9-9A",
+      "city": "Bucuresti",
+      "lat": 44.483329,
+      "lng": 26.11898,
+      "savedAt": 1794570164413
+    },
+    {
+      "key": "soseaua stefanestii de jos, nr. 81, afumati, romania",
+      "address": "soseaua Stefanestii de jos, nr. 81",
+      "city": "Afumati",
+      "lat": 44.528031,
+      "lng": 26.211494,
+      "savedAt": 1794570179917
+    },
+    {
+      "key": "soseaua stefan cel mare, nr. 15, bucuresti, romania",
+      "address": "Șoseaua Ștefan cel Mare, nr. 15",
+      "city": "Bucuresti",
+      "lat": 44.453351,
+      "lng": 26.109035,
+      "savedAt": 1794570195969
+    },
+    {
+      "key": "b-dul basarabia, nr 52a, bucuresti, romania",
+      "address": "b-dul Basarabia, nr 52A",
+      "city": "Bucuresti",
+      "lat": 44.432705,
+      "lng": 26.144589,
+      "savedAt": 1794570212124
+    },
+    {
+      "key": "bld. pipera, nr. 164, et:2, camera 1, oras voluntari, jud. ilfov., voluntari, romania",
+      "address": "Bld. PIPERA, nr. 164, Et:2, CAMERA 1, Oras Voluntari, Jud. Ilfov.",
+      "city": "Voluntari",
+      "lat": 44.521594,
+      "lng": 26.143343,
+      "savedAt": 1794570228397
+    },
+    {
+      "key": "b-dul pipera nr. 55a, voluntari, jud. ilfov, voluntari, romania",
+      "address": "B-dul Pipera nr. 55A, Voluntari, Jud. Ilfov",
+      "city": "Voluntari",
+      "lat": 44.504245,
+      "lng": 26.13589,
+      "savedAt": 1794570244595
+    },
+    {
+      "key": "str. dristorului nr. 87, bucuresti, sector 3, bucuresti, romania",
+      "address": "Str. Dristorului nr. 87, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.423581,
+      "lng": 26.138214,
+      "savedAt": 1794570260945
+    },
+    {
+      "key": "str. cristea mateescu, nr. 73, sect. 2, bucuresti., bucuresti, romania",
+      "address": "Str. Cristea Mateescu, nr. 73, sect. 2, Bucuresti.",
+      "city": "Bucuresti",
+      "lat": 44.462409,
+      "lng": 26.123513,
+      "savedAt": 1794570274419
+    },
+    {
+      "key": "strada franceza, nr. 44, bucuresti, romania",
+      "address": "strada Franceza, nr. 44",
+      "city": "Bucuresti",
+      "lat": 44.430177,
+      "lng": 26.099613,
+      "savedAt": 1794570291369
+    },
+    {
+      "key": "calea vitan nr.235, bl.1, sc.1, bucuresti, sector 3, bucuresti, romania",
+      "address": "Calea Vitan nr.235, Bl.1, Sc.1, Bucuresti, Sector 3",
+      "city": "Bucuresti",
+      "lat": 44.409486,
+      "lng": 26.139378,
+      "savedAt": 1794570308459
+    },
+    {
+      "key": "sos pantelimon nr. 249 bloc 48, parter, (libra bank), sector 2, bucuresti, bucuresti, romania",
+      "address": "Sos Pantelimon nr. 249 bloc 48, parter, (Libra Bank), sector 2, Bucuresti",
+      "city": "București",
+      "lat": 44.451075,
+      "lng": 26.161275,
+      "savedAt": 1794570403260
+    },
+    {
+      "key": "bdul decebal, nr. 23, bucuresti, romania",
+      "address": "Bdul Decebal, nr. 23",
+      "city": "Bucuresti",
+      "lat": 44.431551,
+      "lng": 26.136736,
+      "savedAt": 1794570421635
+    },
+    {
+      "key": "strada zalau, nr. 2, bucuresti, romania",
+      "address": "strada Zalau, nr. 2",
+      "city": "Bucuresti",
+      "lat": 44.451079,
+      "lng": 26.161275,
+      "savedAt": 1794570443841
+    }
+  ]
+}
