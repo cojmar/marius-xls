@@ -1643,6 +1643,7 @@
 
     let allLocations = [];
     let rawRows = [];
+    let sourceFileName = '';
     let markers = [];
     let geocoding = false;
     let stopRequested = false;
@@ -1854,7 +1855,7 @@
     // Storage
 
     function saveToStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ locations: allLocations, rawRows }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ locations: allLocations, rawRows, fileName: sourceFileName }));
     }
 
     function loadFromStorage() {
@@ -1866,6 +1867,7 @@
         } else if (stored && typeof stored === 'object') {
           allLocations = Array.isArray(stored.locations) ? stored.locations : [];
           rawRows = Array.isArray(stored.rawRows) ? stored.rawRows : [];
+          sourceFileName = stored.fileName || '';
         } else {
           allLocations = [];
         }
@@ -2253,7 +2255,8 @@
         String(now.getDate()).padStart(2, '0')
       ].join('-') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
 
-      XLSX.writeFile(workbook, `geo_points_${stamp}.xls`);
+      const source = sourceFileName ? sourceFileName.replace(/\.xlsx?$/i, '') + '_' : '';
+      XLSX.writeFile(workbook, `geo_points_${source}${stamp}.xls`);
 
       const missing = allLocations.filter(location => !hasCoordinates(location)).length;
       setStatus('exportExcelDone', { n: allLocations.length, m: missing });
@@ -2299,6 +2302,7 @@
 
           allLocations = locations;
           rawRows = originalRows;
+          sourceFileName = file.name;
 
           allLocations.filter(hasCoordinates).forEach(rememberScannedLocation);
           applyScanCacheToLocations();
@@ -3060,6 +3064,7 @@
 
       allLocations = [];
       rawRows = [];
+      sourceFileName = '';
       saveToStorage();
       searchBox.value = '';
       showMissingOnly = false;
