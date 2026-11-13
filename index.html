@@ -160,6 +160,24 @@
       font-size: 11px;
     }
 
+    .reset-tools .btn {
+      min-height: 34px;
+      font-size: 12px;
+      width: 100%;
+    }
+
+    .reset-tools .reset-content {
+      position: absolute;
+      z-index: 2000;
+      top: calc(100% + 7px);
+      right: 0;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 25px #0008;
+    }
+
     /* Status bar */
 
     .statusbar {
@@ -940,11 +958,15 @@
       <div class="action-separator"></div>
 
       <details class="reset-tools">
-        <summary>UNELTE TEST</summary>
+        <summary>TOOLS</summary>
         <div class="reset-content">
-          <button class="btn" id="btnExportCache" title="Export cache to .xlsx">⬇ EXPORT CACHE</button>
-          <button class="btn" id="btnImportCache" title="Import cache from .xlsx">⬆ IMPORT CACHE</button>
-          <button class="btn danger" id="btnDeleteCache" title="Delete cached GPS coordinates">🗑 ȘTERGE CACHE</button>
+          <button class="btn" id="btnExportCache" title="Export GPS cache to .xlsx">⬇ EXPORT GPS CACHE</button>
+          <button class="btn" id="btnImportCache" title="Import GPS cache from .xlsx">⬆ IMPORT GPS CACHE</button>
+          <button class="btn danger" id="btnDeleteCache" title="Delete cached GPS coordinates">🗑 ȘTERGE GPS CACHE</button>
+          <div class="action-separator" style="margin: 6px 0"></div>
+          <button class="btn" id="btnExportScannerCache" title="Export scanner cache to .xlsx">⬇ EXPORT SCANNER CACHE</button>
+          <button class="btn" id="btnImportScannerCache" title="Import scanner cache from .xlsx">⬆ IMPORT SCANNER CACHE</button>
+          <button class="btn danger" id="btnDeleteScannerCache" title="Delete all scanner cache entries">🗑 ȘTERGE SCANNER CACHE</button>
         </div>
       </details>
     </div>
@@ -1069,6 +1091,7 @@
   <script>
     const STORAGE_KEY = 'marius-xls-locations';
     const CACHE_KEY = 'marius-xls-gps-cache';
+    const SCANNER_CACHE_KEY = 'marius-xls-scanner-cache';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
 
     const dropZone = document.getElementById('dropZone');
@@ -1335,6 +1358,47 @@
       cache = {};
     }
 
+    // Scanner cache: stores all scanned locations (company, address, city, lat, lng).
+    // Used to skip re-scanning locations that were already scanned in previous sessions.
+
+    function getScannerCache() {
+      try {
+        const raw = localStorage.getItem(SCANNER_CACHE_KEY);
+        if (!raw) return {};
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
+    }
+
+    function saveScannerCache(scannerCache) {
+      localStorage.setItem(SCANNER_CACHE_KEY, JSON.stringify(scannerCache));
+    }
+
+    function getScannerCacheEntry(location) {
+      const key = `${location.company}||${location.address}||${location.city}`;
+      return scannerCache[key];
+    }
+
+    function setScannerCacheEntry(location, lat, lng) {
+      const key = `${location.company}||${location.address}||${location.city}`;
+      scannerCache[key] = {
+        company: location.company,
+        address: location.address,
+        city: location.city,
+        lat,
+        lng
+      };
+      saveScannerCache(scannerCache);
+    }
+
+    function clearScannerCache() {
+      localStorage.removeItem(SCANNER_CACHE_KEY);
+      scannerCache = {};
+    }
+
+    let scannerCache = {};
+
     // Export cache to .xlsx
 
     async function exportCache() {
@@ -1426,6 +1490,95 @@
       if (!confirm('Sigur vrei să ștergi toate coordonatele GPS din cache? Aceasta nu poate fi anulată.')) return;
       clearCache();
       setStatus('Cache șters');
+    });
+
+    // Scanner cache buttons
+
+    async function exportScannerCache() {
+      const scannerCache = getScannerCache();
+      const rows = Object.entries(scannerCache).map(([key, entry]) => ({
+        'Companie: Nume complet': entry.company || '',
+        'Adresa     1: Adresa': entry.address || '',
+        'Adresa     1: Orașul': entry.city || '',
+        Lat: entry.lat,
+        Lng: entry.lng
+      }));
+
+      const workbook = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, ws, 'Scanner Cache');
+
+      const blob = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `scanner-cache-${new Date().toISOString().slice(0,10)}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      setStatus('Cache scanner exportat');
+    }
+
+    async function importScannerCache(file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const workbook = XLSX.read(new Uint8Array(event.target.result), { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          const newCache = {};
+          rows.forEach(row => {
+            const key = `${row['Companie: Nume complet'] || ''}||${row['Adresa     1: Adresa'] || ''}||${row['Adresa     1: Orașul'] || ''}`;
+            newCache[key] = {
+              company: row['Companie: Nume complet'] || '',
+              address: row['Adresa     1: Adresa'] || '',
+              city: row['Adresa     1: Orașul'] || '',
+              lat: parseCoordinate(row['Lat']),
+              lng: parseCoordinate(row['Lng'])
+            };
+          });
+
+          const existingCache = getScannerCache();
+          Object.assign(existingCache, newCache);
+          saveScannerCache(existingCache);
+          setStatus(`Cache scanner importat: ${Object.keys(newCache).length} intrări`);
+        } catch (error) {
+          console.error('Eroare import cache scanner:', error);
+          alert('Nu s-a putut citi fișierul cache scanner: ' + error.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    document.getElementById('btnExportScannerCache').addEventListener('click', () => {
+      if (Object.keys(getScannerCache()).length === 0) {
+        alert('Cache-ul scanner este gol. Scanează locații mai întâi.');
+        return;
+      }
+      exportScannerCache();
+    });
+
+    document.getElementById('btnImportScannerCache').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.xlsx,.xls';
+      input.onchange = (e) => {
+        if (e.target.files.length) importScannerCache(e.target.files[0]);
+        input.value = '';
+      };
+      input.click();
+    });
+
+    document.getElementById('btnDeleteScannerCache').addEventListener('click', () => {
+      if (Object.keys(getScannerCache()).length === 0) {
+        alert('Cache-ul scanner este deja gol.');
+        return;
+      }
+      if (!confirm('Sigur vrei să ștergi toate intrările din cache-ul scanner? Aceasta nu poate fi anulată.')) return;
+      clearScannerCache();
+      setStatus('Cache scanner șters');
     });
 
     // File upload
@@ -1612,6 +1765,7 @@
             location.lat = coordinates.lat;
             location.lng = coordinates.lng;
             setCacheEntry(location, coordinates.lat, coordinates.lng);
+            setScannerCacheEntry(location, coordinates.lat, coordinates.lng);
             saveToStorage();
             success = true;
             updateMap(true);
@@ -1685,6 +1839,21 @@
         render();
         updateMap(true);
         setStatus(`Încărcate ${cachedCount} locații din cache`);
+      }
+
+      // Check scanner cache: skip locations already scanned
+      const scannerCache = getScannerCache();
+      let skippedCount = 0;
+      for (let i = pending.length - 1; i >= 0; i--) {
+        const entry = getScannerCacheEntry(pending[i]);
+        if (entry) {
+          pending.splice(i, 1);
+          skippedCount++;
+        }
+      }
+
+      if (skippedCount > 0) {
+        setStatus(`Saltate ${skippedCount} locații deja în scanner cache`);
       }
 
       geocoding = true;
@@ -1900,6 +2069,18 @@
       const needsGps = !hasCoordinates(location);
 
       saveToStorage();
+
+      // Update scanner cache with edited location data
+      if (lat !== null && lng !== null) {
+        setScannerCacheEntry(location, lat, lng);
+      } else {
+        // Remove old entry from scanner cache if coordinates were cleared
+        const key = `${location.company}||${location.address}||${location.city}`;
+        const scannerCache = getScannerCache();
+        delete scannerCache[key];
+        saveScannerCache(scannerCache);
+      }
+
       closeEditModal();
       render();
       updateMap(true);
