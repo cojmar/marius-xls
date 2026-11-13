@@ -154,6 +154,67 @@
       background: #512d38;
     }
 
+    /* Tools menu */
+
+    .reset-tools {
+      position: relative;
+    }
+
+    .reset-tools summary {
+      list-style: none;
+      padding: 7px 9px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      color: #7f899c;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .reset-tools summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .reset-tools summary:hover {
+      color: var(--muted);
+      background: #252c3b;
+    }
+
+    .reset-tools[open] summary {
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .reset-tools .reset-content {
+      position: absolute;
+      z-index: 2000;
+      top: calc(100% + 7px);
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 220px;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 25px #0008;
+    }
+
+    .reset-tools .btn {
+      min-height: 34px;
+      font-size: 12px;
+    }
+
+    .cache-count {
+      padding: 2px 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
     .btn.small {
       min-height: 29px;
       padding: 0 8px;
@@ -936,6 +997,17 @@
     <div class="topbar-actions">
       <button class="btn primary" id="btnLoad">＋ IMPORTĂ EXCEL</button>
       <button class="btn danger" id="btnClear">ȘTERGE TOT</button>
+
+      <details class="reset-tools" id="toolsMenu">
+        <summary>TOOLS</summary>
+        <div class="reset-content">
+          <button class="btn" id="btnExportGps">⭳ EXPORT GPS</button>
+          <button class="btn" id="btnImportGps">⭱ IMPORT GPS</button>
+          <button class="btn danger" id="btnClearGps">✕ CLEAR GPS DATA</button>
+          <span class="cache-count" id="cacheCount">0 adrese în cacheul scanerului</span>
+          <input type="file" id="gpsCacheInput" accept=".json,application/json" style="display:none">
+        </div>
+      </details>
     </div>
   </header>
 
@@ -1057,6 +1129,7 @@
 
   <script>
     const STORAGE_KEY = 'marius-xls-locations';
+    const SCAN_CACHE_KEY = 'marius-xls-scanner-cache';
     const MAP_HEIGHT_KEY = 'marius-xls-map-height';
 
     const dropZone = document.getElementById('dropZone');
@@ -1290,6 +1363,233 @@
       updateMap();
     }
 
+    // Cacheul scanerului: fiecare adresă scanată vreodată, salvată o singură dată cu locația GPS.
+
+    function loadScanCache() {
+      try {
+        const entries = JSON.parse(localStorage.getItem(SCAN_CACHE_KEY)) || [];
+        return Array.isArray(entries) ? entries : [];
+      } catch (error) {
+        console.error('Scanner cache error:', error);
+        return [];
+      }
+    }
+
+    function saveScanCache(entries) {
+      localStorage.setItem(SCAN_CACHE_KEY, JSON.stringify(entries));
+    }
+
+    function cacheKey(location) {
+      return getAddress(location).toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    function cachedCoordinates(location) {
+      const key = cacheKey(location);
+      if (!key) return null;
+
+      const entry = loadScanCache().find(item => item.key === key);
+      if (!entry) return null;
+
+      const lat = parseCoordinate(entry.lat);
+      const lng = parseCoordinate(entry.lng);
+
+      if (lat === null || lng === null) return null;
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+
+      return { lat, lng };
+    }
+
+    function rememberScannedLocation(location) {
+      if (!hasCoordinates(location)) return;
+
+      const key = cacheKey(location);
+      if (!key) return;
+
+      const entries = loadScanCache();
+      const existing = entries.find(item => item.key === key);
+
+      if (existing) {
+        existing.lat = location.lat;
+        existing.lng = location.lng;
+        existing.savedAt = Date.now();
+      } else {
+        entries.push({
+          key,
+          address: location.address || '',
+          city: location.city || '',
+          lat: location.lat,
+          lng: location.lng,
+          savedAt: Date.now()
+        });
+      }
+
+      saveScanCache(entries);
+      updateCacheCount();
+    }
+
+    function mergeScanCache(incoming) {
+      const entries = loadScanCache();
+      let added = 0;
+      let updated = 0;
+
+      for (const item of incoming) {
+        const lat = parseCoordinate(item.lat);
+        const lng = parseCoordinate(item.lng);
+
+        if (lat === null || lng === null) continue;
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) continue;
+
+        const key = String(item.key || item.address || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        if (!key) continue;
+
+        const existing = entries.find(entry => entry.key === key);
+
+        if (!existing) {
+          entries.push({
+            key,
+            address: item.address || '',
+            city: item.city || '',
+            lat,
+            lng,
+            savedAt: Number(item.savedAt) || Date.now()
+          });
+          added++;
+        } else if (Number(item.savedAt) > Number(existing.savedAt)) {
+          existing.lat = lat;
+          existing.lng = lng;
+          existing.address = item.address || existing.address;
+          existing.city = item.city || existing.city;
+          existing.savedAt = Number(item.savedAt) || Date.now();
+          updated++;
+        }
+      }
+
+      saveScanCache(entries);
+      return { added, updated };
+    }
+
+    function applyScanCacheToLocations() {
+      let filled = 0;
+
+      for (const location of getMissingLocations()) {
+        const cached = cachedCoordinates(location);
+        if (cached) {
+          location.lat = cached.lat;
+          location.lng = cached.lng;
+          filled++;
+        }
+      }
+
+      if (filled) {
+        saveToStorage();
+        render();
+        updateMap(true);
+        updateScanButton();
+      }
+
+      return filled;
+    }
+
+    function updateCacheCount() {
+      const countElement = document.getElementById('cacheCount');
+      if (countElement) {
+        countElement.textContent = `${loadScanCache().length} adrese în cacheul scanerului`;
+      }
+    }
+
+    function exportScanCache() {
+      const entries = loadScanCache();
+
+      if (!entries.length) {
+        setStatus('Cacheul scanerului este gol — nimic de exportat');
+        return;
+      }
+
+      const payload = {
+        type: 'marius-xls-scanner-cache',
+        app: 'root',
+        exportedAt: new Date().toISOString(),
+        entries
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'marius-gps-cache.json';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      setStatus(`Cache GPS exportat: ${entries.length} adrese`);
+    }
+
+    async function importScanCache(file) {
+      try {
+        const data = JSON.parse(await file.text());
+        const incoming = Array.isArray(data) ? data : Array.isArray(data.entries) ? data.entries : [];
+
+        if (!incoming.length) {
+          alert('Nu s-a găsit niciun record GPS în acest fișier.');
+          return;
+        }
+
+        const { added, updated } = mergeScanCache(incoming);
+        const filled = applyScanCacheToLocations();
+
+        updateCacheCount();
+        setStatus(`Cache GPS importat: ${added} adăugate, ${updated} actualizate, ${filled} locații completate din cache`);
+      } catch (error) {
+        console.error('GPS cache import error:', error);
+        alert('Fișier de cache GPS invalid: ' + error.message);
+      }
+    }
+
+    function clearScanCache() {
+      const entries = loadScanCache();
+
+      if (!entries.length) {
+        setStatus('Cacheul scanerului este deja gol');
+        return;
+      }
+
+      if (!confirm(`Ștergi ${entries.length} adrese cu GPS din cache? Scanările viitoare vor cere din nou GPS-ul pentru fiecare adresă.`)) {
+        return;
+      }
+
+      localStorage.removeItem(SCAN_CACHE_KEY);
+      updateCacheCount();
+      setStatus('Cache GPS șters');
+    }
+
+    document.getElementById('btnExportGps').addEventListener('click', exportScanCache);
+
+    document.getElementById('btnImportGps').addEventListener('click', () => {
+      if (geocoding || requestRunning) {
+        alert('Așteaptă până se termină procesarea GPS înainte să imporți date GPS.');
+        return;
+      }
+      document.getElementById('gpsCacheInput').click();
+    });
+
+    document.getElementById('gpsCacheInput').addEventListener('change', event => {
+      const file = event.target.files[0];
+      event.target.value = '';
+      if (file) importScanCache(file);
+    });
+
+    document.getElementById('btnClearGps').addEventListener('click', () => {
+      if (geocoding || requestRunning) {
+        alert('Așteaptă până se termină procesarea GPS înainte să ștergi datele GPS.');
+        return;
+      }
+      clearScanCache();
+    });
+
+    document.getElementById('toolsMenu').addEventListener('toggle', updateCacheCount);
+    updateCacheCount();
+
     // File upload
 
     dropZone.addEventListener('click', () => fileInput.click());
@@ -1347,6 +1647,8 @@
             lat: parseCoordinate(row['Lat']),
             lng: parseCoordinate(row['Lng'])
           })).filter(location => location.company || location.address);
+
+          allLocations.filter(hasCoordinates).forEach(rememberScannedLocation);
 
           saveToStorage();
           searchBox.value = '';
@@ -1455,27 +1757,41 @@
       let success = false;
 
       try {
-        const elapsed = Date.now() - lastRequestAt;
-        if (elapsed < 2000) {
-          await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
-        }
-        lastRequestAt = Date.now();
+        const cached = cachedCoordinates(location);
 
-        const coordinates = await geocodeAddress(getAddress(location));
-
-        if (
-          coordinates &&
-          Number.isFinite(coordinates.lat) &&
-          Number.isFinite(coordinates.lng) &&
-          coordinates.lat >= -90 && coordinates.lat <= 90 &&
-          coordinates.lng >= -180 && coordinates.lng <= 180
-        ) {
+        if (cached) {
           if (allLocations.includes(location)) {
-            location.lat = coordinates.lat;
-            location.lng = coordinates.lng;
+            location.lat = cached.lat;
+            location.lng = cached.lng;
             saveToStorage();
             success = true;
             updateMap(true);
+            setStatus(`GPS din cache: ${location.company || 'Locație'}`);
+          }
+        } else {
+          const elapsed = Date.now() - lastRequestAt;
+          if (elapsed < 2000) {
+            await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+          }
+          lastRequestAt = Date.now();
+
+          const coordinates = await geocodeAddress(getAddress(location));
+
+          if (
+            coordinates &&
+            Number.isFinite(coordinates.lat) &&
+            Number.isFinite(coordinates.lng) &&
+            coordinates.lat >= -90 && coordinates.lat <= 90 &&
+            coordinates.lng >= -180 && coordinates.lng <= 180
+          ) {
+            if (allLocations.includes(location)) {
+              location.lat = coordinates.lat;
+              location.lng = coordinates.lng;
+              saveToStorage();
+              success = true;
+              rememberScannedLocation(location);
+              updateMap(true);
+            }
           }
         }
       } catch (error) {
@@ -1739,6 +2055,8 @@
       }
 
       const needsGps = !hasCoordinates(location);
+
+      if (!needsGps) rememberScannedLocation(location);
 
       saveToStorage();
       closeEditModal();
