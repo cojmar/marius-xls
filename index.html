@@ -200,6 +200,12 @@
       font-size: 11px;
     }
 
+    .btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #101218;
+    }
+
     .btn.icon {
       padding: 0 11px;
       font-size: 18px;
@@ -1047,6 +1053,7 @@
         <div class="map-toolbar-actions">
           <button class="btn small" id="btnFit" data-i18n="btnFit">ENCADREAZĂ</button>
           <button class="btn small" id="btnShowMap" data-i18n="btnFullscreen">⛶ ECRAN INTEGRAL</button>
+          <button class="btn small" id="btnEditMap" data-i18n="btnEditMap" data-i18n-title="btnEditMapTitle" title="Edit mode: drag points on the map to move them">EDIT</button>
         </div>
       </div>
 
@@ -1272,6 +1279,9 @@
         btnResolveGps: '⌖ REZOLVĂ GPS',
         btnCopyAddress: 'COPIAZĂ ADRESA',
         btnEdit: 'EDITEAZĂ',
+        btnEditMap: 'EDIT',
+        btnEditMapTitle: 'Mod de editare: trage punctele pe hartă pentru a le muta',
+        editMoved: 'Punct mutat cu coordonate noi: {company}',
         btnDelete: 'ȘTERGE',
         clearAllConfirm: 'Sigur vrei să ștergi toate locațiile?',
         allLocationsDeleted: 'Toate locațiile au fost șterse',
@@ -1406,6 +1416,9 @@
         btnResolveGps: '⌖ RESOLVE GPS',
         btnCopyAddress: 'COPY ADDRESS',
         btnEdit: 'EDIT',
+        btnEditMap: 'EDIT',
+        btnEditMapTitle: 'Edit mode: drag points on the map to move them',
+        editMoved: 'Point moved with new coordinates: {company}',
         btnDelete: 'DELETE',
         clearAllConfirm: 'Are you sure you want to delete all locations?',
         allLocationsDeleted: 'All locations deleted',
@@ -1503,6 +1516,7 @@
     const scanButton = document.getElementById('btnScan');
     const processingBanner = document.getElementById('processingBanner');
     const missingFilterButton = document.getElementById('btnMissingFilter');
+    const editButton = document.getElementById('btnEditMap');
     const workspace = document.getElementById('workspace');
     const mapPanel = document.getElementById('mapPanel');
     const panelResizer = document.getElementById('panelResizer');
@@ -1517,6 +1531,7 @@
     let editingOriginal = null;
     let creatingNew = false;
     let showMissingOnly = false;
+    let editMode = false;
 
     let requestQueue = [];
     let requestRunning = false;
@@ -2810,6 +2825,20 @@
         const index = allLocations.indexOf(location);
         const marker = L.marker([location.lat, location.lng]).addTo(map);
         marker.bindPopup(createPopup(location, index));
+
+        marker.on('dragend', () => {
+          const position = marker.getLatLng();
+          location.lat = Math.round(position.lat * 1e6) / 1e6;
+          location.lng = Math.round(position.lng * 1e6) / 1e6;
+          rememberScannedLocation(location);
+          saveToStorage();
+          marker.setPopupContent(createPopup(location, allLocations.indexOf(location)));
+          render();
+          setStatus('editMoved', { company: location.company || t('locationFallback') });
+        });
+
+        if (editMode) marker.dragging.enable();
+
         markers.push({ marker, location });
       });
 
@@ -2862,6 +2891,17 @@
     });
 
     // Map controls
+
+    function setEditMode(on) {
+      editMode = on;
+      editButton.classList.toggle('active', on);
+      markers.forEach(item => {
+        if (on) item.marker.dragging.enable();
+        else item.marker.dragging.disable();
+      });
+    }
+
+    editButton.addEventListener('click', () => setEditMode(!editMode));
 
     document.getElementById('btnFit').addEventListener('click', () => {
       updateMap(true);
