@@ -79,35 +79,12 @@
       min-height: 64px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 12px;
       padding: 0 14px 0 18px;
       background: var(--panel);
       border-bottom: 1px solid var(--border);
       -webkit-app-region: drag;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      min-width: 160px;
-    }
-
-    .brand-icon {
-      width: 40px;
-      height: 40px;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: #30365d;
-      font-size: 23px;
-    }
-
-    .brand-name {
-      font-size: 21px;
-      font-weight: 850;
-      letter-spacing: .2px;
     }
 
     .topbar-actions {
@@ -239,11 +216,11 @@
 
     .reset-tools summary {
       list-style: none;
-      padding: 7px 9px;
+      padding: 6px 9px;
       border: 1px solid transparent;
       border-radius: 7px;
       color: #7f899c;
-      font-size: 11px;
+      font-size: 17px;
       font-weight: 750;
       cursor: pointer;
       white-space: nowrap;
@@ -1058,10 +1035,6 @@
         padding: 0 8px;
       }
 
-      .brand-name {
-        font-size: 18px;
-      }
-
       .settings-label {
         display: none;
       }
@@ -1084,20 +1057,6 @@
       .topbar {
         height: 58px;
         min-height: 58px;
-      }
-
-      .brand {
-        min-width: 0;
-      }
-
-      .brand-icon {
-        width: 34px;
-        height: 34px;
-        font-size: 19px;
-      }
-
-      .brand-name {
-        font-size: 16px;
       }
 
       .topbar-actions .btn {
@@ -1140,8 +1099,8 @@
       }
 
       .reset-tools summary {
-        font-size: 9px;
-        padding: 6px;
+        font-size: 14px;
+        padding: 5px 8px;
       }
     }
   </style>
@@ -1150,21 +1109,12 @@
 <body>
 
   <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">📍</div>
-      <div class="brand-name">Geolocation</div>
-    </div>
-
     <div class="topbar-actions">
       <button class="btn primary" id="btnLoad" data-i18n="btnImport">import</button>
       <button class="btn danger" id="btnClear" data-i18n="btnClearAll">clear</button>
 
       <div class="action-separator"></div>
 
-      <div class="lang-switch" id="langSwitch" data-i18n-title="langSwitchTitle">
-        <button type="button" class="lang-option" data-lang="ro">ro</button>
-        <button type="button" class="lang-option" data-lang="en">en</button>
-      </div>
       <div class="settings" data-i18n-title="settingsTitle" title="Show or hide the Google Maps geocoding window">
         <span class="settings-label" data-i18n="settingsLabel">Google Maps window</span>
         <label class="switch">
@@ -1174,13 +1124,17 @@
       </div>
 
       <details class="reset-tools" id="toolsMenu">
-        <summary data-i18n="toolsMenu">TOOLS</summary>
+        <summary data-i18n-title="toolsMenu" title="TOOLS">⚙</summary>
         <div class="reset-content">
           <button class="btn danger" id="btnResetGoogle" data-i18n="btnResetGoogle">↻ RESET GOOGLE SESSION</button>
           <button class="btn" id="btnExportGps" data-i18n="btnExportGps">⭳ EXPORT GPS</button>
           <button class="btn" id="btnImportGps" data-i18n="btnImportGps">⭱ IMPORT GPS</button>
           <button class="btn danger" id="btnClearGps" data-i18n="btnClearGps">✕ CLEAR GPS DATA</button>
           <span class="cache-count" id="cacheCount" data-i18n="cacheCountInitial">0 addresses in scanner cache</span>
+          <div class="lang-switch" id="langSwitch" data-i18n-title="langSwitchTitle">
+            <button type="button" class="lang-option" data-lang="ro">ro</button>
+            <button type="button" class="lang-option" data-lang="en">en</button>
+          </div>
           <input type="file" id="gpsCacheInput" accept=".json,application/json" style="display:none">
         </div>
       </details>
