@@ -1049,16 +1049,16 @@
 
   <header class="topbar">
     <div class="topbar-actions">
+      <button class="btn icon" id="btnAdd" data-i18n-title="btnAddTitle" title="Add point">➕</button>
       <button class="btn primary" id="btnLoad" data-i18n="btnImport">import</button>
       <button class="btn" id="btnExportExcel" data-i18n="btnExportExcel" data-i18n-title="btnExportExcelTitle" title="Export points with detected coordinates">export</button>
       <button class="btn danger" id="btnClear" data-i18n="btnClearAll">clear</button>
-      <button class="btn icon" id="btnAdd" data-i18n-title="btnAddTitle" title="Add point">➕</button>
 
       <details class="reset-tools" id="toolsMenu">
         <summary data-i18n-title="toolsMenu" title="TOOLS">⚙</summary>
         <div class="reset-content">
-          <button class="btn" id="btnExportGps" data-i18n="btnExportGps">⭳ EXPORT GPS</button>
-          <button class="btn" id="btnImportGps" data-i18n="btnImportGps">⭱ IMPORT GPS</button>
+          <button class="btn" id="btnExportGps" data-i18n="btnExportGps">⭳ EXPORT DATE GPS</button>
+          <button class="btn" id="btnImportGps" data-i18n="btnImportGps">⭱ IMPORTĂ DATE GPS</button>
           <button class="btn danger" id="btnClearGps" data-i18n="btnClearGps">✕ CLEAR GPS DATA</button>
           <span class="cache-count" id="cacheCount" data-i18n="cacheCountInitial">0 adrese în cacheul scanerului</span>
           <div class="lang-switch" id="langSwitch" data-i18n-title="langSwitchTitle">
@@ -1215,8 +1215,8 @@
         exportExcelDone: 'Excel exportat: {n} puncte ({m} fără coordonate)',
         toolsMenu: 'INSTRUMENTE',
         btnResetGoogle: '↻ RESETARE GOOGLE',
-        btnExportGps: '⭳ EXPORT GPS',
-        btnImportGps: '⭱ IMPORT GPS',
+        btnExportGps: '⭳ EXPORT DATE GPS',
+        btnImportGps: '⭱ IMPORTĂ DATE GPS',
         btnClearGps: '✕ ȘTERGE DATE GPS',
         cacheCountInitial: '0 adrese în cacheul scanerului',
         settingsLabel: 'Fereastră Google Maps',
@@ -1355,8 +1355,8 @@
         exportExcelDone: 'Excel exported: {n} points ({m} without coordinates)',
         toolsMenu: 'TOOLS',
         btnResetGoogle: '↻ RESET GOOGLE SESSION',
-        btnExportGps: '⭳ EXPORT GPS',
-        btnImportGps: '⭱ IMPORT GPS',
+        btnExportGps: '⭳ EXPORT GPS DATA',
+        btnImportGps: '⭱ IMPORT GPS DATA',
         btnClearGps: '✕ CLEAR GPS DATA',
         cacheCountInitial: '0 addresses in scanner cache',
         settingsLabel: 'Google Maps window',
@@ -1512,7 +1512,7 @@
         el.title = t(el.dataset.i18nTitle);
       });
 
-      document.querySelectorAll('.lang-option').forEach(button => {
+      document.querySelectorAll('#langSwitch .lang-option').forEach(button => {
         button.classList.toggle('active', button.dataset.lang === currentLang);
       });
 
